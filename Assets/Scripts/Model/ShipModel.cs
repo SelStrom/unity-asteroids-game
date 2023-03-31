@@ -4,10 +4,13 @@ using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    
-    
     public class ShipModel : IGameEntity
     {
+        private const float UnitsPerSecond = 6.0f;
+        private const float MaxSpeed = 15.0f;
+        private const float MinSpeed = 0.0f;
+        private const int DegreePerSecond = 90;
+        
         public float RotationDirection { get; set; }
 
         public MoveComponent Move = new();
@@ -25,14 +28,20 @@ namespace SelStrom.Asteroids
         {
             if (RotationDirection != 0)
             {
-                const int degreePerSecond = 90;
-                Rotation.Value = Quaternion.Euler(0, 0, degreePerSecond * deltaTime * RotationDirection) * Rotation.Value;
+                Rotation.Value = Quaternion.Euler(0, 0, DegreePerSecond * deltaTime * RotationDirection) * Rotation.Value;
             }
 
             if (Thrust.Value)
             {
-                const float unitsPerSecond = 6.0f;
-                Move.Speed += Rotation.Value * (unitsPerSecond * deltaTime);
+                var acceleration = UnitsPerSecond * deltaTime;
+                var velocity = Move.Direction * Move.Speed + Rotation.Value * acceleration;
+                
+                Move.Direction = velocity.normalized;
+                Move.Speed = Math.Min(velocity.magnitude, MaxSpeed);
+            }
+            else
+            {
+                Move.Speed = Math.Max(Move.Speed - UnitsPerSecond / 2 * deltaTime, MinSpeed);
             }
 
             Move.Update(deltaTime);

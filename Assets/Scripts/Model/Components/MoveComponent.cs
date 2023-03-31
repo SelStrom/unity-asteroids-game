@@ -8,8 +8,9 @@ namespace Model.Components
     {
         private SelStrom.Asteroids.Model _model;
 
-        public ObservableValue<Vector2> Position = new();
-        public Vector2 Speed { get; set; }
+        public readonly ObservableValue<Vector2> Position = new();
+        public float Speed { get; set; }
+        public Vector2 Direction { get; set; }
         
         public void Connect(SelStrom.Asteroids.Model model)
         {
@@ -19,7 +20,7 @@ namespace Model.Components
         public void Update(float deltaTime)
         {
             var oldPosition = Position.Value;
-            var position = oldPosition + Speed * deltaTime;
+            var position = oldPosition + Direction * (Speed * deltaTime);
             PlaceWithinGameArea(ref position.x, _model.GameArea.x);
             PlaceWithinGameArea(ref position.y, _model.GameArea.y);
             Position.Value = position;

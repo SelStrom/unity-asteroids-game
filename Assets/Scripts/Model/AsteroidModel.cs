@@ -3,15 +3,15 @@ using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    public class BulletModel : IGameEntity
+    public class AsteroidModel : IGameEntity
     {
         public MoveComponent Move = new();
         private bool _isDead;
-        private float _lifeTime;
+        public int Age { get; private set; }
 
-        public BulletModel(int lifeTimeSeconds, Vector2 position, Vector2 direction, float speed)
+        public AsteroidModel(int age, Vector2 position, Vector2 direction, float speed)
         {
-            _lifeTime = lifeTimeSeconds;
+            Age = age;
             Move.Position.Value = position;
             Move.Direction = direction;
             Move.Speed = speed;
@@ -27,12 +27,6 @@ namespace SelStrom.Asteroids
         public void Update(float deltaTime)
         {
             Move.Update(deltaTime);
-
-            _lifeTime -= deltaTime;
-            if (_lifeTime <= 0)
-            {
-                _isDead = true;
-            }
         }
     }
 }
