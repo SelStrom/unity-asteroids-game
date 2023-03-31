@@ -1,42 +1,35 @@
-﻿using System;
-using UnityEngine;
-using UnityEngine.Assertions;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
-using Vector2 = System.Numerics.Vector2;
 
 namespace SelStrom.Asteroids
 {
     public class InputHelper : MonoBehaviour
     {
-        [SerializeField] public GameController GameController;
-        private ShipModel _shipModel;
+        private GameController _gameController;
+
+        public void Connect(GameController gameController)
+        {
+            _gameController = gameController;
+        }
         
         private void OnAttack()
         {
-            GameController.Shoot(_shipModel.Move.Position, _shipModel.Rotation);
+            _gameController.ShipShoot();
         }
 
         private void OnRotate(InputValue inputValue)
         {
-            _shipModel.RotationDirection = inputValue.Get<float>();
-            // Debug.Log($"do OnRotate input: {_rotationDirection}");
+            _gameController.ShipRotate(inputValue.Get<float>());
         }
 
         private void OnAccelerate(InputValue inputValue)
         {
-            _shipModel.IsAccelerated = inputValue.isPressed;
-            // Debug.Log($"do OnAccelerate {inputValue.isPressed}");
+            _gameController.ShipThrust(inputValue.isPressed);
         }
 
         private void OnLaser()
         {
             Debug.Log("do OnLaser");
-        }
-
-        public void Connect(ShipModel shipModel)
-        {
-            _shipModel = shipModel;
-            // _spaceshipModel.Direction = new Vector2(1, 0);
         }
     }
 }

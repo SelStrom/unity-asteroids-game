@@ -4,32 +4,18 @@ using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
+    
+    
     public class ShipModel : IGameEntity
     {
-        public event Action OnRotationChanged;
-
         public float RotationDirection { get; set; }
-        public bool IsAccelerated { get; set; }
-        public MoveComponent Move = new();
-        
-        private Vector2 _rotation = Vector2.right;
-        public Vector2 Rotation
-        {
-            get => _rotation;
-            private set
-            {
-                if (_rotation == value)
-                {
-                    return;
-                }
 
-                _rotation = value;
-                OnRotationChanged?.Invoke();
-            }
-        }
+        public MoveComponent Move = new();
+        public readonly ObservableValue<bool> Thrust = new();
+        public readonly ObservableValue<Vector2> Rotation = new(Vector2.right);
 
         public bool IsDead() => false;
-        
+
         public void Connect(Model model)
         {
             Move.Connect(model);
@@ -39,14 +25,14 @@ namespace SelStrom.Asteroids
         {
             if (RotationDirection != 0)
             {
-                const int angleVelocity = 90;
-                Rotation = Quaternion.Euler(0,0,angleVelocity * deltaTime * RotationDirection) * Rotation;
+                const int degreePerSecond = 90;
+                Rotation.Value = Quaternion.Euler(0, 0, degreePerSecond * deltaTime * RotationDirection) * Rotation.Value;
             }
 
-            if (IsAccelerated)
+            if (Thrust.Value)
             {
-                const float acceleration = 6.0f;
-                Move.Speed += Rotation * (acceleration * deltaTime);
+                const float unitsPerSecond = 6.0f;
+                Move.Speed += Rotation.Value * (unitsPerSecond * deltaTime);
             }
 
             Move.Update(deltaTime);

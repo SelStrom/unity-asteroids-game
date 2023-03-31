@@ -3,34 +3,6 @@ using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    public abstract class BaseView : MonoBehaviour
-    {
-        protected virtual void OnConnected() {}
-        protected virtual void OnDisposed() {}
-
-        public void Dispose()
-        {
-            OnDisposed();
-        }
-    }
-    
-    public class BaseView<TData> : BaseView where TData : IGameEntity
-    {
-        public TData Data { get; private set; }
-
-        public void Connect(TData data)
-        {
-            Data = data;
-            OnConnected();
-        }
-
-        protected override void OnDisposed()
-        {
-            base.OnDisposed();
-            Data = default(TData);
-        }
-    }
-    
     public class CollisionObserver : BaseView<ShipModel>
     {
         /*

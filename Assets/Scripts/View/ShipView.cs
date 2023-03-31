@@ -10,16 +10,16 @@ namespace SelStrom.Asteroids
         {
             base.OnConnected();
             
-            Data.Move.OnPositionChanged += OnPositionChanged;
-            Data.OnRotationChanged += OnRotationChanged;
+            Data.Move.Position.OnChanged += OnPositionChanged;
+            Data.Rotation.OnChanged += OnRotationChanged;
             
-            OnPositionChanged();
-            OnRotationChanged();
+            OnPositionChanged(Data.Move.Position.Value);
+            OnRotationChanged(Data.Rotation.Value);
         }
 
-        public void OnRotationChanged()
+        private void OnRotationChanged(Vector2 direction)
         {
-            var angle = Mathf.Atan2(Data.Rotation.y, Data.Rotation.x) * Mathf.Rad2Deg;
+            var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             _transform.rotation = Quaternion.Euler(new Vector3(0,0, angle));
             
             // _transform.rotation = Quaternion.LookRotation( Vector3.forward, new Vector3(Data.Direction.y, Data.Direction.x)); #1
@@ -28,18 +28,18 @@ namespace SelStrom.Asteroids
             // transform.rotation = Quaternion.Euler(0,0, rotation.eulerAngles.z + 90);
         }
 
-        public void OnPositionChanged()
+        private void OnPositionChanged(Vector2 pos)
         {
             var position = _transform.position;
-            position.x = Data.Move.Position.x;
-            position.y = Data.Move.Position.y;
+            position.x = pos.x;
+            position.y = pos.y;
             _transform.position = position;
         }
 
         protected override void OnDisposed()
         {
-            Data.Move.OnPositionChanged -= OnPositionChanged;
-            Data.OnRotationChanged -= OnRotationChanged;
+            Data.Move.Position.OnChanged -= OnPositionChanged;
+            Data.Rotation.OnChanged -= OnRotationChanged;
             
             base.OnDisposed();
         }

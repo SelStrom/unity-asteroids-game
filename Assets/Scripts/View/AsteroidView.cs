@@ -1,14 +1,22 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace SelStrom.Asteroids
 {
-    public class BulletView : BaseView<BulletModel>
+    public class AsteroidView : BaseView<AsteroidModel>
     {
         [SerializeField] private Transform _transform = default;
-
+        [SerializeField] private SpriteRenderer _spriteRenderer = default;
+        [SerializeField] private List<Sprite> _spriteVariants = default;
+        
         protected override void OnConnected()
         {
             base.OnConnected();
+
+            _spriteRenderer.sprite = _spriteVariants[Random.Range(0, _spriteVariants.Count)];
+            
             Data.Move.Position.OnChanged += OnPositionChanged;
             OnPositionChanged(Data.Move.Position.Value);
         }

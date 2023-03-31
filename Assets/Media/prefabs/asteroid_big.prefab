@@ -9,12 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6202588564529861998}
+  - component: {fileID: -3054553279128278710}
   - component: {fileID: 8615743796632605810}
   - component: {fileID: 5496222376637769058}
   - component: {fileID: 5587233436445767138}
-  - component: {fileID: 1559369702285279949}
   m_Layer: 0
-  m_Name: bullet
+  m_Name: asteroid_big
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35,6 +35,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-3054553279128278710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6655467841412858905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94116fa4dbe14d54876156a1a7eb2e61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _transform: {fileID: 6202588564529861998}
+  _spriteRenderer: {fileID: 8615743796632605810}
+  _spriteVariants:
+  - {fileID: -1885774890, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}
+  - {fileID: 844909531, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}
+  - {fileID: -633133451, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}
 --- !u!212 &8615743796632605810
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -76,7 +94,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -21355923, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}
+  m_Sprite: {fileID: -1885774890, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -123,17 +141,4 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.2
---- !u!114 &1559369702285279949
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6655467841412858905}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa1aa04866a5f26488aed44b690cc3a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _transform: {fileID: 6202588564529861998}
+  m_Radius: 2
