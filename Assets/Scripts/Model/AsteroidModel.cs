@@ -1,5 +1,6 @@
 using System;
 using Model.Components;
+using SelStrom.Asteroids.Configs;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
@@ -10,10 +11,12 @@ namespace SelStrom.Asteroids
         
         public MoveComponent Move = new();
         private bool _isDead;
+        public AsteroidData Data { get; private set; }
         public int Age { get; private set; }
 
-        public void SetData(int age, Vector2 position, Vector2 direction, float speed)
+        public void SetData(AsteroidData data, int age, Vector2 position, Vector2 direction, float speed)
         {
+            Data = data;
             Age = age;
             Move.Position.Value = position;
             Move.Direction = direction;

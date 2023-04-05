@@ -1,8 +1,9 @@
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    public abstract class BaseView : MonoBehaviour
+    public abstract class BaseVisual : MonoBehaviour
     {
         protected virtual void OnConnected()
         {
@@ -20,8 +21,9 @@ namespace SelStrom.Asteroids
         }
     }
 
-    public class BaseView<TData> : BaseView
+    public class BaseVisual<TData> : BaseVisual
     {
+        [PublicAPI]
         public TData Data { get; private set; }
 
         public void Connect(TData data)

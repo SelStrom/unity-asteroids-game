@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6202588564529861998}
   - component: {fileID: -3054553279128278710}
+  - component: {fileID: -149399779906229372}
   - component: {fileID: 8615743796632605810}
   - component: {fileID: 5496222376637769058}
   - component: {fileID: 5587233436445767138}
@@ -47,12 +48,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94116fa4dbe14d54876156a1a7eb2e61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _transform: {fileID: 6202588564529861998}
+  _movable: {fileID: -149399779906229372}
   _spriteRenderer: {fileID: 8615743796632605810}
-  _spriteVariants:
-  - {fileID: -1885774890, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}
-  - {fileID: 844909531, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}
-  - {fileID: -633133451, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}
+--- !u!114 &-149399779906229372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6655467841412858905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47d8ea49f78f41e5b14074a4bcfed403, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _transform: {fileID: 6202588564529861998}
 --- !u!212 &8615743796632605810
 SpriteRenderer:
   m_ObjectHideFlags: 0

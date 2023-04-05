@@ -10,12 +10,12 @@ namespace SelStrom.Asteroids
         private bool _isDead;
         private float _lifeTime;
 
-        public void SetData(GameData.BulletData data, Vector2 position, Vector2 direction)
+        public void SetData(GameData.BulletData data, Vector2 position, Vector2 direction, float speed)
         {
             _lifeTime = data.LifeTimeSeconds;
             Move.Position.Value = position;
             Move.Direction = direction;
-            Move.Speed = data.Speed;
+            Move.Speed = speed;
         }
 
         public bool IsDead() => _isDead;

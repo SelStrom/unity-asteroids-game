@@ -9,11 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6148587323414874156}
+  - component: {fileID: 6148587323414874160}
   - component: {fileID: 6148587323414874154}
+  - component: {fileID: 1328748130444058322}
+  - component: {fileID: 9074041051751384813}
   - component: {fileID: 6148587323414874158}
   - component: {fileID: 6148587323414874157}
-  - component: {fileID: 6148587323414874159}
-  - component: {fileID: 6148587323414874160}
   m_Layer: 7
   m_Name: ship
   m_TagString: Untagged
@@ -36,6 +37,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6148587323414874160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6148587323414874153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df4996ff456d4ad6a9767bee0f04c679, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _movable: {fileID: 1328748130444058322}
+  _rotatable: {fileID: 9074041051751384813}
 --- !u!212 &6148587323414874154
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -88,6 +103,32 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1328748130444058322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6148587323414874153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47d8ea49f78f41e5b14074a4bcfed403, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _transform: {fileID: 6148587323414874156}
+--- !u!114 &9074041051751384813
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6148587323414874153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5ce574c02f24b60a7d5ea4414d5fd94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _transform: {fileID: 6148587323414874156}
 --- !u!50 &6148587323414874158
 Rigidbody2D:
   serializedVersion: 4
@@ -137,28 +178,3 @@ PolygonCollider2D:
     - - {x: 1, y: 0}
       - {x: -0.5, y: 0.5}
       - {x: -0.5, y: -0.5}
---- !u!114 &6148587323414874159
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6148587323414874153}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d6ef34e241e4b6ebade19d536298482, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &6148587323414874160
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6148587323414874153}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df4996ff456d4ad6a9767bee0f04c679, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _transform: {fileID: 6148587323414874156}

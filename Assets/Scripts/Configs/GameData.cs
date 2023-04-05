@@ -9,22 +9,23 @@ namespace SelStrom.Asteroids.Configs
         [Serializable]
         public struct BulletData
         {
+            public GameObject Prefab;
             public int LifeTimeSeconds;
             public float Speed;
         }
 
+        public int AsteroidInitialCount;
+        public int AsteroidSpawnAllowedRadius;
+
+        [Space]
         public GameObject ShipPrefab = default;
-        public GameObject BulletPrefab = default;
-
-        public GameObject AsteroidBigPrefab = default;
-        public GameObject AsteroidMediumPrefab = default;
-        public GameObject AsteroidSmallPrefab = default;
-
         public GameObject UfoMediumPrefab = default;
         public GameObject UfoSmallPrefab = default;
-
+        [Space]
+        public AsteroidData AsteroidBig;
+        public AsteroidData AsteroidMedium;
+        public AsteroidData AsteroidSmall;
+        [Space]
         public BulletData Bullet;
-
-        public int AsteroidSpawnAllowedRadius;
     }
 }

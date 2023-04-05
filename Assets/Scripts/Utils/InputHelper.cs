@@ -1,35 +1,39 @@
-﻿using UnityEngine;
+﻿using System;
+using JetBrains.Annotations;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace SelStrom.Asteroids
 {
     public class InputHelper : MonoBehaviour
     {
-        private GameController _gameController;
+        public event Action OnAttackAction;
+        public event Action<InputValue> OnRotateAction;
+        public event Action<InputValue> OnTrustAction;
+        public event Action OnLaserAction;
 
-        public void Connect(GameController gameController)
-        {
-            _gameController = gameController;
-        }
-        
+        [PublicAPI]
         private void OnAttack()
         {
-            _gameController.ShipShoot();
+            OnAttackAction?.Invoke();
         }
 
+        [PublicAPI]
         private void OnRotate(InputValue inputValue)
         {
-            _gameController.ShipRotate(inputValue.Get<float>());
+            OnRotateAction?.Invoke(inputValue);
         }
 
+        [PublicAPI]
         private void OnAccelerate(InputValue inputValue)
         {
-            _gameController.ShipThrust(inputValue.isPressed);
+            OnTrustAction?.Invoke(inputValue);
         }
 
+        [PublicAPI]
         private void OnLaser()
         {
-            Debug.Log("do OnLaser");
+            OnLaserAction?.Invoke();
         }
     }
 }

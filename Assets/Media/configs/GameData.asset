@@ -12,14 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b099c232eb40447480622b7fb25dd1f4, type: 3}
   m_Name: GameData
   m_EditorClassIdentifier: 
+  AsteroidInitialCount: 10
   ShipPrefab: {fileID: 6148587323414874153, guid: 8b56a71807aefd442a40819e7f16e6cd, type: 3}
-  BulletPrefab: {fileID: 6655467841412858905, guid: 4705a68cfb313dd4582f589570e2caa3, type: 3}
-  AsteroidBigPrefab: {fileID: 6655467841412858905, guid: f9810379bf0303049b8a0acfa604ba73, type: 3}
-  AsteroidMediumPrefab: {fileID: 7831782492789396596, guid: a4a593cfe97e42e4aac25e66755c81dd, type: 3}
-  AsteroidSmallPrefab: {fileID: 6690077261765115636, guid: 57e6831d2b589dd419db94721f0db24b, type: 3}
   UfoMediumPrefab: {fileID: 0}
   UfoSmallPrefab: {fileID: 0}
+  AsteroidSpawnAllowedRadius: 20
+  AsteroidBig: {fileID: 11400000, guid: 963baecab77e1fa44ac4cebdffd1d0ad, type: 2}
+  AsteroidMedium: {fileID: 11400000, guid: 9624f51035836e049a9fb28b4ae21293, type: 2}
+  AsteroidSmall: {fileID: 11400000, guid: 73acfa71f5691424498e9f401bd3759d, type: 2}
   Bullet:
+    Prefab: {fileID: 6655467841412858905, guid: 4705a68cfb313dd4582f589570e2caa3, type: 3}
     LifeTimeSeconds: 2
     Speed: 20
-  AsteroidSpawnAllowedRadius: 10
