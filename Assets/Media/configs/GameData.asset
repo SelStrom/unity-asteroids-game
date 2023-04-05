@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: GameData
   m_EditorClassIdentifier: 
   AsteroidInitialCount: 10
+  AsteroidSpawnAllowedRadius: 20
+  SpawnNewEnemyDurationSec: 5
   ShipPrefab: {fileID: 6148587323414874153, guid: 8b56a71807aefd442a40819e7f16e6cd, type: 3}
   UfoMediumPrefab: {fileID: 0}
   UfoSmallPrefab: {fileID: 0}
-  AsteroidSpawnAllowedRadius: 20
   AsteroidBig: {fileID: 11400000, guid: 963baecab77e1fa44ac4cebdffd1d0ad, type: 2}
   AsteroidMedium: {fileID: 11400000, guid: 9624f51035836e049a9fb28b4ae21293, type: 2}
   AsteroidSmall: {fileID: 11400000, guid: 73acfa71f5691424498e9f401bd3759d, type: 2}

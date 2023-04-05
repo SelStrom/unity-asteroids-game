@@ -49,6 +49,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _movable: {fileID: 8683351920280095526}
+  _collider: {fileID: 5587233436445767138}
 --- !u!114 &8683351920280095526
 MonoBehaviour:
   m_ObjectHideFlags: 0

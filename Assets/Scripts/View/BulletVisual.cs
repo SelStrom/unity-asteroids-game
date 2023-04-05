@@ -12,9 +12,11 @@ namespace SelStrom.Asteroids
     public class BulletVisual : BaseVisual<BulletVisualData>
     {
         [SerializeField] private Movable _movable = default;
+        [SerializeField] private Collider2D _collider = default;
 
         protected override void OnConnected()
         {
+            _collider.enabled = true;
             _movable.Connect(Data.BulletModel.Move.Position);
         }
 
