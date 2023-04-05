@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    public class ShipView : BaseView<ShipModel>
+    public class ShipView : BaseView<(ShipModel ShipModel, GameController GameController)>
     {
         [SerializeField] private Transform _transform = default;
         
@@ -10,11 +11,11 @@ namespace SelStrom.Asteroids
         {
             base.OnConnected();
             
-            Data.Move.Position.OnChanged += OnPositionChanged;
-            Data.Rotation.OnChanged += OnRotationChanged;
+            Data.ShipModel.Move.Position.OnChanged += OnPositionChanged;
+            Data.ShipModel.Rotation.OnChanged += OnRotationChanged;
             
-            OnPositionChanged(Data.Move.Position.Value);
-            OnRotationChanged(Data.Rotation.Value);
+            OnPositionChanged(Data.ShipModel.Move.Position.Value);
+            OnRotationChanged(Data.ShipModel.Rotation.Value);
         }
 
         private void OnRotationChanged(Vector2 direction)
@@ -38,10 +39,15 @@ namespace SelStrom.Asteroids
 
         protected override void OnDisposed()
         {
-            Data.Move.Position.OnChanged -= OnPositionChanged;
-            Data.Rotation.OnChanged -= OnRotationChanged;
+            Data.ShipModel.Move.Position.OnChanged -= OnPositionChanged;
+            Data.ShipModel.Rotation.OnChanged -= OnRotationChanged;
             
             base.OnDisposed();
+        }
+
+        private void OnCollisionEnter2D(Collision2D col)
+        {
+            Data.GameController.Kill(Data.ShipModel);
         }
     }
 }

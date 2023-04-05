@@ -1,9 +1,12 @@
+using System;
+
 namespace SelStrom.Asteroids
 {
-    public interface IGameEntity
+    public interface IGameEntityModel
     {
         void Update(float deltaTime);
         void Connect(Model model);
         bool IsDead();
+        void Kill();
     }
 }

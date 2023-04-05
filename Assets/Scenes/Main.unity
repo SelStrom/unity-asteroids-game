@@ -577,17 +577,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1bff8731c474adba1223c554c9cc6b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _shipPrefab: {fileID: 6148587323414874153, guid: 8b56a71807aefd442a40819e7f16e6cd, type: 3}
-  _bulletPrefab: {fileID: 6655467841412858905, guid: 4705a68cfb313dd4582f589570e2caa3, type: 3}
-  _asteroidBigPrefab: {fileID: 0}
-  _asteroidMediumPrefab: {fileID: 0}
-  _asteroidSmallPrefab: {fileID: 0}
-  _ufoMediumPrefab: {fileID: 0}
-  _ufoSmallPrefab: {fileID: 0}
+  _configs: {fileID: 11400000, guid: 700dd9fc01b368041be4f0f2ef8c5429, type: 2}
   _poolContainer: {fileID: 1784840781}
   _gameContainer: {fileID: 1328372473}
   _inputHelper: {fileID: 245308936}
-  ShipView: {fileID: 6148587323414874160, guid: 8b56a71807aefd442a40819e7f16e6cd, type: 3}
 --- !u!4 &1328372473
 Transform:
   m_ObjectHideFlags: 0

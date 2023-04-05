@@ -7,21 +7,29 @@ namespace SelStrom.Asteroids
 {
     public class Model
     {
-        public event Action<IGameEntity> OnEntityDead;
+        public event Action<IGameEntityModel> OnEntityDestroyed;
+
+        public HashSet<IGameEntityModel> Entities => _entities;
+        private readonly HashSet<IGameEntityModel> _entities = new();
         
-        public List<IGameEntity> Entities => _entities;
-        private readonly List<IGameEntity> _entities = new();
+        private readonly HashSet<IGameEntityModel> _newEntities = new();
 
         public Vector2 GameArea;
 
-        public void AddEntity(IGameEntity entity)
+        public void AddEntity(IGameEntityModel entityModel)
         {
-            entity.Connect(this);
-            _entities.Add(entity);
+            entityModel.Connect(this);
+            _newEntities.Add(entityModel);
         }
 
         public void Update(float delta)
         {
+            if (_newEntities.Any())
+            {
+                _entities.UnionWith(_newEntities);
+                _newEntities.Clear();
+            }
+            
             foreach (var entity in _entities)
             {
                 entity.Update(delta);
@@ -29,9 +37,11 @@ namespace SelStrom.Asteroids
 
             foreach (var entity in _entities.Where(x=>x.IsDead()))
             {
-                OnEntityDead?.Invoke(entity);
+                OnEntityDestroyed?.Invoke(entity);
             }
-            _entities.RemoveAll(x => x.IsDead());
+            
+            _entities.RemoveWhere(x => x.IsDead());
         }
+
     }
 }

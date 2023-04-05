@@ -20,7 +20,7 @@ namespace SelStrom.Asteroids
         }
     }
 
-    public class BaseView<TData> : BaseView where TData : IGameEntity
+    public class BaseView<TData> : BaseView
     {
         public TData Data { get; private set; }
 

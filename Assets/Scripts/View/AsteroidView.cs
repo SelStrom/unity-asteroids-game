@@ -10,7 +10,7 @@ namespace SelStrom.Asteroids
         [SerializeField] private Transform _transform = default;
         [SerializeField] private SpriteRenderer _spriteRenderer = default;
         [SerializeField] private List<Sprite> _spriteVariants = default;
-        
+
         protected override void OnConnected()
         {
             base.OnConnected();

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b099c232eb40447480622b7fb25dd1f4, type: 3}
+  m_Name: GameData
+  m_EditorClassIdentifier: 
+  ShipPrefab: {fileID: 6148587323414874153, guid: 8b56a71807aefd442a40819e7f16e6cd, type: 3}
+  BulletPrefab: {fileID: 6655467841412858905, guid: 4705a68cfb313dd4582f589570e2caa3, type: 3}
+  AsteroidBigPrefab: {fileID: 6655467841412858905, guid: f9810379bf0303049b8a0acfa604ba73, type: 3}
+  AsteroidMediumPrefab: {fileID: 7831782492789396596, guid: a4a593cfe97e42e4aac25e66755c81dd, type: 3}
+  AsteroidSmallPrefab: {fileID: 6690077261765115636, guid: 57e6831d2b589dd419db94721f0db24b, type: 3}
+  UfoMediumPrefab: {fileID: 0}
+  UfoSmallPrefab: {fileID: 0}
+  Bullet:
+    LifeTimeSeconds: 2
+    Speed: 20
+  AsteroidSpawnAllowedRadius: 10

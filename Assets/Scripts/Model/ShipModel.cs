@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    public class ShipModel : IGameEntity
+    public class ShipModel : IGameEntityModel
     {
         private const float UnitsPerSecond = 6.0f;
         private const float MaxSpeed = 15.0f;
@@ -14,10 +14,15 @@ namespace SelStrom.Asteroids
         public float RotationDirection { get; set; }
 
         public MoveComponent Move = new();
-        public readonly ObservableValue<bool> Thrust = new();
-        public readonly ObservableValue<Vector2> Rotation = new(Vector2.right);
-
-        public bool IsDead() => false;
+        public readonly ObservableField<bool> Thrust = new();
+        public readonly ObservableField<Vector2> Rotation = new(Vector2.right);
+        
+        private bool _isDead;
+        public bool IsDead() => _isDead;
+        public void Kill()
+        {
+            _isDead = true;            
+        }
 
         public void Connect(Model model)
         {

@@ -1,16 +1,17 @@
+using System;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    public class BulletView : BaseView<BulletModel>
+    public class BulletView : BaseView<(BulletModel BulletModel, GameController GameController)>
     {
         [SerializeField] private Transform _transform = default;
 
         protected override void OnConnected()
         {
             base.OnConnected();
-            Data.Move.Position.OnChanged += OnPositionChanged;
-            OnPositionChanged(Data.Move.Position.Value);
+            Data.BulletModel.Move.Position.OnChanged += OnPositionChanged;
+            OnPositionChanged(Data.BulletModel.Move.Position.Value);
         }
 
         private void OnPositionChanged(Vector2 pos)
@@ -23,8 +24,14 @@ namespace SelStrom.Asteroids
 
         protected override void OnDisposed()
         {
-            Data.Move.Position.OnChanged -= OnPositionChanged;
+            Data.BulletModel.Move.Position.OnChanged -= OnPositionChanged;
             base.OnDisposed();
+        }
+
+        private void OnCollisionEnter2D(Collision2D col)
+        {
+            Data.GameController.KillBullet(Data.BulletModel);
+            Data.GameController.KillAsteroid(col.gameObject);
         }
     }
 }

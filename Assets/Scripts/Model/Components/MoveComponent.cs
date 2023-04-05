@@ -8,7 +8,7 @@ namespace Model.Components
     {
         private SelStrom.Asteroids.Model _model;
 
-        public readonly ObservableValue<Vector2> Position = new();
+        public readonly ObservableField<Vector2> Position = new();
         public float Speed { get; set; }
         public Vector2 Direction { get; set; }
         

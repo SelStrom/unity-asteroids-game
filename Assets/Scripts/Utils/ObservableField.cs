@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace SelStrom.Asteroids
 {
-    public class ObservableValue<T>
+    public class ObservableField<T>
     {
         private T _value;
         public event Action<T> OnChanged;
@@ -25,12 +25,12 @@ namespace SelStrom.Asteroids
             }
         }
 
-        public ObservableValue(T initial)
+        public ObservableField(T initial)
         {
             _value = initial;
         }
 
-        public ObservableValue() : this(default(T))
+        public ObservableField() : this(default(T))
         {
             //
         }

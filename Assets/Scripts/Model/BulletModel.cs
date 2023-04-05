@@ -1,20 +1,21 @@
 using Model.Components;
+using SelStrom.Asteroids.Configs;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    public class BulletModel : IGameEntity
+    public class BulletModel : IGameEntityModel
     {
         public MoveComponent Move = new();
         private bool _isDead;
         private float _lifeTime;
 
-        public BulletModel(int lifeTimeSeconds, Vector2 position, Vector2 direction, float speed)
+        public void SetData(GameData.BulletData data, Vector2 position, Vector2 direction)
         {
-            _lifeTime = lifeTimeSeconds;
+            _lifeTime = data.LifeTimeSeconds;
             Move.Position.Value = position;
             Move.Direction = direction;
-            Move.Speed = speed;
+            Move.Speed = data.Speed;
         }
 
         public bool IsDead() => _isDead;
@@ -31,8 +32,14 @@ namespace SelStrom.Asteroids
             _lifeTime -= deltaTime;
             if (_lifeTime <= 0)
             {
-                _isDead = true;
+                Kill();
             }
+        }
+
+        public void Kill()
+        {
+            _isDead = true;
+            
         }
     }
 }
