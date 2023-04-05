@@ -8,6 +8,12 @@ namespace SelStrom.Asteroids
 {
     public class Model : IGroupHolder
     {
+        private class ScheduledAction
+        {
+            public float Duration;
+            public Action Action;
+        }
+
         public event Action<IGameEntityModel> OnEntityDestroyed;
 
         private readonly HashSet<IGameEntityModel> _entities = new();
@@ -17,6 +23,10 @@ namespace SelStrom.Asteroids
         private readonly HashSet<(ThrustComponent, MoveComponent, RotateComponent)> _thrustable = new();
         
         private readonly HashSet<IGameEntityModel> _newEntities = new();
+
+        private readonly HashSet<ScheduledAction> _scheduledEntries = new();
+        private float _nextUpdateDuration = float.MaxValue;
+        private float _secondsSinceLastUpdate;
 
         public Vector2 GameArea;
 
@@ -43,8 +53,20 @@ namespace SelStrom.Asteroids
             _thrustable.Add((model.Thrust, model.Move, model.Rotate));
         }
 
+        public void ScheduleAction(Action action, int duration)
+        {
+            _nextUpdateDuration = Math.Min(_nextUpdateDuration, duration);
+            _scheduledEntries.Add(new ScheduledAction
+            {
+                Duration = duration,
+                Action = action,
+            });
+        }
+
         public void Update(float deltaTime)
         {
+            UpdateScheduledActions(deltaTime);
+            
             if (_newEntities.Any())
             {
                 _entities.UnionWith(_newEntities);
@@ -82,6 +104,36 @@ namespace SelStrom.Asteroids
             }
             
             _entities.RemoveWhere(x => x.IsDead());
+        }
+
+        private void UpdateScheduledActions(float deltaTime)
+        {
+            if (!_scheduledEntries.Any())
+            {
+                return;
+            }
+
+            _secondsSinceLastUpdate += deltaTime;
+            if (_secondsSinceLastUpdate < _nextUpdateDuration)
+            {
+                return;
+            }
+
+            foreach (var entry in _scheduledEntries.ToArray())
+            {
+                entry.Duration -= _secondsSinceLastUpdate;
+                if (entry.Duration <= 0)
+                {
+                    entry.Action?.Invoke();
+                }
+                else
+                {
+                    _nextUpdateDuration = Math.Min(_nextUpdateDuration, entry.Duration);
+                }
+            }
+
+            _scheduledEntries.RemoveWhere(x => x.Duration <= 0);
+            _secondsSinceLastUpdate = 0;
         }
 
         private static void UpdateThrust((ThrustComponent Thrust, MoveComponent Move, RotateComponent Rotate) com, float deltaTime)

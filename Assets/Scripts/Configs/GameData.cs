@@ -16,6 +16,7 @@ namespace SelStrom.Asteroids.Configs
 
         public int AsteroidInitialCount;
         public int AsteroidSpawnAllowedRadius;
+        public int SpawnNewEnemyDurationSec;
 
         [Space]
         public GameObject ShipPrefab = default;
@@ -27,5 +28,6 @@ namespace SelStrom.Asteroids.Configs
         public AsteroidData AsteroidSmall;
         [Space]
         public BulletData Bullet;
+
     }
 }

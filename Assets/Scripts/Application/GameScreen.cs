@@ -45,6 +45,17 @@ namespace SelStrom.Asteroids
             _inputHelper.OnRotateAction += OnRotateAction;
             _inputHelper.OnTrustAction += OnTrust;
             //TODO _inputHelper.OnLaserAction += ;
+
+            _model.ScheduleAction(SpawnNewEnemy, _configs.SpawnNewEnemyDurationSec);
+        }
+
+        private void SpawnNewEnemy()
+        {
+            SpawnAsteroid(_shipModel.Move.Position.Value);
+            // TODO @a.shatalov: spawn ufo
+            
+            //...
+            _model.ScheduleAction(SpawnNewEnemy, _configs.SpawnNewEnemyDurationSec);
         }
 
         private void SpawnAsteroid(Vector2 shipPosition)
@@ -124,6 +135,7 @@ namespace SelStrom.Asteroids
 
         private void OnBulletCollided(BulletModel bullet, Collision2D col)
         {
+            col.otherCollider.enabled = false;
             Kill(bullet);
             
             var asteroidModel = _gameObjectToAsteroidModel[col.gameObject];
