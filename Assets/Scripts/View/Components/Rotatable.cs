@@ -16,11 +16,6 @@ namespace SelStrom.Asteroids
         {
             var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             _transform.rotation = Quaternion.Euler(new Vector3(0,0, angle));
-            
-            // _transform.rotation = Quaternion.LookRotation( Vector3.forward, new Vector3(Data.Direction.y, Data.Direction.x)); #1
-            
-            // var rotation = Quaternion.LookRotation( Vector3.forward, Data.Direction ); //#2
-            // transform.rotation = Quaternion.Euler(0,0, rotation.eulerAngles.z + 90);
         }
 
         protected override void OnDisposed()

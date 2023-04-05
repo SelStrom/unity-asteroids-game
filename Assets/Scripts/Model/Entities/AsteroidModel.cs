@@ -7,12 +7,16 @@ namespace SelStrom.Asteroids
 {
     public class AsteroidModel : IGameEntityModel
     {
-        public event Action<AsteroidModel> OnDestroyed;
-        
-        public MoveComponent Move = new();
-        private bool _isDead;
         public AsteroidData Data { get; private set; }
+        public MoveComponent Move { get; private set; } = new();
+        
+        private bool _killed;
         public int Age { get; private set; }
+
+        public void ConnectWith(IGroupHolder groupHolder)
+        {
+            groupHolder.Group(this);
+        }
 
         public void SetData(AsteroidData data, int age, Vector2 position, Vector2 direction, float speed)
         {
@@ -23,21 +27,11 @@ namespace SelStrom.Asteroids
             Move.Speed = speed;
         }
 
-        public bool IsDead() => _isDead;
-        
-        public void Connect(Model model)
-        {
-            Move.Connect(model);
-        }
-
-        public void Update(float deltaTime)
-        {
-            Move.Update(deltaTime);
-        }
+        public bool IsDead() => _killed;
 
         public void Kill()
         {
-            _isDead = true;
+            _killed = true;
         }
     }
 }

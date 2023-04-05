@@ -19,7 +19,7 @@ namespace SelStrom.Asteroids
             base.OnConnected();
             
             _movable.Connect(Data.ShipModel.Move.Position);
-            _rotatable.Connect(Data.ShipModel.Rotation);
+            _rotatable.Connect(Data.ShipModel.Rotate.Rotation);
         }
         
         protected override void OnDisposed()

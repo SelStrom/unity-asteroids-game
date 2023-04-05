@@ -1,0 +1,7 @@
+namespace Model.Components
+{
+    public class LifeTimeComponent : IModelComponent
+    {
+        public float TimeRemaining;
+    }
+}

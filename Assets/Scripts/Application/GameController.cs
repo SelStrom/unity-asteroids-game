@@ -22,7 +22,6 @@ namespace SelStrom.Asteroids
         private void OnEnable()
         {
             Instance = this;
-            Debug.Log("On enabled");
         }
 
         private void OnDisable()

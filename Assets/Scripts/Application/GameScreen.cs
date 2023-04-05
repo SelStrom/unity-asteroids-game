@@ -173,18 +173,18 @@ namespace SelStrom.Asteroids
 
         private void OnAttack()
         {
-            var forwardOffset = _shipModel.Rotation.Value;
-            CreateBullet(_shipModel.Move.Position.Value + forwardOffset, _shipModel.Rotation.Value, OnBulletCollided);
+            var forwardOffset = _shipModel.Rotate.Rotation.Value;
+            CreateBullet(_shipModel.Move.Position.Value + forwardOffset, _shipModel.Rotate.Rotation.Value, OnBulletCollided);
         }
 
         private void OnRotateAction(InputValue inputValue)
         {
-            _shipModel.RotationDirection = inputValue.Get<float>();
+            _shipModel.Rotate.TargetDirection = inputValue.Get<float>();
         }
 
         private void OnTrust(InputValue inputValue)
         {
-            _shipModel.Thrust.Value = inputValue.isPressed;
+            _shipModel.Thrust.IsActive.Value = inputValue.isPressed;
         }
 
         #endregion
