@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AsteroidInitialCount: 10
   AsteroidSpawnAllowedRadius: 20
-  SpawnNewEnemyDurationSec: 5
+  SpawnNewEnemyDurationSec: 25
   ShipPrefab: {fileID: 6148587323414874153, guid: 8b56a71807aefd442a40819e7f16e6cd, type: 3}
   UfoMediumPrefab: {fileID: 0}
   UfoSmallPrefab: {fileID: 0}
