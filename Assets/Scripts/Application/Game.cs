@@ -8,10 +8,10 @@ using Random = UnityEngine.Random;
 
 namespace SelStrom.Asteroids
 {
-    public class GameScreen
+    public class Game
     {
         private readonly GameObjectPool _gameObjectPool;
-        private readonly InputHelper _inputHelper;
+        private readonly PlayerInputProvider _playerInput;
         private readonly Transform _gameContainer;
         private readonly GameData _configs;
         private readonly Model _model;
@@ -21,14 +21,14 @@ namespace SelStrom.Asteroids
 
         private ShipModel _shipModel;
 
-        public GameScreen(Transform gameContainer, Model model, GameData configs, GameObjectPool gameObjectPool,
-            InputHelper inputHelper)
+        public Game(Transform gameContainer, Model model, GameData configs, GameObjectPool gameObjectPool,
+            PlayerInputProvider playerInput)
         {
             _gameContainer = gameContainer;
             _model = model;
             _configs = configs;
             _gameObjectPool = gameObjectPool;
-            _inputHelper = inputHelper;
+            _playerInput = playerInput;
         }
 
         public void Start()
@@ -41,9 +41,9 @@ namespace SelStrom.Asteroids
                 SpawnAsteroid(_shipModel.Move.Position.Value);
             }
 
-            _inputHelper.OnAttackAction += OnAttack;
-            _inputHelper.OnRotateAction += OnRotateAction;
-            _inputHelper.OnTrustAction += OnTrust;
+            _playerInput.OnAttackAction += OnAttack;
+            _playerInput.OnRotateAction += OnRotateAction;
+            _playerInput.OnTrustAction += OnTrust;
             //TODO _inputHelper.OnLaserAction += ;
 
             _model.ScheduleAction(SpawnNewEnemy, _configs.SpawnNewEnemyDurationSec);

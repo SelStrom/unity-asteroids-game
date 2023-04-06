@@ -7,8 +7,9 @@ namespace SelStrom.Asteroids
 {
     public class GameObjectPool
     {
-        private readonly Dictionary<string, Stack<GameObject>> PrefabIdToGameObjects = new();
-        private readonly Dictionary<GameObject, string> GameObjectToPrefabId = new();
+        private readonly Dictionary<string, Stack<GameObject>> _prefabIdToGameObjects = new();
+        private readonly Dictionary<GameObject, string> _gameObjectToPrefabId = new();
+        
         private Transform _poolContainer;
 
         public void Connect(Transform poolContainer)
@@ -20,19 +21,19 @@ namespace SelStrom.Asteroids
         {
             GameObject gameObject;
             var prefabId = prefab.GetInstanceID().ToString();
-            if (PrefabIdToGameObjects.TryGetValue(prefabId, out var gameObjects)
+            if (_prefabIdToGameObjects.TryGetValue(prefabId, out var gameObjects)
                 && gameObjects.Count > 0)
             {
                 gameObject = gameObjects.Pop();
                 gameObject.transform.SetParent(parent, false);
-                GameObjectToPrefabId.Add(gameObject, prefabId);
+                _gameObjectToPrefabId.Add(gameObject, prefabId);
                 gameObject.SetActive(true);
             }
             else
             {
                 gameObject = Object.Instantiate(prefab, parent);
                 gameObject.name = prefab.name;
-                GameObjectToPrefabId.Add(gameObject, prefabId);
+                _gameObjectToPrefabId.Add(gameObject, prefabId);
             }
             return gameObject;
         }
@@ -44,7 +45,7 @@ namespace SelStrom.Asteroids
 
         public void Release(GameObject gameObject)
         {
-            if (!GameObjectToPrefabId.TryGetValue(gameObject, out var prefabId))
+            if (!_gameObjectToPrefabId.TryGetValue(gameObject, out var prefabId))
             {
                 throw new Exception($"[GameObjectPool] Unable to release GameObject '{gameObject.name}': prefab id not exists");
             }
@@ -52,19 +53,19 @@ namespace SelStrom.Asteroids
             gameObject.SetActive(false);
             gameObject.transform.SetParent(_poolContainer, false);
 
-            if (!PrefabIdToGameObjects.TryGetValue(prefabId, out var gameObjects))
+            if (!_prefabIdToGameObjects.TryGetValue(prefabId, out var gameObjects))
             {
                 gameObjects = new Stack<GameObject>();
-                PrefabIdToGameObjects.Add(prefabId, gameObjects);
+                _prefabIdToGameObjects.Add(prefabId, gameObjects);
             }
 
             gameObjects.Push(gameObject);
-            GameObjectToPrefabId.Remove(gameObject);
+            _gameObjectToPrefabId.Remove(gameObject);
         }
 
         private void CleanUp()
         {
-            foreach (var (_, gameObjects) in PrefabIdToGameObjects)
+            foreach (var (_, gameObjects) in _prefabIdToGameObjects)
             {
                 while (gameObjects.Count > 0)
                 {
@@ -73,8 +74,8 @@ namespace SelStrom.Asteroids
                 }
             }
 
-            PrefabIdToGameObjects.Clear();
-            GameObjectToPrefabId.Clear();
+            _prefabIdToGameObjects.Clear();
+            _gameObjectToPrefabId.Clear();
         }
 
         public void Dispose()
