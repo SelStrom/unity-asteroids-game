@@ -6,9 +6,15 @@ namespace SelStrom.Asteroids
 {
     public class BulletModel : IGameEntityModel
     {
-        public MoveComponent Move = new();
         public LifeTimeComponent LifeTime = new();
+        public MoveComponent Move = new();
+        
         private bool _killed;
+
+        public void ConnectWith(IGroupHolder groupHolder)
+        {
+            groupHolder.Group(this);
+        }
 
         public void SetData(GameData.BulletData data, Vector2 position, Vector2 direction, float speed)
         {
@@ -19,15 +25,10 @@ namespace SelStrom.Asteroids
         }
 
         public bool IsDead() => LifeTime.TimeRemaining <= 0 || _killed;
-        
+
         public void Kill()
         {
             _killed = true;
-        }
-
-        public void ConnectWith(IGroupHolder groupHolder)
-        {
-            groupHolder.Group(this);
         }
     }
 }

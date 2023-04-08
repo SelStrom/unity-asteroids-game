@@ -7,11 +7,11 @@ namespace SelStrom.Asteroids
 {
     public class AsteroidModel : IGameEntityModel
     {
-        public AsteroidData Data { get; private set; }
         public MoveComponent Move { get; private set; } = new();
-        
-        private bool _killed;
+        public AsteroidData Data { get; private set; }
         public int Age { get; private set; }
+
+        private bool _killed;
 
         public void ConnectWith(IGroupHolder groupHolder)
         {

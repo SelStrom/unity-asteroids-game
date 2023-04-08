@@ -11,6 +11,7 @@ namespace SelStrom.Asteroids
     
     public class ShipVisual : BaseVisual<ShipVisualData>
     {
+        [SerializeField] private SpriteRenderer _spriteRenderer = default;
         [SerializeField] private Movable _movable = default;
         [SerializeField] private Rotatable _rotatable = default;
 
@@ -20,10 +21,18 @@ namespace SelStrom.Asteroids
             
             _movable.Connect(Data.ShipModel.Move.Position);
             _rotatable.Connect(Data.ShipModel.Rotate.Rotation);
+            
+            Data.ShipModel.Thrust.IsActive.OnChanged += OnThrustChanged;
         }
-        
+
+        private void OnThrustChanged(bool isThrust)
+        {
+            _spriteRenderer.sprite = isThrust ? Data.ShipModel.Data.ThrustSprite : Data.ShipModel.Data.MainSprite;
+        }
+
         protected override void OnDisposed()
         {
+            Data.ShipModel.Thrust.IsActive.OnChanged -= OnThrustChanged;
             _rotatable.Dispose();
             _movable.Dispose();
 

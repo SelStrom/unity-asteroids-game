@@ -10,32 +10,26 @@ namespace SelStrom.Asteroids
 {
     public class Game
     {
-        private readonly GameObjectPool _gameObjectPool;
         private readonly PlayerInputProvider _playerInput;
-        private readonly Transform _gameContainer;
         private readonly GameData _configs;
         private readonly Model _model;
 
-        private readonly Dictionary<IGameEntityModel, BaseVisual> _modelToView = new();
-        private readonly Dictionary<GameObject, AsteroidModel> _gameObjectToAsteroidModel = new();
-
         private ShipModel _shipModel;
+        private readonly EntitiesCatalog _catalog;
 
-        public Game(Transform gameContainer, Model model, GameData configs, GameObjectPool gameObjectPool,
-            PlayerInputProvider playerInput)
+        public Game(EntitiesCatalog catalog, Model model, GameData configs, PlayerInputProvider playerInput)
         {
-            _gameContainer = gameContainer;
             _model = model;
             _configs = configs;
-            _gameObjectPool = gameObjectPool;
             _playerInput = playerInput;
+            _catalog = catalog;
         }
 
         public void Start()
         {
             _model.OnEntityDestroyed += OnEntityDestroyed;
 
-            _shipModel = CreateShip(OnShipCollided);
+            _shipModel = _catalog.CreateShip(OnShipCollided);
             for (var i = 0; i < _configs.AsteroidInitialCount; i++)
             {
                 SpawnAsteroid(_shipModel.Move.Position.Value);
@@ -44,9 +38,19 @@ namespace SelStrom.Asteroids
             _playerInput.OnAttackAction += OnAttack;
             _playerInput.OnRotateAction += OnRotateAction;
             _playerInput.OnTrustAction += OnTrust;
-            //TODO _inputHelper.OnLaserAction += ;
+            _playerInput.OnLaserAction += OnLaser;
 
             _model.ScheduleAction(SpawnNewEnemy, _configs.SpawnNewEnemyDurationSec);
+        }
+
+        public void Stop()
+        {
+            _playerInput.OnAttackAction -= OnAttack;
+            _playerInput.OnRotateAction -= OnRotateAction;
+            _playerInput.OnTrustAction -= OnTrust;
+            _playerInput.OnLaserAction -= OnLaser;
+
+            _model.ResetSchedule();
         }
 
         private void SpawnNewEnemy()
@@ -60,133 +64,64 @@ namespace SelStrom.Asteroids
 
         private void SpawnAsteroid(Vector2 shipPosition)
         {
-            var gameArea = _model.GameArea;
-            var asteroidPosition = new Vector2(Random.Range(0, gameArea.x), Random.Range(0, gameArea.y)) - gameArea / 2;
-
-            var distance = shipPosition - asteroidPosition;
-            var allowedDistance = distance.magnitude - _configs.AsteroidSpawnAllowedRadius;
-            if (allowedDistance < 0)
-            {
-                asteroidPosition += distance.normalized * allowedDistance;
-            }
-
-            CreateAsteroid(3, asteroidPosition, Random.Range(1f, 3f));
-        }
-
-        private ShipModel CreateShip(Action<Collision2D> onRegisterCollision)
-        {
-            var model = CreateModel<ShipModel>();
-
-            var view = CreateView<ShipVisual>(_configs.ShipPrefab);
-            view.Connect(new ShipVisualData
-            {
-                ShipModel = model,
-                OnRegisterCollision = onRegisterCollision
-            });
-            _modelToView.Add(model, view);
-            return model;
-        }
-
-        private void CreateBullet(Vector2 position, Vector2 direction,
-            Action<BulletModel, Collision2D> onRegisterCollision)
-        {
-            var model = CreateModel<BulletModel>();
-            model.SetData(_configs.Bullet, position, direction, _configs.Bullet.Speed);
-
-            var view = CreateView<BulletVisual>(_configs.Bullet.Prefab);
-            view.Connect(new BulletVisualData
-            {
-                BulletModel = model,
-                OnRegisterCollision = onRegisterCollision,
-            });
-            _modelToView.Add(model, view);
-        }
-
-        private void CreateAsteroid(int age, Vector2 position, float speed)
-        {
-            if (age <= 0)
-            {
-                return;
-            }
-
-            var data = age switch
-            {
-                3 => _configs.AsteroidBig,
-                2 => _configs.AsteroidMedium,
-                1 => _configs.AsteroidSmall,
-                var _ => throw new InvalidDataException()
-            };
-
-            var model = CreateModel<AsteroidModel>();
-            model.SetData(data, age, position, Random.insideUnitCircle, speed);
-
-            var view = CreateView<AsteroidVisual>(data.Prefab);
-            _modelToView.Add(model, view);
-            view.Connect((model.Move.Position, model.Data.SpriteVariants));
-            
-            _gameObjectToAsteroidModel.Add(view.gameObject, model);
+            var asteroidPosition = GetRandomAsteroidPosition(shipPosition, _model.GameArea, _configs.AsteroidSpawnAllowedRadius);
+            _catalog.CreateAsteroid(3, asteroidPosition, Random.Range(1f, 3f));
         }
 
         private void OnShipCollided(Collision2D obj)
         {
             Kill(_shipModel);
+            Stop();
             // TODO @a.shatalov: complete game;
         }
 
         private void OnBulletCollided(BulletModel bullet, Collision2D col)
         {
-            col.otherCollider.enabled = false;
             Kill(bullet);
-            
-            var asteroidModel = _gameObjectToAsteroidModel[col.gameObject];
-            _gameObjectToAsteroidModel.Remove(col.gameObject);
+
+            col.otherCollider.enabled = false;
+            var asteroidModel = _catalog.FindModel<AsteroidModel>(col.gameObject);
             Kill(asteroidModel);
 
             var age = asteroidModel.Age - 1;
+            if (age <= 0)
+            {
+                return;
+            }
+
             var position = asteroidModel.Move.Position.Value;
             var speed = Math.Min(asteroidModel.Move.Speed * 2, 10f);
-            CreateAsteroid(age, position, speed);
-            CreateAsteroid(age, position, speed);
-        }
-
-        private TModel CreateModel<TModel>() where TModel : class, IGameEntityModel, new()
-        {
-            // TODO @a.shatalov: pool
-            var model = new TModel();
-            _model.AddEntity(model);
-            return model;
-        }
-
-        private TView CreateView<TView>(GameObject prefab) where TView : BaseVisual
-        {
-            return _gameObjectPool.Get<TView>(prefab, _gameContainer);
+            _catalog.CreateAsteroid(age, position, speed);
+            _catalog.CreateAsteroid(age, position, speed);
         }
 
         private void OnEntityDestroyed(IGameEntityModel entityModel)
         {
-            ReleaseEntity(entityModel);
-        }
-
-        private void ReleaseEntity(IGameEntityModel entityModel)
-        {
-            var view = _modelToView[entityModel];
-            view.Dispose();
-            _modelToView.Remove(entityModel);
-            _gameObjectPool.Release(view.gameObject);
-            // TODO @a.shatalov: release model to pool
+            _catalog.Release(entityModel);
         }
 
         private static void Kill(IGameEntityModel entityModel)
         {
             entityModel.Kill();
         }
+        
+        private static Vector2 GetRandomAsteroidPosition(Vector2 shipPosition, Vector2 gameArea, int spawnAllowedRadius)
+        {
+            var asteroidPosition = new Vector2(Random.Range(0, gameArea.x), Random.Range(0, gameArea.y)) - gameArea / 2;
 
-        #region InputHandlers
+            var distance = shipPosition - asteroidPosition;
+            var allowedDistance = distance.magnitude - spawnAllowedRadius;
+            if (allowedDistance < 0)
+            {
+                asteroidPosition += distance.normalized * allowedDistance;
+            }
+
+            return asteroidPosition;
+        }
 
         private void OnAttack()
         {
-            var forwardOffset = _shipModel.Rotate.Rotation.Value;
-            CreateBullet(_shipModel.Move.Position.Value + forwardOffset, _shipModel.Rotate.Rotation.Value, OnBulletCollided);
+            _catalog.CreateBullet(_shipModel.ShootPoint, _shipModel.Rotate.Rotation.Value, OnBulletCollided);
         }
 
         private void OnRotateAction(InputValue inputValue)
@@ -198,12 +133,10 @@ namespace SelStrom.Asteroids
         {
             _shipModel.Thrust.IsActive.Value = inputValue.isPressed;
         }
-
-        #endregion
-
-    }
-
-    public class EntityFactory
-    {
+        
+        private void OnLaser()
+        {
+            // TODO @a.shatalov: laser
+        }
     }
 }

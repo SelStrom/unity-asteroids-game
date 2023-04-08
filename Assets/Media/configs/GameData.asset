@@ -15,7 +15,6 @@ MonoBehaviour:
   AsteroidInitialCount: 10
   AsteroidSpawnAllowedRadius: 20
   SpawnNewEnemyDurationSec: 25
-  ShipPrefab: {fileID: 6148587323414874153, guid: 8b56a71807aefd442a40819e7f16e6cd, type: 3}
   UfoMediumPrefab: {fileID: 0}
   UfoSmallPrefab: {fileID: 0}
   AsteroidBig: {fileID: 11400000, guid: 963baecab77e1fa44ac4cebdffd1d0ad, type: 2}
@@ -25,3 +24,11 @@ MonoBehaviour:
     Prefab: {fileID: 6655467841412858905, guid: 4705a68cfb313dd4582f589570e2caa3, type: 3}
     LifeTimeSeconds: 2
     Speed: 20
+  Ship:
+    Prefab: {fileID: 6148587323414874153, guid: 8b56a71807aefd442a40819e7f16e6cd, type: 3}
+    MainSprite: {fileID: 2092087282, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}
+    ThrustSprite: {fileID: -29698467, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}
+    ThrustUnitsPerSecond: 6
+    MaxSpeed: 15
+    LaserUpdateDurationSec: 60
+    LaserMaxShoots: 3

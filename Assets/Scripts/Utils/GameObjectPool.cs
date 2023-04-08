@@ -63,7 +63,7 @@ namespace SelStrom.Asteroids
             _gameObjectToPrefabId.Remove(gameObject);
         }
 
-        private void CleanUp()
+        public void CleanUp()
         {
             foreach (var (_, gameObjects) in _prefabIdToGameObjects)
             {

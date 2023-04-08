@@ -62,6 +62,12 @@ namespace SelStrom.Asteroids
                 Action = action,
             });
         }
+        
+        public void ResetSchedule()
+        {
+            _nextUpdateDuration = float.MaxValue;
+            _scheduledEntries.Clear();
+        }
 
         public void Update(float deltaTime)
         {
@@ -140,15 +146,15 @@ namespace SelStrom.Asteroids
         {
             if (com.Thrust.IsActive.Value)
             {
-                var acceleration = ThrustComponent.UnitsPerSecond * deltaTime;
+                var acceleration = com.Thrust.UnitsPerSecond * deltaTime;
                 var velocity = com.Move.Direction * com.Move.Speed + com.Rotate.Rotation.Value * acceleration;
                 
                 com.Move.Direction = velocity.normalized;
-                com.Move.Speed = Math.Min(velocity.magnitude, ThrustComponent.MaxSpeed);
+                com.Move.Speed = Math.Min(velocity.magnitude, com.Thrust.MaxSpeed);
             }
             else
             {
-                com.Move.Speed = Math.Max(com.Move.Speed - ThrustComponent.UnitsPerSecond / 2 * deltaTime, ThrustComponent.MinSpeed);
+                com.Move.Speed = Math.Max(com.Move.Speed - com.Thrust.UnitsPerSecond / 2 * deltaTime, ThrustComponent.MinSpeed);
             }
         }
 
