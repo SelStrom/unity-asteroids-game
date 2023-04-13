@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf3b004214134b1fab8bfb9fd19e1cf3, type: 3}
+  m_Name: UfoData
+  m_EditorClassIdentifier: 
+  Score: 5
+  Prefab: {fileID: 6655467841412858905, guid: d28ae02a0984e2e41ae83fe97bc08c51, type: 3}
+  Speed: 10

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75d2ceec46bc4f1a8091d9b5e74df6c9, type: 3}
   m_Name: AsteroidSmallData
   m_EditorClassIdentifier: 
+  Score: 3
   Prefab: {fileID: 6690077261765115636, guid: 57e6831d2b589dd419db94721f0db24b, type: 3}
   SpriteVariants:
   - {fileID: -874284349, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}
