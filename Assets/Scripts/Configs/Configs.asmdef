@@ -1,10 +1,7 @@
 {
-    "name": "Asteroids",
+    "name": "Conf",
     "rootNamespace": "",
-    "references": [
-        "GUID:75469ad4d38634e559750d17036d5f7c",
-        "GUID:14ffe7d22523436e8735b8ec4e4dab0c"
-    ],
+    "references": [],
     "includePlatforms": [
         "Editor",
         "WindowsStandalone64"
