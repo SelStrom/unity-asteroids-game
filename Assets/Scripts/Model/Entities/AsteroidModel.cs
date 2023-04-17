@@ -13,11 +13,11 @@ namespace SelStrom.Asteroids
 
         private bool _killed;
 
-        public void ConnectWith(IGroupHolder groupHolder)
+        public void AcceptWith(IGroupVisitor visitor)
         {
-            groupHolder.Group(this);
+            visitor.Visit(this);
         }
-
+        
         public void SetData(AsteroidData data, int age, Vector2 position, Vector2 direction, float speed)
         {
             Data = data;

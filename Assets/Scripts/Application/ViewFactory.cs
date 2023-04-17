@@ -13,7 +13,7 @@ namespace SelStrom.Asteroids
             _gameContainer = gameContainer;
         }
 
-        public TView Get<TView>(GameObject prefab) where TView : BaseVisual
+        public TView Get<TView>(GameObject prefab) where TView : Component
         {
             return _gameObjectPool.Get<TView>(prefab, _gameContainer);
         }
@@ -22,6 +22,11 @@ namespace SelStrom.Asteroids
         {
             view.Dispose();
             _gameObjectPool.Release(view.gameObject);
+        }
+        
+        public void Release(GameObject gameObject)
+        {
+            _gameObjectPool.Release(gameObject);
         }
     }
 }

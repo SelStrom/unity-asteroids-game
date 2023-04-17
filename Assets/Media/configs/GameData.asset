@@ -16,8 +16,8 @@ MonoBehaviour:
   SpawnAllowedRadius: 20
   SpawnNewEnemyDurationSec: 25
   VfxBlowPrefab: {fileID: 4618950569546921532, guid: 0895df6b443004c09a57bc825b170d36, type: 3}
-  UfoBig: {fileID: 11400000, guid: f7ea29140eca2aa40bc4f01684cc65b4, type: 2}
-  Ufo: {fileID: 11400000, guid: e56ccf5fd5c88124f8299f1c4689ae36, type: 2}
+  UfoBig: {fileID: 11400000, guid: e56ccf5fd5c88124f8299f1c4689ae36, type: 2}
+  Ufo: {fileID: 11400000, guid: f7ea29140eca2aa40bc4f01684cc65b4, type: 2}
   AsteroidBig: {fileID: 11400000, guid: 963baecab77e1fa44ac4cebdffd1d0ad, type: 2}
   AsteroidMedium: {fileID: 11400000, guid: 9624f51035836e049a9fb28b4ae21293, type: 2}
   AsteroidSmall: {fileID: 11400000, guid: 73acfa71f5691424498e9f401bd3759d, type: 2}

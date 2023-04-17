@@ -15,3 +15,4 @@ MonoBehaviour:
   Score: 5
   Prefab: {fileID: 6655467841412858905, guid: d28ae02a0984e2e41ae83fe97bc08c51, type: 3}
   Speed: 10
+  ShootDurationSec: 2

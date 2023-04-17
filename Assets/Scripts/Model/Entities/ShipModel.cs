@@ -5,6 +5,37 @@ using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
+    /*public class UfoBigModel : IGameEntityModel
+    {
+        public readonly MoveComponent Move = new();
+
+        public UfoData Data { get; private set; }
+        
+        public Vector2 ShootPoint => Move.Position.Value;
+
+        private bool _killed;
+        public bool IsDead() => _killed;
+
+        public void SetData(UfoData data, Vector2 position, Vector2 direction, float speed)
+        {
+            Data = data;
+            Move.Position.Value = position;
+            Move.Direction = direction;
+            Move.Speed = speed;
+        }
+
+        public void ConnectWith(IGroupHolder groupHolder)
+        {
+            groupHolder.Group(this);
+        }
+
+        public void Kill()
+        {
+            _killed = true;            
+        }
+    }*/
+
+    
     public class ShipModel : IGameEntityModel
     {
         public readonly RotateComponent Rotate = new();
@@ -25,9 +56,9 @@ namespace SelStrom.Asteroids
             Thrust.UnitsPerSecond = Data.ThrustUnitsPerSecond;
         }
 
-        public void ConnectWith(IGroupHolder groupHolder)
+        public void AcceptWith(IGroupVisitor visitor)
         {
-            groupHolder.Group(this);
+            visitor.Visit(this);
         }
 
         public void Kill()

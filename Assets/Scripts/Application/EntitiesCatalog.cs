@@ -16,6 +16,8 @@ namespace SelStrom.Asteroids
         private ViewFactory _viewFactory;
         private GameData _configs;
 
+        public ViewFactory ViewFactory => _viewFactory;
+        
         public void Connect(GameData configs, ModelFactory modelFactory, ViewFactory viewFactory)
         {
             _modelFactory = modelFactory;
@@ -23,14 +25,17 @@ namespace SelStrom.Asteroids
             _configs = configs;
         }
 
-        public TModel FindModel<TModel>(GameObject gameObject)
+        public bool TryFindModel<TModel>(GameObject gameObject, out TModel model) where TModel : IGameEntityModel
         {
-            if (!gameObject.TryGetComponent<AsteroidVisual>(out var asteroidVisual))
+            if (!gameObject.TryGetComponent<AsteroidVisual>(out var asteroidVisual)
+                || !_visualToModel.TryGetValue(asteroidVisual, out var modelBase))
             {
-                throw new Exception($"Unable to find {typeof(TModel)} in gameObject {gameObject.name}");
+                model = default;   
+                return false;
             }
 
-            return (TModel)_visualToModel[asteroidVisual];
+            model = (TModel)modelBase;
+            return true;
         }
 
         public ShipModel CreateShip(Action<Collision2D> onRegisterCollision)
@@ -48,13 +53,13 @@ namespace SelStrom.Asteroids
             return model;
         }
 
-        public void CreateBullet(Vector2 position, Vector2 direction,
+        public void CreateBullet(GameData.BulletData data, GameObject prefab, Vector2 position, Vector2 direction,
             Action<BulletModel, Collision2D> onRegisterCollision)
         {
             var model = _modelFactory.Get<BulletModel>();
-            model.SetData(_configs.Bullet, position, direction, _configs.Bullet.Speed);
+            model.SetData(data, position, direction, data.Speed);
 
-            var view = _viewFactory.Get<BulletVisual>(_configs.Bullet.Prefab);
+            var view = _viewFactory.Get<BulletVisual>(prefab);
             view.Connect(new BulletVisualData
             {
                 BulletModel = model,
@@ -62,7 +67,7 @@ namespace SelStrom.Asteroids
             });
             AddToCatalog(model, view);
         }
-
+        
         public void CreateAsteroid(int age, Vector2 position, float speed)
         {
             var data = age switch
@@ -77,8 +82,46 @@ namespace SelStrom.Asteroids
             model.SetData(data, age, position, Random.insideUnitCircle, speed);
 
             var view = _viewFactory.Get<AsteroidVisual>(data.Prefab);
-            AddToCatalog(model, view);
             view.Connect((model.Move.Position, model.Data.SpriteVariants));
+            AddToCatalog(model, view);
+        }
+        
+        public UfoBigModel CreateBigUfo(ShipModel ship, Vector2 position, Vector2 direction, Action<UfoBigModel> onRegisterCollision)
+        {
+            var model = _modelFactory.Get<UfoBigModel>();
+            model.SetData(_configs.UfoBig, position, direction, _configs.UfoBig.Speed);
+            model.ShootTo.Ship = ship;
+            model.ShootTo.Every = _configs.Ufo.ShootDurationSec;
+            
+            var view = _viewFactory.Get<UfoVisual>(_configs.UfoBig.Prefab);
+            view.Connect(new UfoVisualData()
+            {
+                UfoModel = model,
+                OnRegisterCollision = onRegisterCollision,
+            });
+
+            AddToCatalog(model, view);
+            return model;
+        }
+
+        public UfoModel CreateUfo(ShipModel ship, Vector2 position, Vector2 direction, Action<UfoBigModel> onRegisterCollision)
+        {
+            var model = _modelFactory.Get<UfoModel>();
+            model.SetData(_configs.UfoBig, position, direction, _configs.Ufo.Speed);
+            model.ShootTo.Ship = ship;
+            model.ShootTo.Every = _configs.Ufo.ShootDurationSec;
+            model.MoveTo.Ship = ship;
+            model.MoveTo.Every = 3f;
+            
+            var view = _viewFactory.Get<UfoVisual>(_configs.Ufo.Prefab);
+            view.Connect(new UfoVisualData()
+            {
+                UfoModel = model,
+                OnRegisterCollision = onRegisterCollision,
+            });
+
+            AddToCatalog(model, view);
+            return model;
         }
 
         private void AddToCatalog(IGameEntityModel model, BaseVisual view)
