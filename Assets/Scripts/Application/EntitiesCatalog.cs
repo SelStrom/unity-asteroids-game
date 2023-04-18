@@ -25,10 +25,12 @@ namespace SelStrom.Asteroids
             _configs = configs;
         }
 
-        public bool TryFindModel<TModel>(GameObject gameObject, out TModel model) where TModel : IGameEntityModel
+        public bool TryFindModel<TModel, TVisual>(GameObject gameObject, out TModel model) 
+            where TModel : IGameEntityModel
+            where TVisual : BaseVisual
         {
-            if (!gameObject.TryGetComponent<AsteroidVisual>(out var asteroidVisual)
-                || !_visualToModel.TryGetValue(asteroidVisual, out var modelBase))
+            if (!gameObject.TryGetComponent<TVisual>(out var visual)
+                || !_visualToModel.TryGetValue(visual, out var modelBase))
             {
                 model = default;   
                 return false;
@@ -42,7 +44,15 @@ namespace SelStrom.Asteroids
         {
             var model = _modelFactory.Get<ShipModel>();
             model.SetData(_configs.Ship);
-
+            model.Thrust.MaxSpeed = _configs.Ship.MaxSpeed;
+            model.Thrust.UnitsPerSecond = _configs.Ship.ThrustUnitsPerSecond;
+            model.Gun.MaxShoots = _configs.Ship.Gun.MaxShoots;
+            model.Gun.ReloadDurationSec = _configs.Ship.Gun.ReloadDurationSec;
+            model.Laser.MaxShoots = _configs.Laser.LaserMaxShoots;
+            model.Laser.CurrentShoots = _configs.Laser.LaserMaxShoots;
+            model.Laser.UpdateDurationSec = _configs.Laser.LaserUpdateDurationSec;
+            model.Laser.ReloadRemaining = _configs.Laser.LaserUpdateDurationSec;
+            
             var view = _viewFactory.Get<ShipVisual>(_configs.Ship.Prefab);
             view.Connect(new ShipVisualData
             {
@@ -91,7 +101,10 @@ namespace SelStrom.Asteroids
             var model = _modelFactory.Get<UfoBigModel>();
             model.SetData(_configs.UfoBig, position, direction, _configs.UfoBig.Speed);
             model.ShootTo.Ship = ship;
-            model.ShootTo.Every = _configs.Ufo.ShootDurationSec;
+            model.Gun.MaxShoots = _configs.UfoBig.Gun.MaxShoots;
+            model.Gun.ReloadDurationSec = _configs.UfoBig.Gun.ReloadDurationSec;
+            model.Gun.ReloadRemaining = _configs.UfoBig.Gun.ReloadDurationSec;
+
             
             var view = _viewFactory.Get<UfoVisual>(_configs.UfoBig.Prefab);
             view.Connect(new UfoVisualData()
@@ -109,9 +122,11 @@ namespace SelStrom.Asteroids
             var model = _modelFactory.Get<UfoModel>();
             model.SetData(_configs.UfoBig, position, direction, _configs.Ufo.Speed);
             model.ShootTo.Ship = ship;
-            model.ShootTo.Every = _configs.Ufo.ShootDurationSec;
             model.MoveTo.Ship = ship;
             model.MoveTo.Every = 3f;
+            model.Gun.MaxShoots = _configs.Ufo.Gun.MaxShoots;
+            model.Gun.ReloadDurationSec = _configs.Ufo.Gun.ReloadDurationSec;
+            model.Gun.ReloadRemaining = _configs.Ufo.Gun.ReloadDurationSec;
             
             var view = _viewFactory.Get<UfoVisual>(_configs.Ufo.Prefab);
             view.Connect(new UfoVisualData()

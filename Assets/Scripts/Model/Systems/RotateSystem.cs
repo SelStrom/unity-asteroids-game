@@ -5,16 +5,16 @@ namespace SelStrom.Asteroids
 {
     public class RotateSystem : BaseModelSystem<RotateComponent>
     {
-        protected override void UpdateNode(RotateComponent com, float deltaTime)
+        protected override void UpdateNode(RotateComponent node, float deltaTime)
         {
-            if (com.TargetDirection == 0)
+            if (node.TargetDirection == 0)
             {
                 return;
             }
 
-            com.Rotation.Value =
-                Quaternion.Euler(0, 0, RotateComponent.DegreePerSecond * deltaTime * com.TargetDirection) *
-                com.Rotation.Value;
+            node.Rotation.Value =
+                Quaternion.Euler(0, 0, RotateComponent.DegreePerSecond * deltaTime * node.TargetDirection) *
+                node.Rotation.Value;
         }
     }
 }

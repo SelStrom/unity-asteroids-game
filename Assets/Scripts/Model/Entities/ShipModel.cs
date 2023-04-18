@@ -1,46 +1,16 @@
-using System;
 using Model.Components;
 using SelStrom.Asteroids.Configs;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    /*public class UfoBigModel : IGameEntityModel
-    {
-        public readonly MoveComponent Move = new();
-
-        public UfoData Data { get; private set; }
-        
-        public Vector2 ShootPoint => Move.Position.Value;
-
-        private bool _killed;
-        public bool IsDead() => _killed;
-
-        public void SetData(UfoData data, Vector2 position, Vector2 direction, float speed)
-        {
-            Data = data;
-            Move.Position.Value = position;
-            Move.Direction = direction;
-            Move.Speed = speed;
-        }
-
-        public void ConnectWith(IGroupHolder groupHolder)
-        {
-            groupHolder.Group(this);
-        }
-
-        public void Kill()
-        {
-            _killed = true;            
-        }
-    }*/
-
-    
     public class ShipModel : IGameEntityModel
     {
         public readonly RotateComponent Rotate = new();
         public readonly ThrustComponent Thrust = new();
         public readonly MoveComponent Move = new();
+        public readonly GunComponent Gun = new();
+        public readonly LaserComponent Laser = new();
 
         public GameData.ShipData Data { get; private set; }
         
@@ -52,8 +22,6 @@ namespace SelStrom.Asteroids
         public void SetData(GameData.ShipData data)
         {
             Data = data;
-            Thrust.MaxSpeed = Data.MaxSpeed;
-            Thrust.UnitsPerSecond = Data.ThrustUnitsPerSecond;
         }
 
         public void AcceptWith(IGroupVisitor visitor)

@@ -1,5 +1,4 @@
-﻿using System;
-using SelStrom.Asteroids;
+﻿using SelStrom.Asteroids;
 using UnityEngine;
 
 namespace Model.Components

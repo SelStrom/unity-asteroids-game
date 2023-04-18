@@ -9,10 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf3b004214134b1fab8bfb9fd19e1cf3, type: 3}
-  m_Name: UfoBigData
+  m_Script: {fileID: 11500000, guid: 6aceb177dd214821a2b3e51154cc3d59, type: 3}
+  m_Name: UfoGunData
   m_EditorClassIdentifier: 
-  Score: 4
-  Prefab: {fileID: 6655467841412858905, guid: f543ede843f488a40a8e0280c30d4d70, type: 3}
-  Speed: 5
-  Gun: {fileID: 11400000, guid: ec65208c7c7e04695a65e28cb3350abd, type: 2}
+  MaxShoots: 1
+  ReloadDurationSec: 2

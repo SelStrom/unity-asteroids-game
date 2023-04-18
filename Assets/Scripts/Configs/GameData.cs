@@ -25,6 +25,8 @@ namespace SelStrom.Asteroids.Configs
             [Space]
             public float ThrustUnitsPerSecond;
             public float MaxSpeed;
+            [Space] 
+            public GunData Gun;
         }
 
         [Serializable]

@@ -18,6 +18,7 @@ namespace SelStrom.Asteroids
     {
         public readonly MoveComponent Move = new();
         public readonly ShootToComponent ShootTo = new();
+        public readonly GunComponent Gun = new();
         
         public UfoData Data { get; private set; }
         

@@ -16,3 +16,4 @@ MonoBehaviour:
   Prefab: {fileID: 6655467841412858905, guid: d28ae02a0984e2e41ae83fe97bc08c51, type: 3}
   Speed: 10
   ShootDurationSec: 2
+  Gun: {fileID: 11400000, guid: ec65208c7c7e04695a65e28cb3350abd, type: 2}

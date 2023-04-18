@@ -5,9 +5,9 @@ namespace SelStrom.Asteroids
 {
     public class LifeTimeSystem : BaseModelSystem<LifeTimeComponent>
     {
-        protected override void UpdateNode(LifeTimeComponent com, float deltaTime)
+        protected override void UpdateNode(LifeTimeComponent node, float deltaTime)
         {
-            com.TimeRemaining = Math.Max(com.TimeRemaining - deltaTime, 0);
+            node.TimeRemaining = Math.Max(node.TimeRemaining - deltaTime, 0);
         }
     }
 }

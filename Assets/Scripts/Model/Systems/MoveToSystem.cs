@@ -4,22 +4,22 @@ namespace SelStrom.Asteroids
 {
     public class MoveToSystem : BaseModelSystem<(MoveComponent Move, MoveToComponent MoveTo)>
     {
-        protected override void UpdateNode((MoveComponent Move, MoveToComponent MoveTo) com, float deltaTime)
+        protected override void UpdateNode((MoveComponent Move, MoveToComponent MoveTo) node, float deltaTime)
         {
-            com.MoveTo.ReadyRemaining -= deltaTime;
-            if (com.MoveTo.ReadyRemaining > 0)
+            node.MoveTo.ReadyRemaining -= deltaTime;
+            if (node.MoveTo.ReadyRemaining > 0)
             {
                 return;
             }
 
-            com.MoveTo.ReadyRemaining = com.MoveTo.Every;
+            node.MoveTo.ReadyRemaining = node.MoveTo.Every;
 
-            var ship = com.MoveTo.Ship;
-            var time = (ship.Move.Position.Value - com.Move.Position.Value).magnitude
-                       / (com.Move.Speed - ship.Move.Speed);
+            var ship = node.MoveTo.Ship;
+            var time = (ship.Move.Position.Value - node.Move.Position.Value).magnitude
+                       / (node.Move.Speed - ship.Move.Speed);
 
             var pendingPosition = ship.Move.Position.Value + (ship.Move.Direction * ship.Move.Speed) * time;
-            com.Move.Direction = (pendingPosition - com.Move.Position.Value).normalized;
+            node.Move.Direction = (pendingPosition - node.Move.Position.Value).normalized;
         }
     }
 }

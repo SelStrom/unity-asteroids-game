@@ -31,74 +31,37 @@ namespace SelStrom.Asteroids
             {
                 _owner.GetSystem<MoveSystem>().Add(model, model.Move);
                 _owner.GetSystem<RotateSystem>().Add(model, model.Rotate);
+                _owner.GetSystem<GunSystem>().Add(model, model.Gun);
+                _owner.GetSystem<LaserSystem>().Add(model, model.Laser);
                 _owner.GetSystem<ThrustSystem>().Add(model, (model.Thrust, model.Move, model.Rotate));
             }
 
             void IGroupVisitor.Visit(UfoBigModel model)
             {
                 _owner.GetSystem<MoveSystem>().Add(model, model.Move);
-                _owner.GetSystem<ShootToSystem>().Add(model, (model.Move, model.ShootTo));
+                _owner.GetSystem<GunSystem>().Add(model, model.Gun);
+                _owner.GetSystem<ShootToSystem>().Add(model, (model.Move, model.Gun, model.ShootTo));
             }
             
             void IGroupVisitor.Visit(UfoModel model)
             {
                 _owner.GetSystem<MoveSystem>().Add(model, model.Move);
-                _owner.GetSystem<ShootToSystem>().Add(model, (model.Move, model.ShootTo));
+                _owner.GetSystem<GunSystem>().Add(model, model.Gun);
+                _owner.GetSystem<ShootToSystem>().Add(model, (model.Move, model.Gun, model.ShootTo));
                 _owner.GetSystem<MoveToSystem>().Add(model, (model.Move, model.MoveTo));
             }
         }
 
-        private class GroupRemover : IGroupVisitor
-        {
-            private readonly Model _owner;
-
-            public GroupRemover(Model model)
-            {
-                _owner = model;
-            }
-
-            void IGroupVisitor.Visit(AsteroidModel model)
-            {
-                _owner.GetSystem<MoveSystem>().Remove(model);
-            }
-
-            void IGroupVisitor.Visit(BulletModel model)
-            {
-                _owner.GetSystem<MoveSystem>().Remove(model);
-                _owner.GetSystem<LifeTimeSystem>().Remove(model);
-            }
-
-            void IGroupVisitor.Visit(ShipModel model)
-            {
-                _owner.GetSystem<MoveSystem>().Remove(model);
-                _owner.GetSystem<RotateSystem>().Remove(model);
-                _owner.GetSystem<ThrustSystem>().Remove(model);
-            }
-
-            void IGroupVisitor.Visit(UfoBigModel model)
-            {
-                _owner.GetSystem<MoveSystem>().Remove(model);
-                _owner.GetSystem<ShootToSystem>().Remove(model);
-            }
-            
-            void IGroupVisitor.Visit(UfoModel model)
-            {
-                _owner.GetSystem<MoveSystem>().Remove(model);
-                _owner.GetSystem<ShootToSystem>().Remove(model);
-                _owner.GetSystem<MoveToSystem>().Remove(model);
-            }
-        }
-
-        public Action<Vector2, Vector2> OnShootReady;
         public event Action<IGameEntityModel> OnEntityDestroyed;
 
         private readonly Dictionary<Type, IModelSystem> _typeToSystem = new();
+        private readonly LinkedList<IModelSystem> _systems = new();
+
         private readonly HashSet<IGameEntityModel> _entities = new();
         private readonly HashSet<IGameEntityModel> _newEntities = new();
 
         public Vector2 GameArea;
         private readonly IGroupVisitor _groupCreator;
-        private readonly IGroupVisitor _groupRemover;
 
         public ActionScheduler ActionScheduler { get; }
 
@@ -106,13 +69,14 @@ namespace SelStrom.Asteroids
         {
             ActionScheduler = new ActionScheduler();
             _groupCreator = new GroupCreator(this);
-            _groupRemover = new GroupRemover(this);
 
             RegisterSystem<RotateSystem>();
             RegisterSystem<ThrustSystem>();
             RegisterSystem<MoveSystem>().Connect(this);
             RegisterSystem<LifeTimeSystem>();
-            RegisterSystem<ShootToSystem>().Connect(this);
+            RegisterSystem<GunSystem>();
+            RegisterSystem<LaserSystem>();
+            RegisterSystem<ShootToSystem>();
             RegisterSystem<MoveToSystem>();
         }
 
@@ -125,6 +89,7 @@ namespace SelStrom.Asteroids
         {
             var system = (TSystem)Activator.CreateInstance(typeof(TSystem));
             _typeToSystem.Add(typeof(TSystem), system);
+            _systems.AddLast(system);
             return system;
         }
 
@@ -153,14 +118,17 @@ namespace SelStrom.Asteroids
                 _newEntities.Clear();
             }
 
-            foreach (var system in _typeToSystem.Values)
+            foreach (var system in _systems)
             {
                 system.Update(deltaTime);
             }
 
             foreach (var entity in _entities.Where(x => x.IsDead()))
             {
-                entity.AcceptWith(_groupRemover);
+                foreach (var system in _systems)
+                {
+                    system.Remove(entity);
+                }
                 OnEntityDestroyed?.Invoke(entity);
             }
 

@@ -5,6 +5,7 @@ namespace SelStrom.Asteroids
     public interface IModelSystem
     {
         public void Update(float deltaTime);
+        public void Remove(IGameEntityModel model);
     }
 
     public abstract class BaseModelSystem<TNode> : IModelSystem
@@ -29,6 +30,6 @@ namespace SelStrom.Asteroids
             }
         }
 
-        protected abstract void UpdateNode(TNode com, float deltaTime);
+        protected abstract void UpdateNode(TNode node, float deltaTime);
     }
 }
