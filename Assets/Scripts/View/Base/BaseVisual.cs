@@ -21,13 +21,14 @@ namespace SelStrom.Asteroids
         }
     }
 
-    public class BaseVisual<TData> : BaseVisual
+    public abstract class BaseVisual<TData> : BaseVisual
     {
         [PublicAPI]
         public TData Data { get; private set; }
 
-        public void Connect(TData data)
+        public void Connect(in TData data)
         {
+            // TODO @a.shatalov: except redundant copy for value types
             Data = data;
             OnConnected();
         }

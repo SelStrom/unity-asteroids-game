@@ -23,6 +23,7 @@ namespace SelStrom.Asteroids
             _rotatable.Connect(Data.ShipModel.Rotate.Rotation);
             
             Data.ShipModel.Thrust.IsActive.OnChanged += OnThrustChanged;
+            OnThrustChanged(Data.ShipModel.Thrust.IsActive.Value);
         }
 
         private void OnThrustChanged(bool isThrust)

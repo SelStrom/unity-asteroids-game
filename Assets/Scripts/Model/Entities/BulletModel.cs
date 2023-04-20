@@ -21,7 +21,7 @@ namespace SelStrom.Asteroids
             LifeTime.TimeRemaining = data.LifeTimeSeconds;
             Move.Position.Value = position;
             Move.Direction = direction;
-            Move.Speed = speed;
+            Move.Speed.Value = speed;
         }
 
         public bool IsDead() => LifeTime.TimeRemaining <= 0 || _killed;

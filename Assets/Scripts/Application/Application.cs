@@ -14,10 +14,12 @@ namespace SelStrom.Asteroids
         private Transform _gameContainer;
         private PlayerInputProvider _playerInputProvider;
         private EntitiesCatalog _catalog;
+        private Hud _hud;
 
         public void Connect(IApplicationComponent appComponent, GameData configs,
-            Transform poolContainer, Transform gameContainer, PlayerInputProvider playerInputProvider)
+            Transform poolContainer, Transform gameContainer, PlayerInputProvider playerInputProvider, Hud hud)
         {
+            _hud = hud;
             _configs = configs;
             _playerInputProvider = playerInputProvider;
             _gameContainer = gameContainer;
@@ -41,7 +43,7 @@ namespace SelStrom.Asteroids
             
             _catalog.Connect(_configs, new ModelFactory(_model), new ViewFactory(_gameObjectPool, _gameContainer));
             
-            _game = new Game(_catalog, _model, _configs, _playerInputProvider);
+            _game = new Game(_catalog, _model, _configs, _playerInputProvider, _hud);
             _game.Start();
 
             _appComponent.OnUpdate += OnUpdate;
@@ -92,6 +94,7 @@ namespace SelStrom.Asteroids
             _configs = null;
             _gameContainer = null;
             _playerInputProvider = null;
+            _hud = null;
         }
 
         public void Quit()

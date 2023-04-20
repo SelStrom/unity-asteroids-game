@@ -8,7 +8,7 @@ namespace SelStrom.Asteroids
         public UfoBigModel UfoModel;
         public Action<UfoBigModel> OnRegisterCollision;
     }
-    
+
     public class UfoVisual : BaseVisual<UfoVisualData>
     {
         [SerializeField] private Movable _movable = default;

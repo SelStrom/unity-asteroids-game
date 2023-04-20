@@ -1,4 +1,5 @@
 using System;
+using SelStrom.Asteroids;
 using UnityEngine;
 
 namespace Model.Components
@@ -9,8 +10,8 @@ namespace Model.Components
         
         public int MaxShoots;
         public float UpdateDurationSec;
-        public int CurrentShoots { get; set; }
-        public float ReloadRemaining { get; set; }
+        public ObservableField<int> CurrentShoots = new();
+        public ObservableField<float> ReloadRemaining = new();
         
         public bool Shooting { get; set; }
         public Vector2 Direction { get; set; }

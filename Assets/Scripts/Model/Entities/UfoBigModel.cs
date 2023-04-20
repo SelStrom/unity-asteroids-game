@@ -30,7 +30,7 @@ namespace SelStrom.Asteroids
             Data = data;
             Move.Position.Value = position;
             Move.Direction = direction;
-            Move.Speed = speed;
+            Move.Speed.Value = speed;
         }
 
         public virtual void AcceptWith(IGroupVisitor visitor)

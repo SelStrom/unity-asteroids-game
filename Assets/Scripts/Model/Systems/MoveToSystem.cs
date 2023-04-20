@@ -16,9 +16,9 @@ namespace SelStrom.Asteroids
 
             var ship = node.MoveTo.Ship;
             var time = (ship.Move.Position.Value - node.Move.Position.Value).magnitude
-                       / (node.Move.Speed - ship.Move.Speed);
+                       / (node.Move.Speed.Value - ship.Move.Speed.Value);
 
-            var pendingPosition = ship.Move.Position.Value + (ship.Move.Direction * ship.Move.Speed) * time;
+            var pendingPosition = ship.Move.Position.Value + (ship.Move.Direction * ship.Move.Speed.Value) * time;
             node.Move.Direction = (pendingPosition - node.Move.Position.Value).normalized;
         }
     }

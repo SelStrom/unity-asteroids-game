@@ -24,7 +24,7 @@ namespace SelStrom.Asteroids
             Age = age;
             Move.Position.Value = position;
             Move.Direction = direction;
-            Move.Speed = speed;
+            Move.Speed.Value = speed;
         }
 
         public bool IsDead() => _killed;

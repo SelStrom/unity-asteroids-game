@@ -49,9 +49,9 @@ namespace SelStrom.Asteroids
             model.Gun.MaxShoots = _configs.Ship.Gun.MaxShoots;
             model.Gun.ReloadDurationSec = _configs.Ship.Gun.ReloadDurationSec;
             model.Laser.MaxShoots = _configs.Laser.LaserMaxShoots;
-            model.Laser.CurrentShoots = _configs.Laser.LaserMaxShoots;
+            model.Laser.CurrentShoots.Value = _configs.Laser.LaserMaxShoots;
             model.Laser.UpdateDurationSec = _configs.Laser.LaserUpdateDurationSec;
-            model.Laser.ReloadRemaining = _configs.Laser.LaserUpdateDurationSec;
+            model.Laser.ReloadRemaining.Value = _configs.Laser.LaserUpdateDurationSec;
             
             var view = _viewFactory.Get<ShipVisual>(_configs.Ship.Prefab);
             view.Connect(new ShipVisualData

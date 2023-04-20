@@ -14,9 +14,9 @@ namespace SelStrom.Asteroids
 
             var ship = node.ShootTo.Ship;
             var time = (ship.Move.Position.Value - node.Move.Position.Value).magnitude
-                       / (20 - ship.Move.Speed);
+                       / (20 - ship.Move.Speed.Value);
 
-            var pendingPosition = ship.Move.Position.Value + (ship.Move.Direction * ship.Move.Speed) * time;
+            var pendingPosition = ship.Move.Position.Value + (ship.Move.Direction * ship.Move.Speed.Value) * time;
             var direction = (pendingPosition - node.Move.Position.Value).normalized;
 
             node.Gun.Shooting = true;

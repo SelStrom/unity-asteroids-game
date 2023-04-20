@@ -10,14 +10,14 @@ namespace SelStrom.Asteroids
             if (node.Thrust.IsActive.Value)
             {
                 var acceleration = node.Thrust.UnitsPerSecond * deltaTime;
-                var velocity = node.Move.Direction * node.Move.Speed + node.Rotate.Rotation.Value * acceleration;
+                var velocity = node.Move.Direction * node.Move.Speed.Value + node.Rotate.Rotation.Value * acceleration;
 
                 node.Move.Direction = velocity.normalized;
-                node.Move.Speed = Math.Min(velocity.magnitude, node.Thrust.MaxSpeed);
+                node.Move.Speed.Value = Math.Min(velocity.magnitude, node.Thrust.MaxSpeed);
             }
             else
             {
-                node.Move.Speed = Math.Max(node.Move.Speed - node.Thrust.UnitsPerSecond / 2 * deltaTime,
+                node.Move.Speed.Value = Math.Max(node.Move.Speed.Value - node.Thrust.UnitsPerSecond / 2 * deltaTime,
                     ThrustComponent.MinSpeed);
             }
         }
