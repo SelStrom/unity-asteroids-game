@@ -1,6 +1,5 @@
 ﻿using System;
 using JetBrains.Annotations;
-using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace SelStrom.Asteroids
