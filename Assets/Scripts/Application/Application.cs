@@ -12,16 +12,16 @@ namespace SelStrom.Asteroids
         private Model _model;
         private GameData _configs;
         private Transform _gameContainer;
-        private PlayerInputProvider _playerInputProvider;
+        private PlayerInput _playerInput;
         private EntitiesCatalog _catalog;
         private Hud _hud;
 
         public void Connect(IApplicationComponent appComponent, GameData configs,
-            Transform poolContainer, Transform gameContainer, PlayerInputProvider playerInputProvider, Hud hud)
+            Transform poolContainer, Transform gameContainer, Hud hud)
         {
             _hud = hud;
             _configs = configs;
-            _playerInputProvider = playerInputProvider;
+            _playerInput = new PlayerInput();
             _gameContainer = gameContainer;
             _appComponent = appComponent;
 
@@ -43,14 +43,14 @@ namespace SelStrom.Asteroids
             
             _catalog.Connect(_configs, new ModelFactory(_model), new ViewFactory(_gameObjectPool, _gameContainer));
             
-            _game = new Game(_catalog, _model, _configs, _playerInputProvider, _hud);
+            _game = new Game(_catalog, _model, _configs, _playerInput, _hud);
             _game.Start();
 
             _appComponent.OnUpdate += OnUpdate;
             _appComponent.OnPause += OnPause;
             _appComponent.OnResume += OnResume;
 
-            _playerInputProvider.OnBackAction += OnBack;
+            _playerInput.OnBackAction += OnBack;
         }
 
         private void OnResume()
@@ -93,7 +93,7 @@ namespace SelStrom.Asteroids
             _model = null;
             _configs = null;
             _gameContainer = null;
-            _playerInputProvider = null;
+            _playerInput = null;
             _hud = null;
         }
 
@@ -102,7 +102,7 @@ namespace SelStrom.Asteroids
             _appComponent.OnUpdate -= OnUpdate;
             _appComponent.OnPause -= OnPause;
             _appComponent.OnResume -= OnResume;
-            _playerInputProvider.OnBackAction -= OnBack;
+            _playerInput.OnBackAction -= OnBack;
 
             Dispose();
         }

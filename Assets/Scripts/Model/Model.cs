@@ -147,5 +147,19 @@ namespace SelStrom.Asteroids
                 position = side - position;
             }
         }
+
+        public void CleanUp()
+        {
+            foreach (var system in _systems)
+            {
+                system.CleanUp();
+            }
+            
+            foreach (var entity in _entities)
+            {
+                OnEntityDestroyed?.Invoke(entity);
+            }
+            _entities.Clear();
+        }
     }
 }

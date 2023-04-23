@@ -13,14 +13,13 @@ namespace SelStrom.Asteroids
         [SerializeField] private GameData _configs = default;
         [SerializeField] private Transform _poolContainer = default;
         [SerializeField] private Transform _gameContainer = default;
-        [SerializeField] private PlayerInputProvider _playerInputProvider = default;
         [SerializeField] private Hud _hud = default;
 
         private readonly Application _application = new();
 
         private void Awake()
         {
-            _application.Connect(this, _configs, _poolContainer, _gameContainer, _playerInputProvider, _hud);
+            _application.Connect(this, _configs, _poolContainer, _gameContainer, _hud);
         }
 
         public void Start()

@@ -3,14 +3,13 @@ using System.Globalization;
 using Model.Components;
 using SelStrom.Asteroids.Configs;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Random = UnityEngine.Random;
 
 namespace SelStrom.Asteroids
 {
     public class Game
     {
-        private readonly PlayerInputProvider _playerInput;
+        private readonly PlayerInput _playerInput;
         private readonly GameData _configs;
         private readonly Model _model;
 
@@ -18,19 +17,20 @@ namespace SelStrom.Asteroids
         private readonly EntitiesCatalog _catalog;
         private Hud _hud;
 
-        public Game(EntitiesCatalog catalog, Model model, GameData configs, PlayerInputProvider playerInput, Hud hud)
+        public Game(EntitiesCatalog catalog, Model model, GameData configs, PlayerInput playerInput, Hud hud)
         {
             _hud = hud;
             _model = model;
             _configs = configs;
             _playerInput = playerInput;
             _catalog = catalog;
+
+            // TODO @a.shatalov: refactor
+            _model.OnEntityDestroyed += OnEntityDestroyed;
         }
 
         public void Start()
         {
-            _model.OnEntityDestroyed += OnEntityDestroyed;
-
             _shipModel = _catalog.CreateShip(OnShipCollided);
             _shipModel.Gun.OnShooting += OnUserGunShooting;
             _shipModel.Laser.OnShooting += OnUserLaserShooting;
@@ -98,6 +98,15 @@ namespace SelStrom.Asteroids
             _playerInput.OnRotateAction -= OnRotateAction;
             _playerInput.OnTrustAction -= OnTrust;
             _playerInput.OnLaserAction -= OnLaser;
+            
+            _shipModel.Gun.OnShooting -= OnUserGunShooting;
+            _shipModel.Laser.OnShooting -= OnUserLaserShooting;       
+            
+            _shipModel.Move.Position.OnChanged -= OnShipPositionChanged;
+            _shipModel.Move.Speed.OnChanged -= OnShipSpeedChanged;
+            _shipModel.Rotate.Rotation.OnChanged -= OnShipRotationChanged;
+            _shipModel.Laser.CurrentShoots.OnChanged -= OnCurrentShootsChanged;
+            _shipModel.Laser.ReloadRemaining.OnChanged -= OnReloadRemainingChanged;
 
             _model.ActionScheduler.ResetSchedule();
         }
@@ -152,7 +161,16 @@ namespace SelStrom.Asteroids
         {
             Kill(_shipModel);
             Stop();
+            
+            _playerInput.OnRestartAction += OnRestart;
             // TODO @a.shatalov: complete game;
+        }
+
+        private void OnRestart()
+        {
+            _playerInput.OnRestartAction -= OnRestart;
+            _model.CleanUp();
+            Start();
         }
 
         private void OnBulletCollided(BulletModel bullet, Collision2D col)
@@ -168,6 +186,7 @@ namespace SelStrom.Asteroids
 
         private void PlayEffect(GameObject prefab, in Vector2 position)
         {
+            // TODO @a.shatalov: cleanup effect
             var effect = _catalog.ViewFactory.Get<EffectVisual>(prefab);
             effect.transform.position = position;
             effect.Connect(OnEffectStopped);
@@ -258,14 +277,14 @@ namespace SelStrom.Asteroids
         }
 
 
-        private void OnRotateAction(InputValue inputValue)
+        private void OnRotateAction(float direction)
         {
-            _shipModel.Rotate.TargetDirection = inputValue.Get<float>();
+            _shipModel.Rotate.TargetDirection = direction;
         }
 
-        private void OnTrust(InputValue inputValue)
+        private void OnTrust(bool isTrust)
         {
-            _shipModel.Thrust.IsActive.Value = inputValue.isPressed;
+            _shipModel.Thrust.IsActive.Value = isTrust;
         }
 
         private void OnAttack()
