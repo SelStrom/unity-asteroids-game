@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Model.Components;
 using SelStrom.Asteroids.Configs;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -78,9 +79,9 @@ namespace SelStrom.Asteroids
             AddToCatalog(model, view);
         }
         
-        public void CreateAsteroid(int age, Vector2 position, float speed)
+        public void CreateAsteroid(int size, Vector2 position, float speed)
         {
-            var data = age switch
+            var data = size switch
             {
                 3 => _configs.AsteroidBig,
                 2 => _configs.AsteroidMedium,
@@ -89,14 +90,15 @@ namespace SelStrom.Asteroids
             };
 
             var model = _modelFactory.Get<AsteroidModel>();
-            model.SetData(data, age, position, Random.insideUnitCircle, speed);
+            model.SetData(data, size, position, Random.insideUnitCircle, speed);
 
             var view = _viewFactory.Get<AsteroidVisual>(data.Prefab);
             view.Connect((model.Move.Position, model.Data.SpriteVariants));
             AddToCatalog(model, view);
         }
         
-        public UfoBigModel CreateBigUfo(ShipModel ship, Vector2 position, Vector2 direction, Action<UfoBigModel> onRegisterCollision)
+        public void CreateBigUfo(ShipModel ship, Vector2 position, Vector2 direction,
+            Action<UfoBigModel> onRegisterCollision, Action<GunComponent> onGunShooting)
         {
             var model = _modelFactory.Get<UfoBigModel>();
             model.SetData(_configs.UfoBig, position, direction, _configs.UfoBig.Speed);
@@ -104,7 +106,7 @@ namespace SelStrom.Asteroids
             model.Gun.MaxShoots = _configs.UfoBig.Gun.MaxShoots;
             model.Gun.ReloadDurationSec = _configs.UfoBig.Gun.ReloadDurationSec;
             model.Gun.ReloadRemaining = _configs.UfoBig.Gun.ReloadDurationSec;
-
+            model.Gun.OnShooting = onGunShooting;
             
             var view = _viewFactory.Get<UfoVisual>(_configs.UfoBig.Prefab);
             view.Connect(new UfoVisualData()
@@ -114,10 +116,10 @@ namespace SelStrom.Asteroids
             });
 
             AddToCatalog(model, view);
-            return model;
         }
 
-        public UfoModel CreateUfo(ShipModel ship, Vector2 position, Vector2 direction, Action<UfoBigModel> onRegisterCollision)
+        public void CreateUfo(ShipModel ship, Vector2 position, Vector2 direction,
+            Action<UfoBigModel> onRegisterCollision, Action<GunComponent> onGunShooting)
         {
             var model = _modelFactory.Get<UfoModel>();
             model.SetData(_configs.UfoBig, position, direction, _configs.Ufo.Speed);
@@ -127,6 +129,7 @@ namespace SelStrom.Asteroids
             model.Gun.MaxShoots = _configs.Ufo.Gun.MaxShoots;
             model.Gun.ReloadDurationSec = _configs.Ufo.Gun.ReloadDurationSec;
             model.Gun.ReloadRemaining = _configs.Ufo.Gun.ReloadDurationSec;
+            model.Gun.OnShooting = onGunShooting;
             
             var view = _viewFactory.Get<UfoVisual>(_configs.Ufo.Prefab);
             view.Connect(new UfoVisualData()
@@ -136,7 +139,6 @@ namespace SelStrom.Asteroids
             });
 
             AddToCatalog(model, view);
-            return model;
         }
 
         private void AddToCatalog(IGameEntityModel model, BaseVisual view)

@@ -442,6 +442,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 532052853}
+  - component: {fileID: 532052854}
   m_Layer: 0
   m_Name: Score
   m_TagString: Untagged
@@ -472,6 +473,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &532052854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532052852}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 136c91fb3b9443a7923cc6372f7ef7cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _scoreText: {fileID: 927595262}
 --- !u!1001 &554082398
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1010,6 +1024,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 0
+--- !u!114 &927595262 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5440951683491703319, guid: 93c4f6f5c3510134cb356d49e9b276f6, type: 3}
+  m_PrefabInstance: {fileID: 927595258}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 927595260}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1197507361
 GameObject:
   m_ObjectHideFlags: 0
@@ -1042,7 +1067,8 @@ MonoBehaviour:
   _configs: {fileID: 11400000, guid: 700dd9fc01b368041be4f0f2ef8c5429, type: 2}
   _poolContainer: {fileID: 1784840781}
   _gameContainer: {fileID: 1328372473}
-  _hud: {fileID: 1687355233}
+  _hudVisual: {fileID: 1687355233}
+  _scoreVisual: {fileID: 532052854}
 --- !u!4 &1197507363
 Transform:
   m_ObjectHideFlags: 0
@@ -1375,7 +1401,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5440951683491703319, guid: 93c4f6f5c3510134cb356d49e9b276f6, type: 3}
       propertyPath: m_text
-      value: You loose.
+      value: You loose
       objectReference: {fileID: 0}
     - target: {fileID: 5440951683491703319, guid: 93c4f6f5c3510134cb356d49e9b276f6, type: 3}
       propertyPath: m_fontSize

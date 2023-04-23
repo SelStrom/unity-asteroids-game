@@ -15,11 +15,12 @@ namespace SelStrom.Asteroids
 
         private ShipModel _shipModel;
         private readonly EntitiesCatalog _catalog;
-        private Hud _hud;
+        private readonly GameScreen _gameScreen;
 
-        public Game(EntitiesCatalog catalog, Model model, GameData configs, PlayerInput playerInput, Hud hud)
+        public Game(EntitiesCatalog catalog, Model model, GameData configs, PlayerInput playerInput,
+            GameScreen gameScreen)
         {
-            _hud = hud;
+            _gameScreen = gameScreen;
             _model = model;
             _configs = configs;
             _playerInput = playerInput;
@@ -32,83 +33,48 @@ namespace SelStrom.Asteroids
         public void Start()
         {
             _shipModel = _catalog.CreateShip(OnShipCollided);
-            _shipModel.Gun.OnShooting += OnUserGunShooting;
-            _shipModel.Laser.OnShooting += OnUserLaserShooting;
+            _shipModel.Gun.OnShooting = OnUserGunShooting;
+            _shipModel.Laser.OnShooting = OnUserLaserShooting;
 
             for (var i = 0; i < _configs.AsteroidInitialCount; i++)
             {
                 SpawnAsteroid(_shipModel.Move.Position.Value);
             }
-            
+
             _playerInput.OnAttackAction += OnAttack;
             _playerInput.OnRotateAction += OnRotateAction;
             _playerInput.OnTrustAction += OnTrust;
             _playerInput.OnLaserAction += OnLaser;
 
             _model.ActionScheduler.ScheduleAction(SpawnNewEnemy, _configs.SpawnNewEnemyDurationSec);
-            
-            InitializeHud();
+
+            _gameScreen.Connect(new GameScreenData
+            {
+                ShipModel = _shipModel,
+                Model = _model
+            });
+            _gameScreen.ToggleState(GameScreen.State.Game);
         }
 
-        private void InitializeHud()
+        private void Stop()
         {
-            _hud.Connect(new HudData());
-            _shipModel.Move.Position.OnChanged += OnShipPositionChanged;
-            _shipModel.Move.Speed.OnChanged += OnShipSpeedChanged;
-            _shipModel.Rotate.Rotation.OnChanged += OnShipRotationChanged;
-            _shipModel.Laser.CurrentShoots.OnChanged += OnCurrentShootsChanged;
-            _shipModel.Laser.ReloadRemaining.OnChanged += OnReloadRemainingChanged;
+            _model.ActionScheduler.ResetSchedule();
 
-            OnShipPositionChanged(_shipModel.Move.Position.Value);
-            OnShipSpeedChanged(_shipModel.Move.Speed.Value);
-            OnShipRotationChanged(_shipModel.Rotate.Rotation.Value);
-            OnCurrentShootsChanged(_shipModel.Laser.CurrentShoots.Value);
-            OnReloadRemainingChanged(_shipModel.Laser.ReloadRemaining.Value);
-        }
-
-        private void OnReloadRemainingChanged(float timeRemaining)
-        {
-            _hud.Data.LaserReloadTime.Value = $"Reload laser: {TimeSpan.FromSeconds((int)timeRemaining):%s} sec";
-        }
-
-        private void OnCurrentShootsChanged(int shoots)
-        {
-            _hud.Data.LaserShootCount.Value = $"Laser shoots: {shoots.ToString()}";
-            _hud.Data.LaserReloadTimeVisible.Value = shoots < _configs.Laser.LaserMaxShoots;
-        }
-
-        private void OnShipRotationChanged(Vector2 direction)
-        {
-            _hud.Data.RotationAngle.Value = $"Rotation: {(Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg).ToString("F1", CultureInfo.InvariantCulture)} degrees";
-        }
-
-        private void OnShipPositionChanged(Vector2 position)
-        {
-            _hud.Data.Coordinates.Value = $"Coordinates: {position.ToString("F1")}";
-        }
-        
-        private void OnShipSpeedChanged(float speed)
-        {
-            _hud.Data.Speed.Value = $"Speed: {speed.ToString("F1", CultureInfo.InvariantCulture) } points/sec";
-        }
-
-        public void Stop()
-        {
             _playerInput.OnAttackAction -= OnAttack;
             _playerInput.OnRotateAction -= OnRotateAction;
             _playerInput.OnTrustAction -= OnTrust;
             _playerInput.OnLaserAction -= OnLaser;
-            
-            _shipModel.Gun.OnShooting -= OnUserGunShooting;
-            _shipModel.Laser.OnShooting -= OnUserLaserShooting;       
-            
-            _shipModel.Move.Position.OnChanged -= OnShipPositionChanged;
-            _shipModel.Move.Speed.OnChanged -= OnShipSpeedChanged;
-            _shipModel.Rotate.Rotation.OnChanged -= OnShipRotationChanged;
-            _shipModel.Laser.CurrentShoots.OnChanged -= OnCurrentShootsChanged;
-            _shipModel.Laser.ReloadRemaining.OnChanged -= OnReloadRemainingChanged;
 
-            _model.ActionScheduler.ResetSchedule();
+            _gameScreen.ToggleState(GameScreen.State.EndGame);
+
+            _playerInput.OnRestartAction += OnRestart;
+        }
+
+        private void OnRestart()
+        {
+            _playerInput.OnRestartAction -= OnRestart;
+            _model.CleanUp();
+            Start();
         }
 
         private void SpawnNewEnemy()
@@ -132,23 +98,22 @@ namespace SelStrom.Asteroids
 
         private void SpawnUfo(Vector2 shipPosition)
         {
-            var position = GetRandomUfoPosition(shipPosition, _model.GameArea, _configs.SpawnAllowedRadius);
-            var ufo = _catalog.CreateUfo(_shipModel, position, Random.insideUnitCircle.normalized, OnUfoCollided);
-            ufo.Gun.OnShooting = OnEnemyShooting;
+            var position = GameUtils.GetRandomUfoPosition(shipPosition, _model.GameArea, _configs.SpawnAllowedRadius);
+            _catalog.CreateUfo(_shipModel, position, Random.insideUnitCircle.normalized, OnUfoCollided, OnEnemyGunShooting);
         }
 
         private void SpawnBigUfo(Vector2 shipPosition)
         {
-            var position = GetRandomUfoPosition(shipPosition, _model.GameArea, _configs.SpawnAllowedRadius);
-            var ufo = _catalog.CreateBigUfo(_shipModel, position, (Random.insideUnitCircle * new Vector2(1, 0.1f)).normalized,
-                OnUfoCollided);
-            ufo.Gun.OnShooting = OnEnemyShooting;
+            var position = GameUtils.GetRandomUfoPosition(shipPosition, _model.GameArea, _configs.SpawnAllowedRadius);
+            _catalog.CreateBigUfo(_shipModel, position,
+                (Random.insideUnitCircle * new Vector2(1, 0.1f)).normalized,
+                OnUfoCollided, OnEnemyGunShooting);
         }
 
         private void SpawnAsteroid(Vector2 shipPosition)
         {
             var asteroidPosition =
-                GetRandomAsteroidPosition(shipPosition, _model.GameArea, _configs.SpawnAllowedRadius);
+                GameUtils.GetRandomAsteroidPosition(shipPosition, _model.GameArea, _configs.SpawnAllowedRadius);
             _catalog.CreateAsteroid(3, asteroidPosition, Random.Range(1f, 3f));
         }
 
@@ -161,27 +126,30 @@ namespace SelStrom.Asteroids
         {
             Kill(_shipModel);
             Stop();
-            
-            _playerInput.OnRestartAction += OnRestart;
-            // TODO @a.shatalov: complete game;
         }
 
-        private void OnRestart()
-        {
-            _playerInput.OnRestartAction -= OnRestart;
-            _model.CleanUp();
-            Start();
-        }
-
-        private void OnBulletCollided(BulletModel bullet, Collision2D col)
+        private void OnUserBulletCollided(BulletModel bullet, Collision2D col)
         {
             Kill(bullet);
             col.otherCollider.enabled = false;
 
+            // TODO @a.shatalov: impl score receiver
             if (_catalog.TryFindModel<AsteroidModel, AsteroidVisual>(col.gameObject, out var asteroidModel))
             {
+                _model.ReceiveScore(asteroidModel);
                 Kill(asteroidModel);
             }
+
+            if (_catalog.TryFindModel<UfoBigModel, UfoVisual>(col.gameObject, out var ufoModel))
+            {
+                _model.ReceiveScore(ufoModel);
+            }
+        }
+        
+        private void OnEnemyBulletCollided(BulletModel bullet, Collision2D col)
+        {
+            Kill(bullet);
+            col.otherCollider.enabled = false;
         }
 
         private void PlayEffect(GameObject prefab, in Vector2 position)
@@ -205,46 +173,41 @@ namespace SelStrom.Asteroids
         private void Kill(IGameEntityModel entityModel)
         {
             entityModel.Kill();
-
-            if (entityModel is AsteroidModel asteroidModel)
+            switch (entityModel)
             {
-                PlayEffect(_configs.VfxBlowPrefab, asteroidModel.Move.Position.Value);
+                case AsteroidModel asteroidModel:
+                    PlayEffect(_configs.VfxBlowPrefab, asteroidModel.Move.Position.Value);
 
-                var age = asteroidModel.Age - 1;
-                if (age <= 0)
-                {
-                    return;
-                }
+                    var age = asteroidModel.Age - 1;
+                    if (age <= 0)
+                    {
+                        return;
+                    }
 
-                var position = asteroidModel.Move.Position.Value;
-                var speed = Math.Min(asteroidModel.Move.Speed.Value * 2, 10f);
-                _catalog.CreateAsteroid(age, position, speed);
-                _catalog.CreateAsteroid(age, position, speed);
-
-                return;
-            }
-
-            if (entityModel is UfoBigModel ufoModel)
-            {
-                PlayEffect(_configs.VfxBlowPrefab, ufoModel.Move.Position.Value);
-            }
-
-            if (entityModel is ShipModel shipModel)
-            {
-                PlayEffect(_configs.VfxBlowPrefab, shipModel.Move.Position.Value);
+                    var position = asteroidModel.Move.Position.Value;
+                    var speed = Math.Min(asteroidModel.Move.Speed.Value * 2, 10f);
+                    _catalog.CreateAsteroid(age, position, speed);
+                    _catalog.CreateAsteroid(age, position, speed);
+                    break;
+                case ShipModel shipModel:
+                    PlayEffect(_configs.VfxBlowPrefab, shipModel.Move.Position.Value);
+                    break;
+                case UfoBigModel ufoModel:
+                    PlayEffect(_configs.VfxBlowPrefab, ufoModel.Move.Position.Value);
+                    break;
             }
         }
 
-        private void OnEnemyShooting(GunComponent gun)
+        private void OnEnemyGunShooting(GunComponent gun)
         {
             _catalog.CreateBullet(_configs.Bullet, _configs.Bullet.EnemyPrefab, gun.ShootPosition, gun.Direction,
-                OnBulletCollided);
+                OnEnemyBulletCollided);
         }
 
         private void OnUserGunShooting(GunComponent gun)
         {
             _catalog.CreateBullet(_configs.Bullet, _configs.Bullet.Prefab, gun.ShootPosition, gun.Direction,
-                OnBulletCollided);
+                OnUserBulletCollided);
         }
 
         private void OnUserLaserShooting(LaserComponent laserComponent)
@@ -271,6 +234,7 @@ namespace SelStrom.Asteroids
                 var gameObject = hit.collider.gameObject;
                 if (_catalog.TryFindModel<IGameEntityModel, BaseVisual>(gameObject, out var model))
                 {
+                    _model.ReceiveScore(model);
                     Kill(model);
                 }
             }
@@ -299,35 +263,6 @@ namespace SelStrom.Asteroids
             _shipModel.Laser.Shooting = true;
             _shipModel.Laser.Direction = _shipModel.Rotate.Rotation.Value;
             _shipModel.Laser.ShootPosition = _shipModel.ShootPoint;
-        }
-
-
-        private static Vector2 GetRandomUfoPosition(in Vector2 shipPosition, in Vector2 gameArea, int spawnAllowedRadius)
-        {
-            var position = new Vector2(0, Random.Range(0, gameArea.y)) - gameArea * 0.5f;
-
-            var verticalDistance = shipPosition.y - position.y;
-            var allowedDistance = verticalDistance - spawnAllowedRadius;
-            if (allowedDistance < 0)
-            {
-                position.y += verticalDistance / Math.Abs(verticalDistance) * allowedDistance;
-            }
-
-            return position;
-        }
-
-        private static Vector2 GetRandomAsteroidPosition(in Vector2 shipPosition, in Vector2 gameArea, int spawnAllowedRadius)
-        {
-            var position = new Vector2(Random.Range(0, gameArea.x), Random.Range(0, gameArea.y)) - gameArea * 0.5f;
-
-            var distance = shipPosition - position;
-            var allowedDistance = distance.magnitude - spawnAllowedRadius;
-            if (allowedDistance < 0)
-            {
-                position += distance.normalized * allowedDistance;
-            }
-
-            return position;
         }
     }
 }
