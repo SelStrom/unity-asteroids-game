@@ -1,4 +1,6 @@
-# asteroids
+# unity asteroids game
+
+This is a simple implementation with a component-like model and minimal using of MonoBehaviours. They just used to provide the data to components.
 
 Goals:
 1. Use Unity Input System
