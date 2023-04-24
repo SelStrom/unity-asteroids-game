@@ -13,10 +13,19 @@ namespace SelStrom.Asteroids
     
     public class GameScreen
     {
+        public enum State
+        {
+            Default = 0,
+            Game,
+            EndGame
+        }
+        
         private readonly HudVisual _hudVisual;
         private readonly ScoreVisual _score;
         private readonly GameData _configs;
         private HudData _hudData;
+        
+        private State _currentState;
         
         private GameScreenData _data;
 
@@ -90,9 +99,16 @@ namespace SelStrom.Asteroids
 
         public void ToggleState(State state)
         {
-            switch (state)
+            if (_currentState == state)
+            {
+                return;
+            }
+
+            _currentState = state;
+            switch (_currentState)
             {
                 case State.Game:
+                    DeactivateHud();
                     ActivateHud();
                     _hudVisual.gameObject.SetActive(true);
                     _score.gameObject.SetActive(false);
@@ -103,15 +119,11 @@ namespace SelStrom.Asteroids
                     _hudVisual.gameObject.SetActive(false);
                     _score.gameObject.SetActive(true);
                     break;
+                case State.Default:
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
             }
-        }
-
-        public enum State
-        {
-            Game,
-            EndGame
+            
         }
     }
 }
