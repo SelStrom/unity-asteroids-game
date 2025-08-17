@@ -62,6 +62,8 @@ namespace SelStrom.Asteroids
 
         public Vector2 GameArea;
         private readonly IGroupVisitor _groupCreator;
+        
+        public int Score { get; private set; }
 
         public ActionScheduler ActionScheduler { get; }
 
@@ -102,7 +104,23 @@ namespace SelStrom.Asteroids
 
             return (TSystem)system;
         }
-
+        
+        public void ReceiveScore(IGameEntityModel scoreHolder)
+        {
+            switch (scoreHolder)
+            {
+                case AsteroidModel ctx:
+                    Score += ctx.Data.Score;
+                    break;
+                case UfoModel ctx:
+                    Score += ctx.Data.Score;
+                    break;
+                case UfoBigModel ctx:
+                    Score += ctx.Data.Score;
+                    break;
+            }
+        }
+        
         public void Update(float deltaTime)
         {
             ActionScheduler.Update(deltaTime);
@@ -160,6 +178,7 @@ namespace SelStrom.Asteroids
                 OnEntityDestroyed?.Invoke(entity);
             }
             _entities.Clear();
+            Score = 0;
         }
     }
 }

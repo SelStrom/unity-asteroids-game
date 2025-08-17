@@ -12,8 +12,7 @@ namespace SelStrom.Asteroids
         public readonly ObservableField<bool> LaserReloadTimeVisible = new();
     }
 
-
-    public class Hud : BaseVisual<HudData>
+    public class HudVisual : BaseVisual<HudData>
     {
         [SerializeField] private GuiText _coordinates = default;
         [SerializeField] private GuiText _rotationAngle = default;
