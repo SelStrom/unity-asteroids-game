@@ -87,15 +87,15 @@ namespace SelStrom.Asteroids
             _newEntities.Add(entityModel);
         }
 
-        private TSystem RegisterSystem<TSystem>() where TSystem : class, IModelSystem
+        private TSystem RegisterSystem<TSystem>() where TSystem : class, IModelSystem, new() 
         {
-            var system = (TSystem)Activator.CreateInstance(typeof(TSystem));
+            var system = new TSystem();
             _typeToSystem.Add(typeof(TSystem), system);
             _systems.AddLast(system);
             return system;
         }
 
-        public TSystem GetSystem<TSystem>() where TSystem : class, IModelSystem
+        public TSystem GetSystem<TSystem>() where TSystem : class, IModelSystem, new() 
         {
             if (!_typeToSystem.TryGetValue(typeof(TSystem), out var system))
             {
