@@ -11,4 +11,4 @@ ScriptedImporter:
   generateWrapperCode: 1
   wrapperCodePath: Assets/Scripts/Input/PlayerActions.cs
   wrapperClassName: PlayerActions
-  wrapperCodeNamespace: 
+  wrapperCodeNamespace: SelStrom.Asteroids
