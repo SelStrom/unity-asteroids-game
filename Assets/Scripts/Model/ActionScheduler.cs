@@ -12,7 +12,7 @@ namespace SelStrom.Asteroids
             public Action Action;
         }
 
-        private readonly HashSet<ScheduledAction> _scheduledEntries = new();
+        private readonly List<ScheduledAction> _scheduledEntries = new();
         private float _nextUpdateDuration = float.MaxValue;
         private float _secondsSinceLastUpdate;
 
@@ -25,6 +25,7 @@ namespace SelStrom.Asteroids
                 Duration = nextUpdate,
                 Action = action,
             });
+            //TODO theoretically it can be added during update. So it should be add new entries collection
         }
 
         public void Update(float deltaTime)
@@ -39,21 +40,22 @@ namespace SelStrom.Asteroids
             {
                 return;
             }
-
-            foreach (var entry in _scheduledEntries.ToArray())
-            {
+            
+            for (var i = _scheduledEntries.Count - 1; i >= 0; i--) {
+                var entry = _scheduledEntries[i];
                 entry.Duration -= _secondsSinceLastUpdate;
-                if (entry.Duration <= 0)
-                {
-                    entry.Action?.Invoke();
-                }
-                else
-                {
+                if (entry.Duration > 0) {
                     _nextUpdateDuration = Math.Min(_nextUpdateDuration, (float)entry.Duration);
+                    continue;
                 }
+                
+                var lastIndex = _scheduledEntries.Count - 1;
+                var lastEntry = _scheduledEntries[lastIndex];
+                _scheduledEntries[i] = lastEntry;
+                _scheduledEntries.RemoveAt(lastIndex);
+                entry.Action?.Invoke();
             }
-
-            _scheduledEntries.RemoveWhere(x => x.Duration <= 0);
+            
             _secondsSinceLastUpdate = 0;
         }
 
