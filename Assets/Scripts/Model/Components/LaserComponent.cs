@@ -1,5 +1,5 @@
 using System;
-using SelStrom.Asteroids;
+using Shtl.Mvvm;
 using UnityEngine;
 
 namespace Model.Components
@@ -10,8 +10,8 @@ namespace Model.Components
         
         public int MaxShoots;
         public float UpdateDurationSec;
-        public ObservableField<int> CurrentShoots = new();
-        public ObservableField<float> ReloadRemaining = new();
+        public ObservableValue<int> CurrentShoots = new();
+        public ObservableValue<float> ReloadRemaining = new();
         
         public bool Shooting { get; set; }
         public Vector2 Direction { get; set; }

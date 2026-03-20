@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using SelStrom.Asteroids.Configs;
+using Shtl.Mvvm;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
@@ -19,6 +20,9 @@ namespace SelStrom.Asteroids
             Game,
             EndGame
         }
+
+        private readonly EventBindingContext _context = new();
+        private EventBindingContext Bind => _context;
         
         private readonly HudVisual _hudVisual;
         private readonly ScoreVisual _score;
@@ -39,34 +43,27 @@ namespace SelStrom.Asteroids
         public void Connect(in GameScreenData data)
         {
             _data = data;
+            _score.Connect(new ScoreViewModel());
         }
 
         private void ActivateHud()
         {
             _hudData = new HudData();
-            var shipModel = _data.ShipModel;
-            shipModel.Move.Position.OnChanged += OnShipPositionChanged;
-            shipModel.Move.Speed.OnChanged += OnShipSpeedChanged;
-            shipModel.Rotate.Rotation.OnChanged += OnShipRotationChanged;
-            shipModel.Laser.CurrentShoots.OnChanged += OnCurrentShootsChanged;
-            shipModel.Laser.ReloadRemaining.OnChanged += OnReloadRemainingChanged;
-
             _hudVisual.Connect(_hudData);
-            OnShipPositionChanged(shipModel.Move.Position.Value);
-            OnShipSpeedChanged(shipModel.Move.Speed.Value);
-            OnShipRotationChanged(shipModel.Rotate.Rotation.Value);
-            OnCurrentShootsChanged(shipModel.Laser.CurrentShoots.Value);
-            OnReloadRemainingChanged(shipModel.Laser.ReloadRemaining.Value);
+            
+            var shipModel = _data.ShipModel;
+            Bind.From(shipModel.Move.Position).To(OnShipPositionChanged);
+            Bind.From(shipModel.Move.Speed).To(OnShipSpeedChanged);
+            Bind.From(shipModel.Rotate.Rotation).To(OnShipRotationChanged);
+            Bind.From(shipModel.Laser.CurrentShoots).To(OnCurrentShootsChanged);
+            Bind.From(shipModel.Laser.ReloadRemaining).To(OnReloadRemainingChanged);
+
+            Bind.InvokeAll();
         }
 
         private void DeactivateHud()
         {
-            var shipModel = _data.ShipModel;
-            shipModel.Move.Position.OnChanged -= OnShipPositionChanged;
-            shipModel.Move.Speed.OnChanged -= OnShipSpeedChanged;
-            shipModel.Rotate.Rotation.OnChanged -= OnShipRotationChanged;
-            shipModel.Laser.CurrentShoots.OnChanged -= OnCurrentShootsChanged;
-            shipModel.Laser.ReloadRemaining.OnChanged -= OnReloadRemainingChanged;
+            Bind.CleanUp();
             _hudData = null;
         }
 
@@ -78,7 +75,7 @@ namespace SelStrom.Asteroids
         private void OnCurrentShootsChanged(int shoots)
         {
             _hudData.LaserShootCount.Value = $"Laser shoots: {shoots.ToString()}";
-            _hudData.LaserReloadTimeVisible.Value = shoots < _configs.Laser.LaserMaxShoots;
+            _hudData.IsLaserReloadTimeVisible.Value = shoots < _configs.Laser.LaserMaxShoots;
         }
 
         private void OnShipRotationChanged(Vector2 direction)
@@ -115,7 +112,7 @@ namespace SelStrom.Asteroids
                     break;
                 case State.EndGame:
                     DeactivateHud();
-                    _score.Connect(_data.Model.Score);
+                    _score.ViewModel.Score.Value = $"score: {_data.Model.Score}";
                     _hudVisual.gameObject.SetActive(false);
                     _score.gameObject.SetActive(true);
                     break;

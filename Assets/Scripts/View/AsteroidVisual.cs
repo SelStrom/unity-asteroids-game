@@ -1,9 +1,10 @@
+using Shtl.Mvvm;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace SelStrom.Asteroids
 {
-    public class AsteroidVisual : BaseVisual<(ObservableField<Vector2> Position, Sprite[] SpriteVariants)>
+    public class AsteroidVisual : BaseVisual<(ObservableValue<Vector2> Position, Sprite[] SpriteVariants)>
     {
         [SerializeField] private SpriteRenderer _spriteRenderer = default;
         [SerializeField] private Movable _movable = default;

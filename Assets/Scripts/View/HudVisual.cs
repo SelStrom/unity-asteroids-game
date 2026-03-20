@@ -1,53 +1,35 @@
-﻿using UnityEngine;
+﻿using Shtl.Mvvm;
+using TMPro;
+using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    public sealed class HudData
+    public sealed class HudData : AbstractViewModel
     {
-        public readonly ObservableField<string> Coordinates = new();
-        public readonly ObservableField<string> RotationAngle = new();
-        public readonly ObservableField<string> Speed = new();
-        public readonly ObservableField<string> LaserShootCount = new();
-        public readonly ObservableField<string> LaserReloadTime = new();
-        public readonly ObservableField<bool> LaserReloadTimeVisible = new();
+        public readonly ReactiveValue<string> Coordinates = new();
+        public readonly ReactiveValue<string> RotationAngle = new();
+        public readonly ReactiveValue<string> Speed = new();
+        public readonly ReactiveValue<string> LaserShootCount = new();
+        public readonly ReactiveValue<string> LaserReloadTime = new();
+        public readonly ReactiveValue<bool> IsLaserReloadTimeVisible = new();
     }
 
-    public class HudVisual : BaseVisual<HudData>
+    public class HudVisual : AbstractWidgetView<HudData>
     {
-        [SerializeField] private GuiText _coordinates = default;
-        [SerializeField] private GuiText _rotationAngle = default;
-        [SerializeField] private GuiText _speed = default;
-        [SerializeField] private GuiText _laserShootCount = default;
-        [SerializeField] private GuiText _laserReloadTime = default;
+        [SerializeField] private TMP_Text _coordinates = default;
+        [SerializeField] private TMP_Text _rotationAngle = default;
+        [SerializeField] private TMP_Text _speed = default;
+        [SerializeField] private TMP_Text _laserShootCount = default;
+        [SerializeField] private TMP_Text _laserReloadTime = default;
 
         protected override void OnConnected()
         {
-            _coordinates.Connect(Data.Coordinates);
-            _rotationAngle.Connect(Data.RotationAngle);
-            _speed.Connect(Data.Speed);
-            _laserShootCount.Connect(Data.LaserShootCount);
-            _laserReloadTime.Connect(Data.LaserReloadTime);
-            
-            Data.LaserReloadTimeVisible.OnChanged += OnLaserReloadTimeVisibleChanged;
-            OnLaserReloadTimeVisibleChanged(Data.LaserReloadTimeVisible.Value);
-        }
-
-        private void OnLaserReloadTimeVisibleChanged(bool isVisible)
-        {
-            _laserReloadTime.gameObject.SetActive(isVisible);
-        }
-
-        protected override void OnDisposed()
-        {
-            _coordinates.Dispose();
-            _rotationAngle.Dispose();
-            _speed.Dispose();
-            _laserShootCount.Dispose();
-            _laserReloadTime.Dispose();
-
-            Data.LaserReloadTimeVisible.OnChanged -= OnLaserReloadTimeVisibleChanged;
-
-            base.OnDisposed();
+            Bind.From(ViewModel.Coordinates).To(_coordinates);
+            Bind.From(ViewModel.RotationAngle).To(_rotationAngle);
+            Bind.From(ViewModel.Speed).To(_speed);
+            Bind.From(ViewModel.LaserShootCount).To(_laserShootCount);
+            Bind.From(ViewModel.LaserReloadTime).To(_laserReloadTime);
+            Bind.From(ViewModel.IsLaserReloadTimeVisible).To(_laserReloadTime.gameObject);
         }
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    public class ApplicationComponent : MonoBehaviour, IApplicationComponent
+    public class ApplicationEntry : MonoBehaviour, IApplicationComponent
     {
         public event Action<float> OnUpdate;
         public event Action OnPause;

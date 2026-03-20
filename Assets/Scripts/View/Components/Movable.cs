@@ -1,8 +1,9 @@
+using Shtl.Mvvm;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    public class Movable : BaseVisual<ObservableField<Vector2>>
+    public class Movable : BaseVisual<ObservableValue<Vector2>>
     {
         [SerializeField] private Transform _transform = default;
 

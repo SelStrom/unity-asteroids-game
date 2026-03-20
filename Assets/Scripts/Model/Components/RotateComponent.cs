@@ -1,4 +1,4 @@
-using SelStrom.Asteroids;
+using Shtl.Mvvm;
 using UnityEngine;
 
 namespace Model.Components
@@ -8,6 +8,6 @@ namespace Model.Components
         public const int DegreePerSecond = 90;
 
         public float TargetDirection { get; set; }
-        public readonly ObservableField<Vector2> Rotation = new(Vector2.right);
+        public readonly ObservableValue<Vector2> Rotation = new(Vector2.right);
     }
 }

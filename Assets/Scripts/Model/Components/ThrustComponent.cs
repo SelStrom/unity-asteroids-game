@@ -1,4 +1,4 @@
-using SelStrom.Asteroids;
+using Shtl.Mvvm;
 
 namespace Model.Components
 {
@@ -8,6 +8,6 @@ namespace Model.Components
 
         public float UnitsPerSecond;
         public float MaxSpeed;
-        public readonly ObservableField<bool> IsActive = new();
+        public readonly ObservableValue<bool> IsActive = new();
     }
 }
