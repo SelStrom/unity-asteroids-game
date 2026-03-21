@@ -1,0 +1,9 @@
+
+[*]
+
+# Microsoft .NET properties
+csharp_indent_braces = false
+csharp_new_line_before_open_brace = control_blocks,local_functions,methods
+
+# ReSharper properties
+resharper_csharp_case_block_braces = end_of_line
