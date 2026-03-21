@@ -20,7 +20,12 @@ namespace SelStrom.Asteroids
 
         private void Awake()
         {
-            _application.Connect(this, _configs, _poolContainer, _gameContainer, new GameScreen(_hudVisual, _scoreVisual, _configs));
+            var authProxy = new UnityAuthProxy();
+            var leaderboardProxy = new UnityLeaderboardProxy();
+            var leaderboardService = new LeaderboardService(authProxy, leaderboardProxy, _configs.LeaderboardId);
+
+            _application.Connect(this, _configs, _poolContainer, _gameContainer,
+                new GameScreen(_hudVisual, _scoreVisual, _configs, leaderboardService));
         }
 
         public void Start()

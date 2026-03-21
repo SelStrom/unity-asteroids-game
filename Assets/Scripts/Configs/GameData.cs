@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace SelStrom.Asteroids.Configs
@@ -56,5 +56,9 @@ namespace SelStrom.Asteroids.Configs
         public LaserData Laser;
         [Space]
         public ShipData Ship;
+
+        [Space]
+        [Header("Leaderboard")]
+        public string LeaderboardId = "asteroids_highscores";
     }
 }

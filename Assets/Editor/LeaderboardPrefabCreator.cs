@@ -25,7 +25,7 @@ namespace SelStrom.AsteroidsEditor
             hlg.padding = new RectOffset(0, 0, 0, 0);
 
             var rankGo = CreateTextChild("rank_text", root.transform, 50, "#");
-            var nameGo = CreateTextChild("name_text", root.transform, 80, "AAA");
+            var nameGo = CreateTextChild("name_text", root.transform, 180, "Player");
             var scoreGo = CreateTextChild("score_text", root.transform, 120, "0");
 
             var entryVisual = root.AddComponent<LeaderboardEntryVisual>();

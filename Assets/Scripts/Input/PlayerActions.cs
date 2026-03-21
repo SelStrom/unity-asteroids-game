@@ -230,7 +230,7 @@ namespace SelStrom.Asteroids
                 {
                     ""name"": """",
                     ""id"": ""b17d0075-81f0-4eeb-861d-78b3ac4c3942"",
-                    ""path"": ""<Keyboard>/escape"",
+                    ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
