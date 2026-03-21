@@ -853,11 +853,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
-  cloudProjectId: 
+  cloudProjectId: b80d4dd7-4bb0-4c81-b29b-4e84466d4630
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 
-  organizationId: 
+  projectName: Asteroids
+  organizationId: asskunst
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   playerDataPath: 
