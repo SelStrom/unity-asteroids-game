@@ -143,7 +143,7 @@ namespace SelStrom.Asteroids
                     ""name"": ""Restart"",
                     ""type"": ""Button"",
                     ""id"": ""9accc57c-5e51-4923-a535-a59ec25a6156"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -230,7 +230,7 @@ namespace SelStrom.Asteroids
                 {
                     ""name"": """",
                     ""id"": ""b17d0075-81f0-4eeb-861d-78b3ac4c3942"",
-                    ""path"": ""<Keyboard>/anyKey"",
+                    ""path"": ""<Keyboard>/escape"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
