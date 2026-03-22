@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Model.Components;
 using SelStrom.Asteroids.Configs;
+using Shtl.Mvvm;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -10,15 +11,17 @@ namespace SelStrom.Asteroids
 {
     public class EntitiesCatalog
     {
-        private readonly Dictionary<IGameEntityModel, BaseVisual> _modelToVisual = new();
-        private readonly Dictionary<BaseVisual, IGameEntityModel> _visualToModel = new();
+        private readonly Dictionary<IGameEntityModel, IEntityView> _modelToVisual = new();
+        private readonly Dictionary<IEntityView, IGameEntityModel> _visualToModel = new();
+        private readonly Dictionary<GameObject, IGameEntityModel> _gameObjectToModel = new();
+        private readonly Dictionary<IGameEntityModel, EventBindingContext> _modelToBindings = new();
 
         private ModelFactory _modelFactory;
         private ViewFactory _viewFactory;
         private GameData _configs;
 
         public ViewFactory ViewFactory => _viewFactory;
-        
+
         public void Connect(GameData configs, ModelFactory modelFactory, ViewFactory viewFactory)
         {
             _modelFactory = modelFactory;
@@ -26,19 +29,17 @@ namespace SelStrom.Asteroids
             _configs = configs;
         }
 
-        public bool TryFindModel<TModel, TVisual>(GameObject gameObject, out TModel model) 
+        public bool TryFindModel<TModel>(GameObject gameObject, out TModel model)
             where TModel : IGameEntityModel
-            where TVisual : BaseVisual
         {
-            if (!gameObject.TryGetComponent<TVisual>(out var visual)
-                || !_visualToModel.TryGetValue(visual, out var modelBase))
+            if (_gameObjectToModel.TryGetValue(gameObject, out var modelBase) && modelBase is TModel typed)
             {
-                model = default;   
-                return false;
+                model = typed;
+                return true;
             }
 
-            model = (TModel)modelBase;
-            return true;
+            model = default;
+            return false;
         }
 
         public ShipModel CreateShip(Action<Collision2D> onRegisterCollision)
@@ -53,14 +54,22 @@ namespace SelStrom.Asteroids
             model.Laser.CurrentShoots.Value = _configs.Laser.LaserMaxShoots;
             model.Laser.UpdateDurationSec = _configs.Laser.LaserUpdateDurationSec;
             model.Laser.ReloadRemaining.Value = _configs.Laser.LaserUpdateDurationSec;
-            
+
+            var viewModel = new ShipViewModel();
+            var bindings = new EventBindingContext();
+
+            bindings.From(model.Move.Position).To(viewModel.Position);
+            bindings.From(model.Rotate.Rotation).To(viewModel.Rotation);
+            bindings.From(model.Thrust.IsActive).To(viewModel.Sprite,
+                (bool isThrust, ReactiveValue<Sprite> sprite) =>
+                    sprite.Value = isThrust ? _configs.Ship.ThrustSprite : _configs.Ship.MainSprite);
+
+            viewModel.OnCollision.Value = onRegisterCollision;
+            bindings.InvokeAll();
+
             var view = _viewFactory.Get<ShipVisual>(_configs.Ship.Prefab);
-            view.Connect(new ShipVisualData
-            {
-                ShipModel = model,
-                OnRegisterCollision = onRegisterCollision
-            });
-            AddToCatalog(model, view);
+            view.Connect(viewModel);
+            AddToCatalog(model, view, bindings);
             return model;
         }
 
@@ -70,15 +79,18 @@ namespace SelStrom.Asteroids
             var model = _modelFactory.Get<BulletModel>();
             model.SetData(data, position, direction, data.Speed);
 
+            var viewModel = new BulletViewModel();
+            var bindings = new EventBindingContext();
+
+            bindings.From(model.Move.Position).To(viewModel.Position);
+            viewModel.OnCollision.Value = col => onRegisterCollision(model, col);
+            bindings.InvokeAll();
+
             var view = _viewFactory.Get<BulletVisual>(prefab);
-            view.Connect(new BulletVisualData
-            {
-                BulletModel = model,
-                OnRegisterCollision = onRegisterCollision,
-            });
-            AddToCatalog(model, view);
+            view.Connect(viewModel);
+            AddToCatalog(model, view, bindings);
         }
-        
+
         public void CreateAsteroid(int size, Vector2 position, float speed)
         {
             var data = size switch
@@ -92,11 +104,18 @@ namespace SelStrom.Asteroids
             var model = _modelFactory.Get<AsteroidModel>();
             model.SetData(data, size, position, Random.insideUnitCircle, speed);
 
+            var viewModel = new AsteroidViewModel();
+            var bindings = new EventBindingContext();
+
+            bindings.From(model.Move.Position).To(viewModel.Position);
+            viewModel.Sprite.Value = data.SpriteVariants[Random.Range(0, data.SpriteVariants.Length)];
+            bindings.InvokeAll();
+
             var view = _viewFactory.Get<AsteroidVisual>(data.Prefab);
-            view.Connect((model.Move.Position, model.Data.SpriteVariants));
-            AddToCatalog(model, view);
+            view.Connect(viewModel);
+            AddToCatalog(model, view, bindings);
         }
-        
+
         public void CreateBigUfo(ShipModel ship, Vector2 position, Vector2 direction,
             Action<UfoBigModel> onRegisterCollision, Action<GunComponent> onGunShooting)
         {
@@ -107,15 +126,17 @@ namespace SelStrom.Asteroids
             model.Gun.ReloadDurationSec = _configs.UfoBig.Gun.ReloadDurationSec;
             model.Gun.ReloadRemaining = _configs.UfoBig.Gun.ReloadDurationSec;
             model.Gun.OnShooting = onGunShooting;
-            
-            var view = _viewFactory.Get<UfoVisual>(_configs.UfoBig.Prefab);
-            view.Connect(new UfoVisualData()
-            {
-                UfoModel = model,
-                OnRegisterCollision = onRegisterCollision,
-            });
 
-            AddToCatalog(model, view);
+            var viewModel = new UfoViewModel();
+            var bindings = new EventBindingContext();
+
+            bindings.From(model.Move.Position).To(viewModel.Position);
+            viewModel.OnCollision.Value = () => onRegisterCollision(model);
+            bindings.InvokeAll();
+
+            var view = _viewFactory.Get<UfoVisual>(_configs.UfoBig.Prefab);
+            view.Connect(viewModel);
+            AddToCatalog(model, view, bindings);
         }
 
         public void CreateUfo(ShipModel ship, Vector2 position, Vector2 direction,
@@ -130,29 +151,40 @@ namespace SelStrom.Asteroids
             model.Gun.ReloadDurationSec = _configs.Ufo.Gun.ReloadDurationSec;
             model.Gun.ReloadRemaining = _configs.Ufo.Gun.ReloadDurationSec;
             model.Gun.OnShooting = onGunShooting;
-            
-            var view = _viewFactory.Get<UfoVisual>(_configs.Ufo.Prefab);
-            view.Connect(new UfoVisualData()
-            {
-                UfoModel = model,
-                OnRegisterCollision = onRegisterCollision,
-            });
 
-            AddToCatalog(model, view);
+            var viewModel = new UfoViewModel();
+            var bindings = new EventBindingContext();
+
+            bindings.From(model.Move.Position).To(viewModel.Position);
+            viewModel.OnCollision.Value = () => onRegisterCollision(model);
+            bindings.InvokeAll();
+
+            var view = _viewFactory.Get<UfoVisual>(_configs.Ufo.Prefab);
+            view.Connect(viewModel);
+            AddToCatalog(model, view, bindings);
         }
 
-        private void AddToCatalog(IGameEntityModel model, BaseVisual view)
+        private void AddToCatalog(IGameEntityModel model, IEntityView view, EventBindingContext bindings)
         {
             _modelToVisual.Add(model, view);
             _visualToModel.Add(view, model);
+            _gameObjectToModel.Add(view.gameObject, model);
+            _modelToBindings.Add(model, bindings);
         }
 
         public void Release(IGameEntityModel model)
         {
             var view = _modelToVisual[model];
 
+            if (_modelToBindings.TryGetValue(model, out var bindings))
+            {
+                bindings.CleanUp();
+                _modelToBindings.Remove(model);
+            }
+
             _modelToVisual.Remove(model);
             _visualToModel.Remove(view);
+            _gameObjectToModel.Remove(view.gameObject);
 
             _viewFactory.Release(view);
             _modelFactory.Release(model);
@@ -160,8 +192,15 @@ namespace SelStrom.Asteroids
 
         public void CleanUp()
         {
+            foreach (var bindings in _modelToBindings.Values)
+            {
+                bindings.CleanUp();
+            }
+
+            _modelToBindings.Clear();
             _modelToVisual.Clear();
             _visualToModel.Clear();
+            _gameObjectToModel.Clear();
         }
 
         public void Dispose()

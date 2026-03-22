@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Model.Components;
 using SelStrom.Asteroids.Configs;
 using UnityEngine;
@@ -133,13 +133,13 @@ namespace SelStrom.Asteroids
             col.otherCollider.enabled = false;
 
             // TODO @a.shatalov: impl score receiver
-            if (_catalog.TryFindModel<AsteroidModel, AsteroidVisual>(col.gameObject, out var asteroidModel))
+            if (_catalog.TryFindModel<AsteroidModel>(col.gameObject, out var asteroidModel))
             {
                 _model.ReceiveScore(asteroidModel);
                 Kill(asteroidModel);
             }
 
-            if (_catalog.TryFindModel<UfoBigModel, UfoVisual>(col.gameObject, out var ufoModel))
+            if (_catalog.TryFindModel<UfoBigModel>(col.gameObject, out var ufoModel))
             {
                 _model.ReceiveScore(ufoModel);
             }
@@ -231,7 +231,7 @@ namespace SelStrom.Asteroids
             {
                 var hit = hits[i];
                 var gameObject = hit.collider.gameObject;
-                if (_catalog.TryFindModel<IGameEntityModel, BaseVisual>(gameObject, out var model))
+                if (_catalog.TryFindModel<IGameEntityModel>(gameObject, out var model))
                 {
                     _model.ReceiveScore(model);
                     Kill(model);

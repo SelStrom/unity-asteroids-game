@@ -1,48 +1,38 @@
 using System;
+using SelStrom.Asteroids.Bindings;
+using Shtl.Mvvm;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    public struct ShipVisualData
+    public class ShipViewModel : AbstractViewModel
     {
-        public ShipModel ShipModel;
-        public Action<Collision2D> OnRegisterCollision;
+        public readonly ReactiveValue<Vector2> Position = new();
+        public readonly ReactiveValue<Vector2> Rotation = new();
+        public readonly ReactiveValue<Sprite> Sprite = new();
+        public readonly ReactiveValue<Action<Collision2D>> OnCollision = new();
     }
-    
-    public class ShipVisual : BaseVisual<ShipVisualData>
+
+    public class ShipVisual : AbstractWidgetView<ShipViewModel>, IEntityView
     {
         [SerializeField] private SpriteRenderer _spriteRenderer = default;
-        [SerializeField] private Movable _movable = default;
-        [SerializeField] private Rotatable _rotatable = default;
 
         protected override void OnConnected()
         {
-            base.OnConnected();
-            
-            _movable.Connect(Data.ShipModel.Move.Position);
-            _rotatable.Connect(Data.ShipModel.Rotate.Rotation);
-            
-            Data.ShipModel.Thrust.IsActive.OnChanged += OnThrustChanged;
-            OnThrustChanged(Data.ShipModel.Thrust.IsActive.Value);
+            Bind.From(ViewModel.Position).To(transform);
+            ViewModel.Rotation.Connect(OnRotationChanged);
+            ViewModel.Sprite.Connect(sprite => _spriteRenderer.sprite = sprite);
         }
 
-        private void OnThrustChanged(bool isThrust)
+        private void OnRotationChanged(Vector2 direction)
         {
-            _spriteRenderer.sprite = isThrust ? Data.ShipModel.Data.ThrustSprite : Data.ShipModel.Data.MainSprite;
-        }
-
-        protected override void OnDisposed()
-        {
-            Data.ShipModel.Thrust.IsActive.OnChanged -= OnThrustChanged;
-            _rotatable.Dispose();
-            _movable.Dispose();
-
-            base.OnDisposed();
+            var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0, 0, angle);
         }
 
         private void OnCollisionEnter2D(Collision2D col)
         {
-            Data.OnRegisterCollision?.Invoke(col);
+            ViewModel.OnCollision.Value?.Invoke(col);
         }
     }
 }

@@ -1,32 +1,26 @@
 using System;
+using SelStrom.Asteroids.Bindings;
+using Shtl.Mvvm;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    public struct UfoVisualData
+    public class UfoViewModel : AbstractViewModel
     {
-        public UfoBigModel UfoModel;
-        public Action<UfoBigModel> OnRegisterCollision;
+        public readonly ReactiveValue<Vector2> Position = new();
+        public readonly ReactiveValue<Action> OnCollision = new();
     }
 
-    public class UfoVisual : BaseVisual<UfoVisualData>
+    public class UfoVisual : AbstractWidgetView<UfoViewModel>, IEntityView
     {
-        [SerializeField] private Movable _movable = default;
-
         protected override void OnConnected()
         {
-            _movable.Connect(Data.UfoModel.Move.Position);
+            Bind.From(ViewModel.Position).To(transform);
         }
 
-        protected override void OnDisposed()
-        {
-            _movable.Dispose();
-            base.OnDisposed();
-        }       
-        
         private void OnCollisionEnter2D(Collision2D col)
         {
-            Data.OnRegisterCollision?.Invoke(Data.UfoModel);
+            ViewModel.OnCollision.Value?.Invoke();
         }
     }
 }

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
-    public abstract class BaseVisual : MonoBehaviour
+    public abstract class BaseVisual : MonoBehaviour, IEntityView
     {
         protected virtual void OnConnected()
         {

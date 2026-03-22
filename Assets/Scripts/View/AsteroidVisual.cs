@@ -1,23 +1,23 @@
+using SelStrom.Asteroids.Bindings;
 using Shtl.Mvvm;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace SelStrom.Asteroids
 {
-    public class AsteroidVisual : BaseVisual<(ObservableValue<Vector2> Position, Sprite[] SpriteVariants)>
+    public class AsteroidViewModel : AbstractViewModel
+    {
+        public readonly ReactiveValue<Vector2> Position = new();
+        public readonly ReactiveValue<Sprite> Sprite = new();
+    }
+
+    public class AsteroidVisual : AbstractWidgetView<AsteroidViewModel>, IEntityView
     {
         [SerializeField] private SpriteRenderer _spriteRenderer = default;
-        [SerializeField] private Movable _movable = default;
 
         protected override void OnConnected()
         {
-            _spriteRenderer.sprite = Data.SpriteVariants[Random.Range(0, Data.SpriteVariants.Length)];
-            _movable.Connect(Data.Position);
-        }
-        protected override void OnDisposed()
-        {
-            _movable.Dispose();
-            base.OnDisposed();
+            Bind.From(ViewModel.Position).To(transform);
+            ViewModel.Sprite.Connect(sprite => _spriteRenderer.sprite = sprite);
         }
     }
 }

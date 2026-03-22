@@ -18,12 +18,12 @@ namespace SelStrom.Asteroids
             return _gameObjectPool.Get<TView>(prefab, _gameContainer);
         }
 
-        public void Release(BaseVisual view)
+        public void Release(IEntityView view)
         {
             view.Dispose();
             _gameObjectPool.Release(view.gameObject);
         }
-        
+
         public void Release(GameObject gameObject)
         {
             _gameObjectPool.Release(gameObject);
