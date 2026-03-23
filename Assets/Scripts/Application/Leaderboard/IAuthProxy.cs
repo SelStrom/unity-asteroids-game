@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using System.Collections;
 
 namespace SelStrom.Asteroids
 {
@@ -6,7 +6,7 @@ namespace SelStrom.Asteroids
     {
         bool IsSignedIn { get; }
         string PlayerId { get; }
-        Task InitializeAsync();
-        Task SignInAnonymouslyAsync();
+        IEnumerator Initialize(CoroutineResult result);
+        IEnumerator SignInAnonymously(CoroutineResult result);
     }
 }

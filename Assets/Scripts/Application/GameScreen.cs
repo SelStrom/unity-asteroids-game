@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using SelStrom.Asteroids.Configs;
@@ -31,6 +32,7 @@ namespace SelStrom.Asteroids
         private readonly ScoreVisual _score;
         private readonly GameData _configs;
         private readonly LeaderboardService _leaderboardService;
+        private readonly MonoBehaviour _coroutineHost;
         private HudData _hudData;
         
         private State _currentState;
@@ -38,12 +40,13 @@ namespace SelStrom.Asteroids
         private GameScreenData _data;
 
         public GameScreen(HudVisual hudVisual, ScoreVisual score, GameData configs,
-            LeaderboardService leaderboardService)
+            LeaderboardService leaderboardService, MonoBehaviour coroutineHost)
         {
             _hudVisual = hudVisual;
             _score = score;
             _configs = configs;
             _leaderboardService = leaderboardService;
+            _coroutineHost = coroutineHost;
         }
 
         public void Connect(in GameScreenData data)
@@ -179,86 +182,101 @@ namespace SelStrom.Asteroids
             viewModel.IsNameInputVisible.Value = true;
         }
 
-        private async void FetchAndShowLeaderboard()
+        private void FetchAndShowLeaderboard()
+        {
+            _coroutineHost.StartCoroutine(FetchAndShowLeaderboardRoutine());
+        }
+
+        private IEnumerator FetchAndShowLeaderboardRoutine()
         {
             var viewModel = _score.ViewModel;
 
-            try
+            var result = new CoroutineResult<List<LeaderboardEntry>>();
+            yield return _leaderboardService.GetTopScores(result);
+
+            if (_score.ViewModel != viewModel)
             {
-                var topScores = await _leaderboardService.GetTopScoresAsync();
-
-                if (_score.ViewModel != viewModel)
-                {
-                    return;
-                }
-
-                PopulateLeaderboard(viewModel, topScores, null);
-
-                viewModel.IsLoadingVisible.Value = false;
-                viewModel.IsLeaderboardVisible.Value = true;
-                viewModel.IsNameInputVisible.Value = true;
+                yield break;
             }
-            catch (Exception e)
+
+            if (!result.IsSuccess)
             {
-                Debug.LogError($"[LeaderboardService] Failed to fetch leaderboard: {e}");
-
-                if (_score.ViewModel != viewModel)
-                {
-                    return;
-                }
-
+                Debug.LogError($"[LeaderboardService] Failed to fetch leaderboard: {result.Error}");
                 viewModel.IsLoadingVisible.Value = false;
                 viewModel.IsNameInputVisible.Value = true;
+                yield break;
             }
+
+            PopulateLeaderboard(viewModel, result.Value, null);
+            viewModel.IsLoadingVisible.Value = false;
+            viewModel.IsLeaderboardVisible.Value = true;
+            viewModel.IsNameInputVisible.Value = true;
         }
 
-        private async void SubmitAndShowLeaderboard(string playerName, int score)
+        private void SubmitAndShowLeaderboard(string playerName, int score)
+        {
+            _coroutineHost.StartCoroutine(SubmitAndShowLeaderboardRoutine(playerName, score));
+        }
+
+        private IEnumerator SubmitAndShowLeaderboardRoutine(string playerName, int score)
         {
             var viewModel = _score.ViewModel;
             viewModel.IsLoadingVisible.Value = true;
 
-            try
+            var submitResult = new CoroutineResult();
+            yield return _leaderboardService.SubmitScore(playerName, score, submitResult);
+
+            if (_score.ViewModel != viewModel)
             {
-                await _leaderboardService.SubmitScoreAsync(playerName, score);
-
-                if (_score.ViewModel != viewModel)
-                {
-                    return;
-                }
-
-                var topScores = await _leaderboardService.GetTopScoresAsync();
-
-                if (_score.ViewModel != viewModel)
-                {
-                    return;
-                }
-
-                var playerEntry = await _leaderboardService.GetPlayerScoreAsync();
-
-                if (_score.ViewModel != viewModel)
-                {
-                    return;
-                }
-
-                viewModel.Entries.Clear();
-                PopulateLeaderboard(viewModel, topScores, playerEntry);
-
-                viewModel.IsLoadingVisible.Value = false;
-                viewModel.IsLeaderboardVisible.Value = true;
-                viewModel.IsChangeNameVisible.Value = true;
+                yield break;
             }
-            catch (Exception e)
+
+            if (!submitResult.IsSuccess)
             {
-                Debug.LogError($"[LeaderboardService] Failed: {e}");
-
-                if (_score.ViewModel != viewModel)
-                {
-                    return;
-                }
-
+                Debug.LogError($"[LeaderboardService] Failed: {submitResult.Error}");
                 viewModel.IsLoadingVisible.Value = false;
                 viewModel.IsNameInputVisible.Value = true;
+                yield break;
             }
+
+            var topResult = new CoroutineResult<List<LeaderboardEntry>>();
+            yield return _leaderboardService.GetTopScores(topResult);
+
+            if (_score.ViewModel != viewModel)
+            {
+                yield break;
+            }
+
+            if (!topResult.IsSuccess)
+            {
+                Debug.LogError($"[LeaderboardService] Failed: {topResult.Error}");
+                viewModel.IsLoadingVisible.Value = false;
+                viewModel.IsNameInputVisible.Value = true;
+                yield break;
+            }
+
+            var playerResult = new CoroutineResult<LeaderboardEntry?>();
+            yield return _leaderboardService.GetPlayerScore(playerResult);
+
+            if (_score.ViewModel != viewModel)
+            {
+                yield break;
+            }
+
+            if (!playerResult.IsSuccess)
+            {
+                Debug.LogError($"[LeaderboardService] Failed: {playerResult.Error}");
+                viewModel.IsLoadingVisible.Value = false;
+                viewModel.IsNameInputVisible.Value = true;
+                yield break;
+            }
+
+            viewModel.Entries.Clear();
+            PopulateLeaderboard(viewModel, topResult.Value, playerResult.Value);
+
+            viewModel.IsLoadingVisible.Value = false;
+            viewModel.IsLeaderboardVisible.Value = true;
+            viewModel.IsChangeNameVisible.Value = true;
         }
 
         private static void PopulateLeaderboard(ScoreViewModel viewModel,

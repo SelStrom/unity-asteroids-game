@@ -1,5 +1,6 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
@@ -9,80 +10,155 @@ namespace SelStrom.Asteroids
         private readonly IAuthProxy _auth;
         private readonly ILeaderboardProxy _leaderboard;
         private readonly string _leaderboardId;
-        private Task _initTask;
+        private readonly MonoBehaviour _coroutineHost;
 
-        public LeaderboardService(IAuthProxy auth, ILeaderboardProxy leaderboard, string leaderboardId)
+        private bool _initialized;
+        private bool _initializing;
+        private Exception _initError;
+
+        public LeaderboardService(IAuthProxy auth, ILeaderboardProxy leaderboard, string leaderboardId,
+            MonoBehaviour coroutineHost)
         {
             _auth = auth;
             _leaderboard = leaderboard;
             _leaderboardId = leaderboardId;
+            _coroutineHost = coroutineHost;
         }
 
         public void Initialize()
         {
-            _initTask ??= InitializeInternalAsync();
+            if (!_initialized && !_initializing)
+            {
+                _coroutineHost.StartCoroutine(RunInitialize());
+            }
         }
 
-        private async Task InitializeInternalAsync()
+        private IEnumerator RunInitialize()
         {
-            try
+            var result = new CoroutineResult();
+            yield return EnsureInitialized(result);
+            if (!result.IsSuccess)
             {
-                await _auth.InitializeAsync();
-                if (!_auth.IsSignedIn)
+                Debug.LogError($"[LeaderboardService] Initialization failed: {result.Error}");
+            }
+        }
+
+        private IEnumerator EnsureInitialized(CoroutineResult result)
+        {
+            if (_initialized)
+            {
+                yield break;
+            }
+
+            if (_initializing)
+            {
+                yield return new WaitUntil(() => !_initializing);
+                if (!_initialized)
                 {
-                    await _auth.SignInAnonymouslyAsync();
+                    result.Error = _initError ?? new Exception("Initialization failed");
                 }
-                Debug.Log($"[LeaderboardService] Signed in. PlayerId: {_auth.PlayerId}");
+                yield break;
             }
-            catch
+
+            _initializing = true;
+
+            var authResult = new CoroutineResult();
+            yield return _auth.Initialize(authResult);
+            if (!authResult.IsSuccess)
             {
-                _initTask = null;
-                throw;
+                _initError = authResult.Error;
+                _initializing = false;
+                result.Error = authResult.Error;
+                yield break;
             }
+
+            if (!_auth.IsSignedIn)
+            {
+                var signInResult = new CoroutineResult();
+                yield return _auth.SignInAnonymously(signInResult);
+                if (!signInResult.IsSuccess)
+                {
+                    _initError = signInResult.Error;
+                    _initializing = false;
+                    result.Error = signInResult.Error;
+                    yield break;
+                }
+            }
+
+            _initialized = true;
+            _initializing = false;
+            Debug.Log($"[LeaderboardService] Signed in. PlayerId: {_auth.PlayerId}");
         }
 
-        private async Task EnsureInitializedAsync()
+        public IEnumerator SubmitScore(string playerName, int score, CoroutineResult result)
         {
-            _initTask ??= InitializeInternalAsync();
-            await _initTask;
+            var initResult = new CoroutineResult();
+            yield return EnsureInitialized(initResult);
+            if (!initResult.IsSuccess)
+            {
+                result.Error = initResult.Error;
+                yield break;
+            }
+
+            yield return _leaderboard.SubmitScore(_leaderboardId, score, playerName, result);
         }
 
-        public async Task SubmitScoreAsync(string playerName, int score)
+        public IEnumerator GetTopScores(CoroutineResult<List<LeaderboardEntry>> result, int count = 10)
         {
-            await EnsureInitializedAsync();
-            await _leaderboard.SubmitScoreAsync(_leaderboardId, score, playerName);
-        }
+            var initResult = new CoroutineResult();
+            yield return EnsureInitialized(initResult);
+            if (!initResult.IsSuccess)
+            {
+                result.Error = initResult.Error;
+                yield break;
+            }
 
-        public async Task<List<LeaderboardEntry>> GetTopScoresAsync(int count = 10)
-        {
-            await EnsureInitializedAsync();
-            var rawEntries = await _leaderboard.GetTopScoresAsync(_leaderboardId, count);
+            var rawResult = new CoroutineResult<List<LeaderboardEntry>>();
+            yield return _leaderboard.GetTopScores(_leaderboardId, count, rawResult);
+            if (!rawResult.IsSuccess)
+            {
+                result.Error = rawResult.Error;
+                yield break;
+            }
+
             var currentPlayerId = _auth.PlayerId;
-
-            var entries = new List<LeaderboardEntry>(rawEntries.Count);
-            foreach (var entry in rawEntries)
+            var entries = new List<LeaderboardEntry>(rawResult.Value.Count);
+            foreach (var entry in rawResult.Value)
             {
                 entries.Add(new LeaderboardEntry(
                     entry.Rank, entry.PlayerId, entry.PlayerName, entry.Score,
                     entry.PlayerId == currentPlayerId
                 ));
             }
-            return entries;
+            result.Value = entries;
         }
 
-        public async Task<LeaderboardEntry?> GetPlayerScoreAsync()
+        public IEnumerator GetPlayerScore(CoroutineResult<LeaderboardEntry?> result)
         {
-            await EnsureInitializedAsync();
-            var entry = await _leaderboard.GetPlayerScoreAsync(_leaderboardId);
-            if (!entry.HasValue)
+            var initResult = new CoroutineResult();
+            yield return EnsureInitialized(initResult);
+            if (!initResult.IsSuccess)
             {
-                return null;
+                result.Error = initResult.Error;
+                yield break;
             }
 
-            return new LeaderboardEntry(
-                entry.Value.Rank, entry.Value.PlayerId, entry.Value.PlayerName,
-                entry.Value.Score, true
-            );
+            var rawResult = new CoroutineResult<LeaderboardEntry?>();
+            yield return _leaderboard.GetPlayerScore(_leaderboardId, rawResult);
+            if (!rawResult.IsSuccess)
+            {
+                result.Error = rawResult.Error;
+                yield break;
+            }
+
+            if (!rawResult.Value.HasValue)
+            {
+                result.Value = null;
+                yield break;
+            }
+
+            var e = rawResult.Value.Value;
+            result.Value = new LeaderboardEntry(e.Rank, e.PlayerId, e.PlayerName, e.Score, true);
         }
     }
 }

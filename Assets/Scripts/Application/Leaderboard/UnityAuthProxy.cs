@@ -1,6 +1,7 @@
-using System.Threading.Tasks;
+using System.Collections;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
+using UnityEngine;
 
 namespace SelStrom.Asteroids
 {
@@ -9,19 +10,29 @@ namespace SelStrom.Asteroids
         public bool IsSignedIn => AuthenticationService.Instance.IsSignedIn;
         public string PlayerId => AuthenticationService.Instance.PlayerId;
 
-        public async Task InitializeAsync()
+        public IEnumerator Initialize(CoroutineResult result)
         {
             if (UnityServices.State != ServicesInitializationState.Initialized)
             {
-                await UnityServices.InitializeAsync();
+                var task = UnityServices.InitializeAsync();
+                yield return new WaitUntil(() => task.IsCompleted);
+                if (task.IsFaulted)
+                {
+                    result.Error = task.Exception;
+                }
             }
         }
 
-        public async Task SignInAnonymouslyAsync()
+        public IEnumerator SignInAnonymously(CoroutineResult result)
         {
             if (!AuthenticationService.Instance.IsSignedIn)
             {
-                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                var task = AuthenticationService.Instance.SignInAnonymouslyAsync();
+                yield return new WaitUntil(() => task.IsCompleted);
+                if (task.IsFaulted)
+                {
+                    result.Error = task.Exception;
+                }
             }
         }
     }

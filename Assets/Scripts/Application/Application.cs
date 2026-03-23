@@ -69,7 +69,9 @@ namespace SelStrom.Asteroids
 
         private void OnBack()
         {
+#if !UNITY_WEBGL
             UnityEngine.Application.Quit(0);
+#endif
         }
 
         private void Dispose()

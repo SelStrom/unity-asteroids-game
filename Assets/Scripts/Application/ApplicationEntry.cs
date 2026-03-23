@@ -22,10 +22,10 @@ namespace SelStrom.Asteroids
         {
             var authProxy = new UnityAuthProxy();
             var leaderboardProxy = new UnityLeaderboardProxy();
-            var leaderboardService = new LeaderboardService(authProxy, leaderboardProxy, _configs.LeaderboardId);
+            var leaderboardService = new LeaderboardService(authProxy, leaderboardProxy, _configs.LeaderboardId, this);
 
             _application.Connect(this, _configs, _poolContainer, _gameContainer,
-                new GameScreen(_hudVisual, _scoreVisual, _configs, leaderboardService));
+                new GameScreen(_hudVisual, _scoreVisual, _configs, leaderboardService, this));
         }
 
         public void Start()

@@ -12,6 +12,7 @@
   ],
   "includePlatforms": [
     "Editor",
+    "WebGL",
     "WindowsStandalone64"
   ],
   "excludePlatforms": [],

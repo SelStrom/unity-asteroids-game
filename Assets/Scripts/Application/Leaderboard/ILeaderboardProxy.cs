@@ -1,12 +1,12 @@
+using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SelStrom.Asteroids
 {
     public interface ILeaderboardProxy
     {
-        Task SubmitScoreAsync(string leaderboardId, int score, string playerName);
-        Task<List<LeaderboardEntry>> GetTopScoresAsync(string leaderboardId, int count);
-        Task<LeaderboardEntry?> GetPlayerScoreAsync(string leaderboardId);
+        IEnumerator SubmitScore(string leaderboardId, int score, string playerName, CoroutineResult result);
+        IEnumerator GetTopScores(string leaderboardId, int count, CoroutineResult<List<LeaderboardEntry>> result);
+        IEnumerator GetPlayerScore(string leaderboardId, CoroutineResult<LeaderboardEntry?> result);
     }
 }

@@ -1,6 +1,6 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Unity.Services.Leaderboards;
 using UnityEngine;
 
@@ -14,17 +14,20 @@ namespace SelStrom.Asteroids
             public string playerName;
         }
 
-        public async Task SubmitScoreAsync(string leaderboardId, int score, string playerName)
+        public IEnumerator SubmitScore(string leaderboardId, int score, string playerName, CoroutineResult result)
         {
             var metadata = new PlayerMetadata { playerName = playerName };
-            var options = new AddPlayerScoreOptions
+            var options = new AddPlayerScoreOptions { Metadata = metadata };
+            var task = LeaderboardsService.Instance.AddPlayerScoreAsync(leaderboardId, score, options);
+            yield return new WaitUntil(() => task.IsCompleted);
+            if (task.IsFaulted)
             {
-                Metadata = metadata
-            };
-            await LeaderboardsService.Instance.AddPlayerScoreAsync(leaderboardId, score, options);
+                result.Error = task.Exception;
+            }
         }
 
-        public async Task<List<LeaderboardEntry>> GetTopScoresAsync(string leaderboardId, int count)
+        public IEnumerator GetTopScores(string leaderboardId, int count,
+            CoroutineResult<List<LeaderboardEntry>> result)
         {
             var options = new GetScoresOptions
             {
@@ -32,30 +35,40 @@ namespace SelStrom.Asteroids
                 Limit = count,
                 IncludeMetadata = true
             };
-            var response = await LeaderboardsService.Instance.GetScoresAsync(leaderboardId, options);
+            var task = LeaderboardsService.Instance.GetScoresAsync(leaderboardId, options);
+            yield return new WaitUntil(() => task.IsCompleted);
 
+            if (task.IsFaulted)
+            {
+                result.Error = task.Exception;
+                yield break;
+            }
+
+            var response = task.Result;
             var entries = new List<LeaderboardEntry>();
             foreach (var entry in response.Results)
             {
                 var name = ParsePlayerName(entry.Metadata);
                 entries.Add(new LeaderboardEntry(entry.Rank + 1, entry.PlayerId, name, (int)entry.Score));
             }
-            return entries;
+            result.Value = entries;
         }
 
-        public async Task<LeaderboardEntry?> GetPlayerScoreAsync(string leaderboardId)
+        public IEnumerator GetPlayerScore(string leaderboardId, CoroutineResult<LeaderboardEntry?> result)
         {
-            try
+            var options = new GetPlayerScoreOptions { IncludeMetadata = true };
+            var task = LeaderboardsService.Instance.GetPlayerScoreAsync(leaderboardId, options);
+            yield return new WaitUntil(() => task.IsCompleted);
+
+            if (task.IsFaulted)
             {
-                var options = new GetPlayerScoreOptions { IncludeMetadata = true };
-                var entry = await LeaderboardsService.Instance.GetPlayerScoreAsync(leaderboardId, options);
-                var name = ParsePlayerName(entry.Metadata);
-                return new LeaderboardEntry(entry.Rank + 1, entry.PlayerId, name, (int)entry.Score);
+                result.Value = null;
+                yield break;
             }
-            catch
-            {
-                return null;
-            }
+
+            var entry = task.Result;
+            var name = ParsePlayerName(entry.Metadata);
+            result.Value = new LeaderboardEntry(entry.Rank + 1, entry.PlayerId, name, (int)entry.Score);
         }
 
         private static string ParsePlayerName(string metadataJson)
