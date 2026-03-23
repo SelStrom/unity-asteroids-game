@@ -10,7 +10,6 @@ namespace SelStrom.Asteroids
     public class ScoreViewModel : AbstractViewModel
     {
         public readonly ReactiveValue<string> Score = new();
-        public readonly ReactiveValue<Action> SubmitAction = new();
         public readonly ReactiveValue<bool> IsNameInputVisible = new();
         public readonly ReactiveValue<bool> IsLeaderboardVisible = new();
         public readonly ReactiveValue<bool> IsLoadingVisible = new();
@@ -20,6 +19,8 @@ namespace SelStrom.Asteroids
         public readonly ReactiveValue<Action> ChangeNameAction = new();
         public readonly ReactiveValue<bool> IsChangeNameVisible = new();
         public readonly ReactiveList<LeaderboardEntryViewModel> Entries = new();
+        public readonly ReactiveValue<Action> OnSubmitAction = new();
+        public readonly ReactiveValue<Action> OnRestartAction = new();
     }
 
     public class ScoreVisual : AbstractWidgetView<ScoreViewModel>
@@ -41,6 +42,8 @@ namespace SelStrom.Asteroids
         [Header("Loading")]
         [SerializeField] private GameObject _loadingIndicator;
 
+        [SerializeField] private Button _restartButton;
+
         private readonly List<LeaderboardEntryVisual> _entries = new();
 
         public string PlayerName => _nameInput != null ? _nameInput.text : "";
@@ -51,42 +54,16 @@ namespace SelStrom.Asteroids
 
             Bind.From(ViewModel.Score).To(_scoreText);
 
-            if (_submitButton != null)
-            {
-                Bind.From(_submitButton).To(ViewModel.SubmitAction);
-            }
-
-            if (_nameInputContainer != null)
-            {
-                Bind.From(ViewModel.IsNameInputVisible).To(_nameInputContainer);
-            }
-
-            if (_leaderboardContainer != null)
-            {
-                Bind.From(ViewModel.IsLeaderboardVisible).To(_leaderboardContainer);
-            }
-
-            if (_loadingIndicator != null)
-            {
-                Bind.From(ViewModel.IsLoadingVisible).To(_loadingIndicator);
-            }
-
-            if (_playerRankText != null)
-            {
-                Bind.From(ViewModel.PlayerRankText).To(_playerRankText);
-                Bind.From(ViewModel.IsPlayerRankVisible).To(_playerRankText.gameObject);
-            }
-
-            if (_entryTemplate != null && _entriesContainer != null)
-            {
-                Bind.From(ViewModel.Entries).To(_entries, _entryTemplate, _entriesContainer);
-            }
-
-            if (_changeNameButton != null)
-            {
-                Bind.From(_changeNameButton).To(ViewModel.ChangeNameAction);
-                Bind.From(ViewModel.IsChangeNameVisible).To(_changeNameButton.gameObject);
-            }
+            Bind.From(_submitButton).To(ViewModel.OnSubmitAction);
+            Bind.From(ViewModel.IsNameInputVisible).To(_nameInputContainer);
+            Bind.From(ViewModel.IsLeaderboardVisible).To(_leaderboardContainer);
+            Bind.From(ViewModel.IsLoadingVisible).To(_loadingIndicator);
+            Bind.From(ViewModel.PlayerRankText).To(_playerRankText);
+            Bind.From(ViewModel.IsPlayerRankVisible).To(_playerRankText.gameObject);
+            Bind.From(ViewModel.Entries).To(_entries, _entryTemplate, _entriesContainer);
+            Bind.From(_changeNameButton).To(ViewModel.ChangeNameAction);
+            Bind.From(ViewModel.IsChangeNameVisible).To(_changeNameButton.gameObject);
+            Bind.From(_restartButton).To(ViewModel.OnRestartAction);
 
             if (_nameInput != null)
             {

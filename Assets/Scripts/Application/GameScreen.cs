@@ -12,6 +12,7 @@ namespace SelStrom.Asteroids
     {
         public ShipModel ShipModel;
         public Model Model;
+        public Game Game;
     }
     
     public class GameScreen
@@ -138,8 +139,9 @@ namespace SelStrom.Asteroids
             scoreVm.IsLoadingVisible.Value = true;
             scoreVm.IsPlayerRankVisible.Value = false;
             scoreVm.IsChangeNameVisible.Value = false;
-            scoreVm.SubmitAction.Value = OnSubmitClicked;
+            scoreVm.OnSubmitAction.Value = OnSubmitClicked;
             scoreVm.ChangeNameAction.Value = OnChangeNameClicked;
+            scoreVm.OnRestartAction.Value = OnRestartClicked;
 
             _score.Connect(scoreVm);
             _hudVisual.gameObject.SetActive(false);
@@ -154,6 +156,11 @@ namespace SelStrom.Asteroids
             {
                 FetchAndShowLeaderboard();
             }
+        }
+
+        private void OnRestartClicked()
+        {
+            _data.Game.Restart();
         }
 
         private void OnSubmitClicked()
@@ -222,9 +229,14 @@ namespace SelStrom.Asteroids
         {
             var viewModel = _score.ViewModel;
             viewModel.IsLoadingVisible.Value = true;
+            
+            var playerResult = new CoroutineResult<LeaderboardEntry?>();
+            yield return _leaderboardService.GetPlayerScore(playerResult);
 
+            var bestScore = Math.Max(playerResult.Value?.Score ?? 0, score);
+            
             var submitResult = new CoroutineResult();
-            yield return _leaderboardService.SubmitScore(playerName, score, submitResult);
+            yield return _leaderboardService.SubmitScore(playerName, bestScore, submitResult);
 
             if (_score.ViewModel != viewModel)
             {
@@ -255,7 +267,7 @@ namespace SelStrom.Asteroids
                 yield break;
             }
 
-            var playerResult = new CoroutineResult<LeaderboardEntry?>();
+            playerResult = new CoroutineResult<LeaderboardEntry?>();
             yield return _leaderboardService.GetPlayerScore(playerResult);
 
             if (_score.ViewModel != viewModel)

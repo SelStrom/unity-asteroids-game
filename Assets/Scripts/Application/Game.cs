@@ -50,7 +50,8 @@ namespace SelStrom.Asteroids
             _gameScreen.Connect(new GameScreenData
             {
                 ShipModel = _shipModel,
-                Model = _model
+                Model = _model,
+                Game = this,
             });
             _gameScreen.ToggleState(GameScreen.State.Game);
         }
@@ -65,13 +66,10 @@ namespace SelStrom.Asteroids
             _playerInput.OnLaserAction -= OnLaser;
 
             _gameScreen.ToggleState(GameScreen.State.EndGame);
-
-            _playerInput.OnRestartAction += OnRestart;
         }
 
-        private void OnRestart()
+        public void Restart()
         {
-            _playerInput.OnRestartAction -= OnRestart;
             _model.CleanUp();
             Start();
         }
