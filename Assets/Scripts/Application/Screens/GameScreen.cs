@@ -14,8 +14,8 @@ namespace SelStrom.Asteroids
         public Model Model;
         public Game Game;
     }
-    
-    public class GameScreen
+
+    public sealed class GameScreen : AbstractScreen
     {
         private const string PlayerNameKey = "PlayerName";
 
@@ -26,9 +26,6 @@ namespace SelStrom.Asteroids
             EndGame
         }
 
-        private readonly EventBindingContext _context = new();
-        private EventBindingContext Bind => _context;
-        
         private readonly HudVisual _hudVisual;
         private readonly ScoreVisual _score;
         private readonly GameData _configs;
@@ -73,7 +70,7 @@ namespace SelStrom.Asteroids
 
         private void DeactivateHud()
         {
-            Bind.CleanUp();
+            CleanUp();
             _hudData = null;
         }
 

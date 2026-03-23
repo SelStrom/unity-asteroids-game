@@ -14,10 +14,12 @@ namespace SelStrom.Asteroids
         private Transform _gameContainer;
         private PlayerInput _playerInput;
         private EntitiesCatalog _catalog;
+        private TitleScreen _titleScreen;
 
         public void Connect(IApplicationComponent appComponent, GameData configs,
-            Transform poolContainer, Transform gameContainer, GameScreen gameScreen)
+            Transform poolContainer, Transform gameContainer, GameScreen gameScreen, TitleScreen titleScreen)
         {
+            _titleScreen = titleScreen;
             _gameScreen = gameScreen;
             _configs = configs;
             _playerInput = new PlayerInput();
@@ -43,13 +45,16 @@ namespace SelStrom.Asteroids
             _catalog.Connect(_configs, new ModelFactory(_model), new ViewFactory(_gameObjectPool, _gameContainer));
             
             _game = new Game(_catalog, _model, _configs, _playerInput, _gameScreen);
-            _game.Start();
 
             _appComponent.OnUpdate += OnUpdate;
             _appComponent.OnPause += OnPause;
             _appComponent.OnResume += OnResume;
 
             _playerInput.OnBackAction += OnBack;
+
+            _titleScreen.Connect(() => {
+                _game.Start();
+            });
         }
 
         private void OnResume()

@@ -15,6 +15,7 @@ namespace SelStrom.Asteroids
         [SerializeField] private Transform _gameContainer = default;
         [SerializeField] private HudVisual _hudVisual = default;
         [SerializeField] private ScoreVisual _scoreVisual = default;
+        [SerializeField] private TitleScreenView _titleScreenView = default;
 
         private readonly Application _application = new();
 
@@ -25,7 +26,8 @@ namespace SelStrom.Asteroids
             var leaderboardService = new LeaderboardService(authProxy, leaderboardProxy, _configs.LeaderboardId, this);
 
             _application.Connect(this, _configs, _poolContainer, _gameContainer,
-                new GameScreen(_hudVisual, _scoreVisual, _configs, leaderboardService, this));
+                new GameScreen(_hudVisual, _scoreVisual, _configs, leaderboardService, this),
+                new TitleScreen(_titleScreenView));
         }
 
         public void Start()

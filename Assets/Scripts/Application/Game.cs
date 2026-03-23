@@ -237,7 +237,6 @@ namespace SelStrom.Asteroids
             }
         }
 
-
         private void OnRotateAction(float direction)
         {
             _shipModel.Rotate.TargetDirection = direction;
