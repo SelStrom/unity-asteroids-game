@@ -9,8 +9,8 @@
 
 ### Dev Tooling
 
-- [ ] **TOOL-01**: Unity-MCP пакет установлен в проект и MCP сервер настроен в Claude Code для взаимодействия с Unity Editor
-- [ ] **TOOL-02**: Тестовый фреймворк настроен (EditMode + PlayMode assemblies, NUnit)
+- [x] **TOOL-01**: Unity-MCP пакет установлен в проект и MCP сервер настроен в Claude Code для взаимодействия с Unity Editor
+- [x] **TOOL-02**: Тестовый фреймворк настроен (EditMode + PlayMode assemblies, NUnit)
 
 ### Unity 6.3 Upgrade
 
@@ -111,8 +111,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TOOL-01 | Phase 1 | Pending |
-| TOOL-02 | Phase 1 | Pending |
+| TOOL-01 | Phase 1 | Complete |
+| TOOL-02 | Phase 1 | Complete |
 | UPG-01 | Phase 2 | Pending |
 | UPG-02 | Phase 2 | Pending |
 | UPG-03 | Phase 2 | Pending |

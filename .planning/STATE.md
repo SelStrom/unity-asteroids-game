@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
+milestone: v1.1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-04-02T16:56:49.819Z"
-last_activity: 2026-04-02 -- Roadmap created
+status: executing
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-04-02T17:18:40.506Z"
+last_activity: 2026-04-02
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 3
+  completed_plans: 1
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Играбельная классическая механика Asteroids -- фундамент для технической миграции на современный стек Unity
-**Current focus:** Phase 1: Dev Tooling + shtl-mvvm Fix
+**Current focus:** Phase 01 — dev-tooling-shtl-mvvm-fix
 
 ## Current Position
 
-Phase: 1 of 5 (Dev Tooling + shtl-mvvm Fix)
-Plan: 0 of 3 in current phase
-Status: Ready to plan
-Last activity: 2026-04-02 -- Roadmap created
+Phase: 01 (dev-tooling-shtl-mvvm-fix) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-04-02
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01 P02 | 1min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,7 @@ Recent decisions affecting current work:
 - Кодовая база проанализирована (.planning/codebase/) -- 10 документов
 - 7 критических багов выявлены, но out of scope для текущего milestone
 - shtl-mvvm -- собственная библиотека пользователя, потребуется фикс в отдельном репозитории
+- [Phase 01]: Unity-MCP added via git URL (no version pinning) per plan specification
 
 ### Pending Todos
 
@@ -78,6 +80,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T16:56:49.785Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-dev-tooling-shtl-mvvm-fix/01-CONTEXT.md
+Last session: 2026-04-02T17:18:40.467Z
+Stopped at: Completed 01-02-PLAN.md
+Resume file: None
