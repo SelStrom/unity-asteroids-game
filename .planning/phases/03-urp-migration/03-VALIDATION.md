@@ -2,8 +2,8 @@
 phase: 3
 slug: urp-migration
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-04-02
 ---
 
@@ -18,7 +18,7 @@ created: 2026-04-02
 | Property | Value |
 |----------|-------|
 | **Framework** | Unity Test Framework (NUnit) 1.6.0 |
-| **Config file** | `Assets/Tests/EditMode/EditMode.asmdef`, `Assets/Tests/PlayMode/PlayMode.asmdef` |
+| **Config file** | `Assets/Tests/EditMode/EditModeTests.asmdef`, `Assets/Tests/PlayMode/PlayMode.asmdef` |
 | **Quick run command** | Unity Editor > Window > General > Test Runner > EditMode > Run All |
 | **Full suite command** | Unity Editor > Window > General > Test Runner > All > Run All |
 | **Estimated runtime** | ~10 seconds |
@@ -36,22 +36,27 @@ created: 2026-04-02
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 03-01-01 | 01 | 1 | URP-01 | manual | Verify URP Asset in Project Settings | N/A | ⬜ pending |
-| 03-01-02 | 01 | 1 | URP-02 | manual | Check prefabs — no pink materials | N/A | ⬜ pending |
-| 03-01-03 | 01 | 1 | URP-03 | manual | Check vfx_blow particle effect renders | N/A | ⬜ pending |
-| 03-02-01 | 02 | 1 | URP-04 | manual | Verify Volume with Bloom/Vignette active | N/A | ⬜ pending |
-| 03-02-02 | 02 | 1 | URP-05 | manual | Visual comparison with original | N/A | ⬜ pending |
-| 03-02-03 | 02 | 1 | URP-06 | integration | Run game in Editor, full gameplay cycle | N/A | ⬜ pending |
+| Task ID | Plan | Wave | Requirement | Test Type | Automated Command | Test Files | Status |
+|---------|------|------|-------------|-----------|-------------------|------------|--------|
+| 03-01-01 | 01 | 1 | URP-01, URP-02 | automated + manual | `grep -q "com.unity.render-pipelines.universal" Packages/manifest.json && test -f Assets/Settings/URP-2D-Asset.asset && test -f Assets/Settings/URP-2D-Renderer.asset` | UrpSetupTests.cs (4 tests) | pending |
+| 03-01-02 | 01 | 1 | URP-03 | automated | `test -f Assets/Media/materials/Laser-URP.mat && test -f Assets/Media/materials/Particle-URP.mat` | UrpMaterialTests.cs (5 tests) | pending |
+| 03-01-03 | 01 | 1 | URP-04 | automated | `test -f Assets/Settings/PostProcessing-Profile.asset` | UrpPostProcessingTests.cs (3 tests) | pending |
+| 03-02-01 | 02 | 2 | URP-01..URP-04 | automated | `grep -q "UrpSetupTests" Assets/Tests/EditMode/Upgrade/UrpSetupTests.cs && grep -q "UrpMaterialTests" Assets/Tests/EditMode/Upgrade/UrpMaterialTests.cs && grep -q "UrpPostProcessingTests" Assets/Tests/EditMode/Upgrade/UrpPostProcessingTests.cs` | UrpSetupTests, UrpMaterialTests, UrpPostProcessingTests (12 tests total) | pending |
+| 03-02-02 | 02 | 2 | URP-05 | manual | Visual comparison in Unity Editor Game View | N/A (human-verify checkpoint) | pending |
+| 03-02-03 | 02 | 2 | URP-06 | manual | Full gameplay cycle in Unity Editor | N/A (human-verify checkpoint) | pending |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: pending / green / red / flaky*
 
 ---
 
 ## Wave 0 Requirements
 
-Existing infrastructure covers all phase requirements. URP migration is primarily asset/config work — automated unit tests have limited applicability for render pipeline changes.
+Plan 01 Task 2 creates all Wave 0 test infrastructure:
+- `UrpSetupTests.cs` — 4 EditMode tests for URP pipeline setup (URP-01, URP-02)
+- `UrpMaterialTests.cs` — 5 EditMode tests for material conversion (URP-03)
+- `UrpPostProcessingTests.cs` — 3 EditMode tests for Post-Processing (URP-04)
+
+Total: 12 automated EditMode tests covering URP-01 through URP-04. Tests are created alongside the URP configuration in Plan 01, ensuring immediate feedback.
 
 ---
 
@@ -68,11 +73,11 @@ Existing infrastructure covers all phase requirements. URP migration is primaril
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 15s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved
