@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-04-02T21:47:30.000Z"
-last_activity: 2026-04-02 -- Phase 04 Plan 01 completed
+stopped_at: Phase 4 context gathered
+last_updated: "2026-04-02T21:42:39.664Z"
+last_activity: 2026-04-02 -- Phase 04 execution started
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 11
-  completed_plans: 8
-  percent: 73
+  completed_plans: 7
+  percent: 86
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 ## Current Position
 
 Phase: 04 (ecs-foundation) — EXECUTING
-Plan: 2 of 4
+Plan: 1 of 4
 Status: Executing Phase 04
-Last activity: 2026-04-02 -- Phase 04 Plan 01 completed
+Last activity: 2026-04-02 -- Phase 04 execution started
 
-Progress: [███████░░░] 73%
+Progress: [█████████░] 86%
 
 ## Performance Metrics
 
@@ -59,7 +59,6 @@ Progress: [███████░░░] 73%
 | Phase 02 P02 | 2min | 3 tasks | 4 files |
 | Phase 03 P01 | 7min | 2 tasks | 21 files |
 | Phase 03 P02 | 1min | 2 tasks | 0 files |
-| Phase 04 P01 | 4min | 3 tasks | 26 files |
 
 ## Accumulated Context
 
@@ -81,8 +80,6 @@ Recent decisions affecting current work:
 - [Phase 02]: FindFirstObjectByType вместо deprecated FindObjectOfType в PlayMode тестах (Unity 6.3 API)
 - [Phase 03]: URP 17.0.5 для Unity 6.3, Sprite-Unlit-Default для 1:1 соответствие, Bloom+Vignette для post-processing
 - [Phase 03]: Auto-approved human-verify checkpoint в auto-mode для визуальной верификации URP
-- [Phase 04]: Fallback test fixture (manual World) вместо ECSTestsFixture -- доступность ECSTestsFixture не проверена
-- [Phase 04]: ScoreData (singleton) + ScoreValue (per-entity) в одном файле ScoreData.cs
 
 ### Pending Todos
 
@@ -95,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T21:47:30.000Z
-Stopped at: Completed 04-01-PLAN.md
-Resume file: .planning/phases/04-ecs-foundation/04-01-SUMMARY.md
+Last session: 2026-04-02T21:10:57.490Z
+Stopped at: Phase 4 context gathered
+Resume file: .planning/phases/04-ecs-foundation/04-CONTEXT.md
