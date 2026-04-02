@@ -46,11 +46,12 @@ Plans:
   2. Все deprecated API заменены (FindObjectsOfType -> FindObjectsByType и другие)
   3. TextMeshPro работает как внутренний модуль Unity 6.3 (старый пакет com.unity.textmeshpro удален из manifest)
   4. Игра запускается в Editor и воспроизводит весь геймплей 1:1 (корабль, стрельба, астероиды, НЛО, лидерборд)
-**Plans:** 1/2 plans executed
+**Plans:** 3 plans
 
 Plans:
 - [x] 02-01-PLAN.md -- Удаление локальных TMP-ассетов, исправление asmdef-ссылок на GUID, проверка deprecated API и compiler warnings
 - [x] 02-02-PLAN.md -- Тесты верификации апгрейда (EditMode + PlayMode) и ручная верификация геймплея 1:1
+- [ ] 02-03-PLAN.md -- Gap closure: исправление ошибок компиляции (URP asmdef, TimeData квалификация, дубликаты ссылок)
 
 ### Phase 3: URP Migration
 **Goal**: Проект рендерится через URP 2D Renderer с визуальным результатом, соответствующим оригиналу
