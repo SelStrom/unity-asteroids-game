@@ -64,7 +64,7 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- Установка URP, создание ассетов, конвертация материалов, Post-Processing, EditMode тесты
+- [x] 03-01-PLAN.md -- Установка URP, создание ассетов, конвертация материалов, Post-Processing, EditMode тесты
 - [ ] 03-02-PLAN.md -- Запуск всех тестов и ручная верификация визуала и геймплея 1:1
 
 ### Phase 4: ECS Foundation

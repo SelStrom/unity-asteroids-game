@@ -31,10 +31,10 @@
 
 ### URP Migration
 
-- [ ] **URP-01**: URP пакет установлен, 2D Renderer Asset создан и назначен
-- [ ] **URP-02**: Render Pipeline Converter выполнен, все материалы конвертированы
-- [ ] **URP-03**: ParticleSystem материалы адаптированы под URP
-- [ ] **URP-04**: URP Volume с базовым Post-Processing настроен (Bloom, Vignette или аналогичные эффекты)
+- [x] **URP-01**: URP пакет установлен, 2D Renderer Asset создан и назначен
+- [x] **URP-02**: Render Pipeline Converter выполнен, все материалы конвертированы
+- [x] **URP-03**: ParticleSystem материалы адаптированы под URP
+- [x] **URP-04**: URP Volume с базовым Post-Processing настроен (Bloom, Vignette или аналогичные эффекты)
 - [ ] **URP-05**: Визуальный результат соответствует оригиналу (спрайты, частицы, UI)
 - [ ] **URP-06**: Игра запускается в Editor и воспроизводит весь геймплей 1:1
 
@@ -124,10 +124,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MVVM-04 | Phase 1 | Complete |
 | MVVM-05 | Phase 1 | Complete |
 | MVVM-06 | Phase 1 | Complete |
-| URP-01 | Phase 3 | Pending |
-| URP-02 | Phase 3 | Pending |
-| URP-03 | Phase 3 | Pending |
-| URP-04 | Phase 3 | Pending |
+| URP-01 | Phase 3 | Complete |
+| URP-02 | Phase 3 | Complete |
+| URP-03 | Phase 3 | Complete |
+| URP-04 | Phase 3 | Complete |
 | URP-05 | Phase 3 | Pending |
 | URP-06 | Phase 3 | Pending |
 | ECS-01 | Phase 4 | Pending |
