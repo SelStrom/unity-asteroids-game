@@ -40,7 +40,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 direction: new float2(1f, 0f)
             );
 
-            World.PushTime(new TimeData(0.1, 0.1));
+            World.PushTime(new Unity.Core.TimeData(0.1, 0.1));
             _moveSystemHandle.Update(World.Unmanaged);
             World.PopTime();
 
@@ -60,7 +60,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 direction: new float2(1f, 0f)
             );
 
-            World.PushTime(new TimeData(0.1, 0.1));
+            World.PushTime(new Unity.Core.TimeData(0.1, 0.1));
             _moveSystemHandle.Update(World.Unmanaged);
             World.PopTime();
 
@@ -78,7 +78,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 direction: new float2(-1f, 0f)
             );
 
-            World.PushTime(new TimeData(0.1, 0.1));
+            World.PushTime(new Unity.Core.TimeData(0.1, 0.1));
             _moveSystemHandle.Update(World.Unmanaged);
             World.PopTime();
 
@@ -98,7 +98,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Direction = new float2(0f, 1f)
             });
 
-            World.PushTime(new TimeData(0.1, 0.1));
+            World.PushTime(new Unity.Core.TimeData(0.1, 0.1));
             _moveSystemHandle.Update(World.Unmanaged);
             _shipPositionUpdateHandle.Update(World.Unmanaged);
             World.PopTime();
