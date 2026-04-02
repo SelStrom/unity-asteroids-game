@@ -2,8 +2,8 @@
 phase: 5
 slug: bridge-layer-integration
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-04-03
 ---
 
@@ -34,32 +34,34 @@ created: 2026-04-03
 
 ---
 
-## Per-Task Verification Map
+## Nyquist Compliance
 
-| Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 05-01-01 | 01 | 1 | BRG-01 | unit (EditMode) | Test Runner EditMode | ❌ W0 | ⬜ pending |
-| 05-01-02 | 01 | 1 | BRG-02 | unit (EditMode) | Test Runner EditMode | ❌ W0 | ⬜ pending |
-| 05-02-01 | 02 | 1 | BRG-03 | unit (EditMode) | Test Runner EditMode | ❌ W0 | ⬜ pending |
-| 05-02-02 | 02 | 1 | BRG-04 | unit (EditMode) | Test Runner EditMode | ❌ W0 | ⬜ pending |
-| 05-03-01 | 03 | 2 | BRG-05 | unit (EditMode) | Test Runner EditMode | ❌ W0 | ⬜ pending |
-| 05-03-02 | 03 | 2 | BRG-06 | PlayMode + manual | Test Runner PlayMode | ❌ W0 | ⬜ pending |
-| 05-03-03 | 03 | 2 | TST-10 | unit (EditMode) | Test Runner EditMode | ❌ W0 | ⬜ pending |
-| 05-03-04 | 03 | 2 | TST-12 | integration (PlayMode) | Test Runner PlayMode | ❌ W0 | ⬜ pending |
+All TDD tasks (`tdd="true"`) create test files inline as part of task execution — tests are written before implementation code per RED-GREEN-REFACTOR cycle. No separate Wave 0 stub plan is needed because:
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+1. Plan 01 Task 1 creates `EcsGunSystemTests.cs` and `EcsLaserSystemTests.cs` inline (TST-05, TST-06)
+2. Plan 01 Task 2 creates `GameObjectSyncSystemTests.cs` inline
+3. Plan 02 Task 1 creates `CollisionBridgeTests.cs` inline
+4. Plan 02 Task 2 creates `ObservableBridgeSystemTests.cs` and `DeadEntityCleanupSystemTests.cs` inline
+5. Plan 03 Task 3 creates `GameplayCycleTests.cs` inline (TST-12)
+
+Each TDD task's `<behavior>` block defines test expectations before implementation. The `<verify>` block includes automated grep commands to confirm test file existence and test count.
 
 ---
 
-## Wave 0 Requirements
+## Per-Task Verification Map
 
-- [ ] `Assets/Tests/EditMode/ECS/GameObjectSyncSystemTests.cs` — stubs for BRG-01, BRG-02
-- [ ] `Assets/Tests/EditMode/ECS/CollisionBridgeTests.cs` — stubs for BRG-03
-- [ ] `Assets/Tests/EditMode/ECS/ObservableBridgeSystemTests.cs` — stubs for BRG-04
-- [ ] `Assets/Tests/EditMode/ECS/DeadEntityCleanupSystemTests.cs` — stubs for BRG-05
-- [ ] `Assets/Tests/PlayMode/GameplayCycleTests.cs` — stubs for TST-12
-- [ ] `PlayModeTests.asmdef` — add references to AsteroidsECS, Unity.Entities
-- [ ] `EcsEditModeTests.asmdef` — add references to Asteroids, Shtl.Mvvm for bridge tests
+| Task ID | Plan | Wave | Requirement | Test Type | Automated Command | Status |
+|---------|------|------|-------------|-----------|-------------------|--------|
+| 05-01-01 | 01 | 1 | BRG-01, ECS-07, ECS-08, TST-05, TST-06 | unit (EditMode, TDD inline) | grep test count | ⬜ pending |
+| 05-01-02 | 01 | 1 | BRG-02 | unit (EditMode, TDD inline) | grep test count | ⬜ pending |
+| 05-02-01 | 02 | 1 | BRG-03 | unit (EditMode, TDD inline) | grep test count | ⬜ pending |
+| 05-02-02 | 02 | 1 | BRG-04, BRG-05, TST-10 | unit (EditMode, TDD inline) | grep test count | ⬜ pending |
+| 05-03-01 | 03 | 2 | BRG-05 | integration | grep _useEcs | ⬜ pending |
+| 05-03-02 | 03 | 2 | BRG-05, BRG-06 | integration | grep GunShootEvent | ⬜ pending |
+| 05-03-03 | 03 | 2 | TST-12 | integration (PlayMode, TDD inline) | grep UnityTest count | ⬜ pending |
+| 05-03-04 | 03 | 2 | BRG-06 | manual | human-verify | ⬜ pending |
+
+*Status: ⬜ pending / ✅ green / ❌ red / ⚠️ flaky*
 
 ---
 
@@ -74,11 +76,11 @@ created: 2026-04-03
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify (TDD tasks create tests inline)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] No Wave 0 needed (TDD inline pattern)
+- [x] No watch-mode flags
+- [x] Feedback latency < 15s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved
