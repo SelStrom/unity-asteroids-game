@@ -141,7 +141,6 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ECS-09 | Phase 4 | Complete |
 | ECS-10 | Phase 4 | Complete |
 | ECS-11 | Phase 4 | Complete |
-<<<<<<< HEAD
 | BRG-01 | Phase 5 | Complete |
 | BRG-02 | Phase 5 | Complete |
 | BRG-03 | Phase 5 | Complete |
