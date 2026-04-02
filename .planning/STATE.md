@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-04-02T22:44:36.451Z"
-last_activity: 2026-04-02 -- Plan 05-01 executed
+status: executing
+stopped_at: Completed 05-03-PLAN.md
+last_updated: "2026-04-02T22:57:08.552Z"
+last_activity: 2026-04-02
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 14
-  completed_plans: 12
+  completed_plans: 14
   percent: 86
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 ## Current Position
 
 Phase: 05 (bridge-layer-integration) — EXECUTING
-Plan: 2 of 3
-Status: Plan 05-01 complete, continuing to 05-02
-Last activity: 2026-04-02 -- Plan 05-01 executed
+Plan: 3 of 3
+Status: Ready to execute
+Last activity: 2026-04-02
 
 Progress: [█████████░] 86%
 
@@ -61,6 +61,7 @@ Progress: [█████████░] 86%
 | Phase 03 P02 | 1min | 2 tasks | 0 files |
 | Phase 04 P02 | 4min | 2 tasks | 10 files |
 | Phase 05 P01 | 3min | 2 tasks | 13 files |
+| Phase 05 P03 | 4min | 4 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,8 @@ Recent decisions affecting current work:
 - [Phase 05]: GameObjectRef как ICleanupComponentData (managed class) для доступа к Transform/GameObject
 - [Phase 05]: Singleton DynamicBuffer для shoot-events вместо per-entity буферов
 - [Phase 05]: GameObjectSyncSystem в PresentationSystemGroup для выполнения после всех Simulation-систем
+- [Phase 05]: Merged AsteroidsBridge.asmdef into Asteroids assembly to resolve circular dependency
+- [Phase 05]: Ship moveSpeed=0f in EntityFactory (starts stationary, thrust provides acceleration)
 
 ### Pending Todos
 
@@ -100,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T22:44:36.408Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-04-02T22:57:08.510Z
+Stopped at: Completed 05-03-PLAN.md
 Resume file: None

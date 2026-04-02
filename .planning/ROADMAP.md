@@ -99,8 +99,8 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md -- Bridge-компоненты (GameObjectRef, ShootEvents), GameObjectSyncSystem, расширение Gun/Laser/LifeTime систем, EditMode тесты
-- [ ] 05-02-PLAN.md -- CollisionBridge, ObservableBridgeSystem, DeadEntityCleanupSystem, EditMode тесты (TST-10)
-- [ ] 05-03-PLAN.md -- Интеграция bridge в игровой код (EntitiesCatalog, Application, Game.cs), PlayMode тесты (TST-12), ручная верификация геймплея 1:1
+- [x] 05-02-PLAN.md -- CollisionBridge, ObservableBridgeSystem, DeadEntityCleanupSystem, EditMode тесты (TST-10)
+- [x] 05-03-PLAN.md -- Интеграция bridge в игровой код (EntitiesCatalog, Application, Game.cs), PlayMode тесты (TST-12), ручная верификация геймплея 1:1
 
 ## Progress
 
