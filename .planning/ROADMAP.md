@@ -30,12 +30,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Библиотека shtl-mvvm компилируется и работает на Unity 2022.3+ (обратная совместимость)
   4. Библиотека shtl-mvvm компилируется и работает на Unity 6.3 (зависимость com.unity.textmeshpro удалена)
   5. Фикс shtl-mvvm опубликован в github.com/SelStrom/shtl-mvvm и проект Asteroids обновлен на новую версию
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md -- Фикс shtl-mvvm: замена textmeshpro на ugui, условная компиляция, публикация тега v1.1.0
+- [ ] 01-02-PLAN.md -- Настройка инструментов: Unity-MCP + тестовый фреймворк (EditMode/PlayMode assemblies)
+- [ ] 01-03-PLAN.md -- Обновление Asteroids на shtl-mvvm v1.1.0 + EditMode тесты TMP-совместимости
 
 ### Phase 2: Unity 6.3 Upgrade
 **Goal**: Проект Asteroids открывается, компилируется и запускается в Unity 6.3 с полным геймплеем 1:1
