@@ -81,7 +81,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md -- Установка com.unity.entities, IComponentData компоненты, тестовая инфраструктура, тесты компонентов
-- [ ] 04-02-PLAN.md -- EntityFactory + Burst-системы (Rotate, Thrust, Move, LifeTime) и тесты
+- [x] 04-02-PLAN.md -- EntityFactory + Burst-системы (Rotate, Thrust, Move, LifeTime) и тесты
 - [ ] 04-03-PLAN.md -- Системы вооружения (Gun, Laser) и тесты
 - [ ] 04-04-PLAN.md -- AI-системы (ShootTo, MoveTo) и CollisionHandler с mock-данными и тесты
 

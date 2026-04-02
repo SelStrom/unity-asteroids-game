@@ -42,10 +42,10 @@
 
 - [x] **ECS-01**: Пакеты com.unity.entities и com.unity.burst установлены и совместимы с Unity 6.3
 - [x] **ECS-02**: IComponentData определены для всех игровых сущностей (Ship, Asteroid, Bullet, UfoBig, Ufo)
-- [ ] **ECS-03**: EntityFactory создает entities с правильными компонентами
-- [ ] **ECS-04**: ThrustSystem перенесена на ISystem с Burst-компиляцией
-- [ ] **ECS-05**: RotateSystem перенесена на ISystem с Burst-компиляцией
-- [ ] **ECS-06**: MoveSystem перенесена на ISystem с Burst-компиляцией (включая тороидальное обертывание)
+- [x] **ECS-03**: EntityFactory создает entities с правильными компонентами
+- [x] **ECS-04**: ThrustSystem перенесена на ISystem с Burst-компиляцией
+- [x] **ECS-05**: RotateSystem перенесена на ISystem с Burst-компиляцией
+- [x] **ECS-06**: MoveSystem перенесена на ISystem с Burst-компиляцией (включая тороидальное обертывание)
 - [ ] **ECS-07**: GunSystem перенесена на ISystem (перезарядка, стрельба)
 - [ ] **ECS-08**: LaserSystem перенесена на ISystem (заряды, cooldown)
 - [ ] **ECS-09**: ShootToSystem (AI наведение НЛО) перенесена на ISystem
@@ -64,9 +64,9 @@
 ### Testing (TDD)
 
 - [x] **TST-01**: EditMode тесты для всех ECS компонентов (создание, значения по умолчанию)
-- [ ] **TST-02**: EditMode тесты для ThrustSystem (физика тяги, направление, максимальная скорость)
-- [ ] **TST-03**: EditMode тесты для MoveSystem (перемещение, тороидальное обертывание)
-- [ ] **TST-04**: EditMode тесты для RotateSystem (поворот, нормализация угла)
+- [x] **TST-02**: EditMode тесты для ThrustSystem (физика тяги, направление, максимальная скорость)
+- [x] **TST-03**: EditMode тесты для MoveSystem (перемещение, тороидальное обертывание)
+- [x] **TST-04**: EditMode тесты для RotateSystem (поворот, нормализация угла)
 - [ ] **TST-05**: EditMode тесты для GunSystem (стрельба, перезарядка, лимит пуль)
 - [ ] **TST-06**: EditMode тесты для LaserSystem (заряды, cooldown, активация)
 - [ ] **TST-07**: EditMode тесты для ShootToSystem (предсказание позиции цели, расчет упреждения)
@@ -132,10 +132,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | URP-06 | Phase 3 | Complete |
 | ECS-01 | Phase 4 | Complete |
 | ECS-02 | Phase 4 | Complete |
-| ECS-03 | Phase 4 | Pending |
-| ECS-04 | Phase 4 | Pending |
-| ECS-05 | Phase 4 | Pending |
-| ECS-06 | Phase 4 | Pending |
+| ECS-03 | Phase 4 | Complete |
+| ECS-04 | Phase 4 | Complete |
+| ECS-05 | Phase 4 | Complete |
+| ECS-06 | Phase 4 | Complete |
 | ECS-07 | Phase 4 | Pending |
 | ECS-08 | Phase 4 | Pending |
 | ECS-09 | Phase 4 | Pending |
@@ -148,9 +148,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRG-05 | Phase 5 | Pending |
 | BRG-06 | Phase 5 | Pending |
 | TST-01 | Phase 4 | Complete |
-| TST-02 | Phase 4 | Pending |
-| TST-03 | Phase 4 | Pending |
-| TST-04 | Phase 4 | Pending |
+| TST-02 | Phase 4 | Complete |
+| TST-03 | Phase 4 | Complete |
+| TST-04 | Phase 4 | Complete |
 | TST-05 | Phase 4 | Pending |
 | TST-06 | Phase 4 | Pending |
 | TST-07 | Phase 4 | Pending |
