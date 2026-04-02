@@ -73,7 +73,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 isActive: true
             );
 
-            World.PushTime(new Unity.Core.TimeData(1.0, 1.0));
+            World.PushTime(new Unity.Core.TimeData(1.0f, 1.0f));
             _systemHandle.Update(World.Unmanaged);
             World.PopTime();
 
@@ -93,7 +93,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 isActive: false
             );
 
-            World.PushTime(new Unity.Core.TimeData(1.0, 1.0));
+            World.PushTime(new Unity.Core.TimeData(1.0f, 1.0f));
             _systemHandle.Update(World.Unmanaged);
             World.PopTime();
 
@@ -113,7 +113,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 isActive: false
             );
 
-            World.PushTime(new Unity.Core.TimeData(1.0, 1.0));
+            World.PushTime(new Unity.Core.TimeData(1.0f, 1.0f));
             _systemHandle.Update(World.Unmanaged);
             World.PopTime();
 
