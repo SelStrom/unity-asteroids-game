@@ -1,6 +1,4 @@
 using Unity.Entities;
-using Unity.Mathematics;
-using SelStrom.Asteroids.ECS;
 
 namespace SelStrom.Asteroids.ECS
 {
