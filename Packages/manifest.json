@@ -4,6 +4,7 @@
     "com.unity.collab-proxy": "2.11.4",
     "com.unity.entities": "1.4.5",
     "com.unity.feature.2d": "2.0.2",
+    "com.ivanmurzak.unity.mcp": "https://github.com/IvanMurzak/Unity-MCP.git?path=/Unity-MCP-Plugin/Assets/root",
     "com.unity.ide.rider": "3.0.39",
     "com.unity.inputsystem": "1.19.0",
     "com.unity.multiplayer.center": "1.0.1",
