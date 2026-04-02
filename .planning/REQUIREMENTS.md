@@ -14,10 +14,10 @@
 
 ### Unity 6.3 Upgrade
 
-- [ ] **UPG-01**: Проект открывается и компилируется в Unity 6.3 без ошибок
-- [ ] **UPG-02**: Все deprecated API заменены (FindObjectsOfType -> FindObjectsByType и др.)
-- [ ] **UPG-03**: TextMeshPro работает как внутренний модуль (зависимость com.unity.textmeshpro удалена)
-- [ ] **UPG-04**: Все существующие пакеты (InputSystem, UGS Auth, UGS Leaderboards, uGUI) совместимы с Unity 6.3
+- [x] **UPG-01**: Проект открывается и компилируется в Unity 6.3 без ошибок
+- [x] **UPG-02**: Все deprecated API заменены (FindObjectsOfType -> FindObjectsByType и др.)
+- [x] **UPG-03**: TextMeshPro работает как внутренний модуль (зависимость com.unity.textmeshpro удалена)
+- [x] **UPG-04**: Все существующие пакеты (InputSystem, UGS Auth, UGS Leaderboards, uGUI) совместимы с Unity 6.3
 - [ ] **UPG-05**: Игра запускается в Editor и воспроизводит весь геймплей 1:1
 
 ### shtl-mvvm Fix
@@ -113,10 +113,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | TOOL-01 | Phase 1 | Complete |
 | TOOL-02 | Phase 1 | Complete |
-| UPG-01 | Phase 2 | Pending |
-| UPG-02 | Phase 2 | Pending |
-| UPG-03 | Phase 2 | Pending |
-| UPG-04 | Phase 2 | Pending |
+| UPG-01 | Phase 2 | Complete |
+| UPG-02 | Phase 2 | Complete |
+| UPG-03 | Phase 2 | Complete |
+| UPG-04 | Phase 2 | Complete |
 | UPG-05 | Phase 2 | Pending |
 | MVVM-01 | Phase 1 | Complete |
 | MVVM-02 | Phase 1 | Complete |
