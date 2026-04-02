@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Играбельная классическая механика Asteroids -- фундамент для технической миграции на современный стек Unity
-**Current focus:** Phase 02 — unity-6-3-upgrade
+**Current focus:** Phase 03 — urp-migration
 
 ## Current Position
 
@@ -77,7 +77,7 @@ Recent decisions affecting current work:
 - [Phase 01]: UPM git tag pinning (#v1.1.0) для shtl-mvvm вместо commit hash
 - [Phase 02]: GUID 6055be8ebefd69e48b49212b09b47b2f как единый стандарт ссылки на TMP во всех asmdef
 - [Phase 02]: FindFirstObjectByType вместо deprecated FindObjectOfType в PlayMode тестах (Unity 6.3 API)
-- [Phase 03]: URP 17.0.5 для Unity 6.3, Sprite-Unlit-Default для 1:1 соответствия, Bloom+Vignette для post-processing
+- [Phase 03]: URP 17.0.5 для Unity 6.3, Sprite-Unlit-Default для 1:1 соответствие, Bloom+Vignette для post-processing
 
 ### Pending Todos
 
