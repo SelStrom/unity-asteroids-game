@@ -22,11 +22,11 @@
 
 ### shtl-mvvm Fix
 
-- [ ] **MVVM-01**: Зависимость com.unity.textmeshpro удалена из package.json shtl-mvvm
-- [ ] **MVVM-02**: Ссылка Unity.TextMeshPro в asmdef заменена или условно скомпилирована
-- [ ] **MVVM-03**: Библиотека компилируется и работает на Unity 2022.3+
-- [ ] **MVVM-04**: Библиотека компилируется и работает на Unity 6.3
-- [ ] **MVVM-05**: Фикс опубликован в репозиторий github.com/SelStrom/shtl-mvvm
+- [x] **MVVM-01**: Зависимость com.unity.textmeshpro удалена из package.json shtl-mvvm
+- [x] **MVVM-02**: Ссылка Unity.TextMeshPro в asmdef заменена или условно скомпилирована
+- [x] **MVVM-03**: Библиотека компилируется и работает на Unity 2022.3+
+- [x] **MVVM-04**: Библиотека компилируется и работает на Unity 6.3
+- [x] **MVVM-05**: Фикс опубликован в репозиторий github.com/SelStrom/shtl-mvvm
 - [ ] **MVVM-06**: Проект Asteroids обновлен на новую версию shtl-mvvm
 
 ### URP Migration
@@ -118,11 +118,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UPG-03 | Phase 2 | Pending |
 | UPG-04 | Phase 2 | Pending |
 | UPG-05 | Phase 2 | Pending |
-| MVVM-01 | Phase 1 | Pending |
-| MVVM-02 | Phase 1 | Pending |
-| MVVM-03 | Phase 1 | Pending |
-| MVVM-04 | Phase 1 | Pending |
-| MVVM-05 | Phase 1 | Pending |
+| MVVM-01 | Phase 1 | Complete |
+| MVVM-02 | Phase 1 | Complete |
+| MVVM-03 | Phase 1 | Complete |
+| MVVM-04 | Phase 1 | Complete |
+| MVVM-05 | Phase 1 | Complete |
 | MVVM-06 | Phase 1 | Pending |
 | URP-01 | Phase 3 | Pending |
 | URP-02 | Phase 3 | Pending |
