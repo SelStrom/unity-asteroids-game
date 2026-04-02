@@ -10,7 +10,9 @@
     "Unity.Services.Authentication",
     "Unity.Services.Leaderboards",
     "AsteroidsECS",
-    "Unity.Entities"
+    "Unity.Entities",
+    "Unity.Mathematics",
+    "Unity.Collections"
   ],
   "includePlatforms": [
     "Editor",

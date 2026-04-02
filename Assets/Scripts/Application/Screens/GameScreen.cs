@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using SelStrom.Asteroids.Configs;
 using Shtl.Mvvm;
+using Unity.Entities;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
@@ -13,6 +14,7 @@ namespace SelStrom.Asteroids
         public ShipModel ShipModel;
         public Model Model;
         public Game Game;
+        public bool UseEcs;
     }
 
     public sealed class GameScreen : AbstractScreen
@@ -57,19 +59,45 @@ namespace SelStrom.Asteroids
         {
             _hudData = new HudData();
             _hudVisual.Connect(_hudData);
-            
-            var shipModel = _data.ShipModel;
-            Bind.From(shipModel.Move.Position).To(OnShipPositionChanged);
-            Bind.From(shipModel.Move.Speed).To(OnShipSpeedChanged);
-            Bind.From(shipModel.Rotate.Rotation).To(OnShipRotationChanged);
-            Bind.From(shipModel.Laser.CurrentShoots).To(OnCurrentShootsChanged);
-            Bind.From(shipModel.Laser.ReloadRemaining).To(OnReloadRemainingChanged);
 
-            Bind.InvokeAll();
+            if (_data.UseEcs)
+            {
+                var world = World.DefaultGameObjectInjectionWorld;
+                var bridge = world.GetExistingSystemManaged<ObservableBridgeSystem>();
+                if (bridge != null)
+                {
+                    bridge.SetHudData(_hudData);
+                    bridge.SetLaserMaxShoots(_configs.Laser.LaserMaxShoots);
+                }
+            }
+            else
+            {
+                var shipModel = _data.ShipModel;
+                Bind.From(shipModel.Move.Position).To(OnShipPositionChanged);
+                Bind.From(shipModel.Move.Speed).To(OnShipSpeedChanged);
+                Bind.From(shipModel.Rotate.Rotation).To(OnShipRotationChanged);
+                Bind.From(shipModel.Laser.CurrentShoots).To(OnCurrentShootsChanged);
+                Bind.From(shipModel.Laser.ReloadRemaining).To(OnReloadRemainingChanged);
+
+                Bind.InvokeAll();
+            }
         }
 
         private void DeactivateHud()
         {
+            if (_data.UseEcs)
+            {
+                var world = World.DefaultGameObjectInjectionWorld;
+                if (world != null && world.IsCreated)
+                {
+                    var bridge = world.GetExistingSystemManaged<ObservableBridgeSystem>();
+                    if (bridge != null)
+                    {
+                        bridge.ClearReferences();
+                    }
+                }
+            }
+
             CleanUp();
             _hudData = null;
         }
