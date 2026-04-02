@@ -35,8 +35,8 @@
 - [x] **URP-02**: Render Pipeline Converter выполнен, все материалы конвертированы
 - [x] **URP-03**: ParticleSystem материалы адаптированы под URP
 - [x] **URP-04**: URP Volume с базовым Post-Processing настроен (Bloom, Vignette или аналогичные эффекты)
-- [ ] **URP-05**: Визуальный результат соответствует оригиналу (спрайты, частицы, UI)
-- [ ] **URP-06**: Игра запускается в Editor и воспроизводит весь геймплей 1:1
+- [x] **URP-05**: Визуальный результат соответствует оригиналу (спрайты, частицы, UI)
+- [x] **URP-06**: Игра запускается в Editor и воспроизводит весь геймплей 1:1
 
 ### Hybrid DOTS -- ECS Foundation
 
@@ -128,8 +128,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | URP-02 | Phase 3 | Complete |
 | URP-03 | Phase 3 | Complete |
 | URP-04 | Phase 3 | Complete |
-| URP-05 | Phase 3 | Pending |
-| URP-06 | Phase 3 | Pending |
+| URP-05 | Phase 3 | Complete |
+| URP-06 | Phase 3 | Complete |
 | ECS-01 | Phase 4 | Pending |
 | ECS-02 | Phase 4 | Pending |
 | ECS-03 | Phase 4 | Pending |
