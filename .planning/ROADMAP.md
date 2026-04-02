@@ -83,7 +83,7 @@ Plans:
 - [x] 04-01-PLAN.md -- Установка com.unity.entities, IComponentData компоненты, тестовая инфраструктура, тесты компонентов
 - [x] 04-02-PLAN.md -- EntityFactory + Burst-системы (Rotate, Thrust, Move, LifeTime) и тесты
 - [ ] 04-03-PLAN.md -- Системы вооружения (Gun, Laser) и тесты
-- [ ] 04-04-PLAN.md -- AI-системы (ShootTo, MoveTo) и CollisionHandler с mock-данными и тесты
+- [x] 04-04-PLAN.md -- AI-системы (ShootTo, MoveTo) и CollisionHandler с mock-данными и тесты
 
 ### Phase 5: Bridge Layer + Integration
 **Goal**: Полностью работающая игра на гибридном DOTS -- ECS управляет логикой, GameObjects отвечают за рендеринг и UI

@@ -48,9 +48,9 @@
 - [x] **ECS-06**: MoveSystem перенесена на ISystem с Burst-компиляцией (включая тороидальное обертывание)
 - [ ] **ECS-07**: GunSystem перенесена на ISystem (перезарядка, стрельба)
 - [ ] **ECS-08**: LaserSystem перенесена на ISystem (заряды, cooldown)
-- [ ] **ECS-09**: ShootToSystem (AI наведение НЛО) перенесена на ISystem
-- [ ] **ECS-10**: MoveToSystem (движение НЛО к цели) перенесена на ISystem
-- [ ] **ECS-11**: CollisionHandler перенесен на ISystem (обработка столкновений через Physics2D результаты)
+- [x] **ECS-09**: ShootToSystem (AI наведение НЛО) перенесена на ISystem
+- [x] **ECS-10**: MoveToSystem (движение НЛО к цели) перенесена на ISystem
+- [x] **ECS-11**: CollisionHandler перенесен на ISystem (обработка столкновений через Physics2D результаты)
 
 ### Hybrid DOTS -- Bridge Layer
 
@@ -69,9 +69,9 @@
 - [x] **TST-04**: EditMode тесты для RotateSystem (поворот, нормализация угла)
 - [ ] **TST-05**: EditMode тесты для GunSystem (стрельба, перезарядка, лимит пуль)
 - [ ] **TST-06**: EditMode тесты для LaserSystem (заряды, cooldown, активация)
-- [ ] **TST-07**: EditMode тесты для ShootToSystem (предсказание позиции цели, расчет упреждения)
-- [ ] **TST-08**: EditMode тесты для MoveToSystem (движение к цели)
-- [ ] **TST-09**: EditMode тесты для CollisionHandler (правильные пары столкновений, очки)
+- [x] **TST-07**: EditMode тесты для ShootToSystem (предсказание позиции цели, расчет упреждения)
+- [x] **TST-08**: EditMode тесты для MoveToSystem (движение к цели)
+- [x] **TST-09**: EditMode тесты для CollisionHandler (правильные пары столкновений, очки)
 - [ ] **TST-10**: EditMode тесты для Bridge Layer (синхронизация позиций, жизненный цикл)
 - [x] **TST-11**: EditMode тесты для shtl-mvvm фикса (TMP-совместимость на обеих версиях Unity)
 - [ ] **TST-12**: PlayMode тесты для полного игрового цикла (старт -> игра -> конец)
@@ -138,9 +138,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ECS-06 | Phase 4 | Complete |
 | ECS-07 | Phase 4 | Pending |
 | ECS-08 | Phase 4 | Pending |
-| ECS-09 | Phase 4 | Pending |
-| ECS-10 | Phase 4 | Pending |
-| ECS-11 | Phase 4 | Pending |
+| ECS-09 | Phase 4 | Complete |
+| ECS-10 | Phase 4 | Complete |
+| ECS-11 | Phase 4 | Complete |
 | BRG-01 | Phase 5 | Pending |
 | BRG-02 | Phase 5 | Pending |
 | BRG-03 | Phase 5 | Pending |
@@ -153,9 +153,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TST-04 | Phase 4 | Complete |
 | TST-05 | Phase 4 | Pending |
 | TST-06 | Phase 4 | Pending |
-| TST-07 | Phase 4 | Pending |
-| TST-08 | Phase 4 | Pending |
-| TST-09 | Phase 4 | Pending |
+| TST-07 | Phase 4 | Complete |
+| TST-08 | Phase 4 | Complete |
+| TST-09 | Phase 4 | Complete |
 | TST-10 | Phase 5 | Pending |
 | TST-11 | Phase 1 | Complete |
 | TST-12 | Phase 5 | Pending |
