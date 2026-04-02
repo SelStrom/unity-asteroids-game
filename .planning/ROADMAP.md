@@ -77,13 +77,13 @@ Plans:
   3. Все 8 игровых систем (Thrust, Rotate, Move, Gun, Laser, ShootTo, MoveTo, CollisionHandler) перенесены на ISystem
   4. EditMode-тесты покрывают каждый компонент и каждую систему (TST-01 через TST-09) и все проходят зеленым
   5. Burst-компиляция применена к чистым системам (Move, Rotate, Thrust) без ошибок
-**Plans**: TBD
+**Plans:** 4 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
-- [ ] 04-03: TBD
-- [ ] 04-04: TBD
+- [ ] 04-01-PLAN.md -- Установка com.unity.entities, IComponentData компоненты, тестовая инфраструктура, тесты компонентов
+- [ ] 04-02-PLAN.md -- EntityFactory + Burst-системы (Rotate, Thrust, Move, LifeTime) и тесты
+- [ ] 04-03-PLAN.md -- Системы вооружения (Gun, Laser) и тесты
+- [ ] 04-04-PLAN.md -- AI-системы (ShootTo, MoveTo) и CollisionHandler с mock-данными и тесты
 
 ### Phase 5: Bridge Layer + Integration
 **Goal**: Полностью работающая игра на гибридном DOTS -- ECS управляет логикой, GameObjects отвечают за рендеринг и UI
