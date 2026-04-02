@@ -29,7 +29,7 @@
 - ✓ Апгрейд на Unity 6.3 с адаптацией к встроенному TMP — Validated in Phase 2: Unity 6.3 Upgrade
 - ✓ Фикс shtl-mvvm для совместимости с Unity 6.3 (TMP как внутренний модуль) и обратной совместимости с Unity 2022.3+ — Validated in Phase 1: Dev Tooling + shtl-mvvm Fix
 - ✓ Миграция с Built-in Render Pipeline на URP — Validated in Phase 3: URP Migration
-- [~] Переход геймплейной логики на гибридный DOTS — ECS Foundation (Phase 4) complete, Bridge Layer (Phase 5) pending
+- ✓ Переход геймплейной логики на гибридный DOTS — Validated in Phase 4+5: ECS Foundation + Bridge Layer
 
 ### Out of Scope
 
