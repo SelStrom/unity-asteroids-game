@@ -3,6 +3,9 @@
   "rootNamespace": "SelStrom.Asteroids.Tests.EditMode.ECS",
   "references": [
     "AsteroidsECS",
+    "AsteroidsBridge",
+    "Asteroids",
+    "Shtl.Mvvm",
     "Unity.Entities",
     "Unity.Entities.Tests",
     "Unity.Burst",
