@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-04-02T22:44:36.451Z"
-last_activity: 2026-04-02 -- Plan 05-01 executed
+status: executing
+stopped_at: Phase 5 context gathered
+last_updated: "2026-04-02T22:39:14.329Z"
+last_activity: 2026-04-02 -- Phase 05 execution started
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 14
   completed_plans: 12
-  percent: 86
+  percent: 93
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Играбельная классическая механика Asteroids -- фундамент для технической миграции на современный стек Unity
-**Current focus:** Phase 04 — ecs-foundation
+**Current focus:** Phase 05 — bridge-layer-integration
 
 ## Current Position
 
 Phase: 05 (bridge-layer-integration) — EXECUTING
 Plan: 2 of 3
-Status: Plan 05-01 complete, continuing to 05-02
-Last activity: 2026-04-02 -- Plan 05-01 executed
+Status: Executing Phase 05
+Last activity: 2026-04-03 -- Completed 05-02 (Bridge Systems)
 
-Progress: [█████████░] 86%
+Progress: [█████████░] 93%
 
 ## Performance Metrics
 
@@ -60,7 +60,7 @@ Progress: [█████████░] 86%
 | Phase 03 P01 | 7min | 2 tasks | 21 files |
 | Phase 03 P02 | 1min | 2 tasks | 0 files |
 | Phase 04 P02 | 4min | 2 tasks | 10 files |
-| Phase 05 P01 | 3min | 2 tasks | 13 files |
+| Phase 05 P02 | 4min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -85,9 +85,8 @@ Recent decisions affecting current work:
 - [Phase 04]: 2D rotation via sin/cos instead of Quaternion for Burst compatibility
 - [Phase 04]: ShipPositionData update separated into own non-Burst system to keep MoveSystem fully Burst-compatible
 - [Phase 04]: PlaceWithinGameArea preserves original wrapping logic 1:1 (including known edge-case)
-- [Phase 05]: GameObjectRef как ICleanupComponentData (managed class) для доступа к Transform/GameObject
-- [Phase 05]: Singleton DynamicBuffer для shoot-events вместо per-entity буферов
-- [Phase 05]: GameObjectSyncSystem в PresentationSystemGroup для выполнения после всех Simulation-систем
+- [Phase 05]: AsteroidsBridge.asmdef -- separate assembly referencing both Asteroids and AsteroidsECS for bridge classes
+- [Phase 05]: ObservableBridgeSystem uses managed SystemBase for access to MVVM ReactiveValue types
 
 ### Pending Todos
 
@@ -100,6 +99,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T22:44:36.408Z
-Stopped at: Completed 05-01-PLAN.md
-Resume file: None
+Last session: 2026-04-02T22:44:36Z
+Stopped at: Completed 05-02-PLAN.md
+Resume file: .planning/phases/05-bridge-layer-integration/05-CONTEXT.md
