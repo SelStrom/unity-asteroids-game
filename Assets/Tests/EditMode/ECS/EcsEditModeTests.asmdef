@@ -10,9 +10,7 @@
     "Unity.Entities.Tests",
     "Unity.Burst",
     "Unity.Mathematics",
-    "Unity.Collections",
-    "Asteroids",
-    "Shtl.Mvvm"
+    "Unity.Collections"
   ],
   "includePlatforms": [
     "Editor"
