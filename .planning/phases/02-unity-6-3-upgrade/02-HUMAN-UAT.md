@@ -50,7 +50,20 @@ blocked: 2
   reason: "User reported: UrpPostProcessingTests.cs и UrpSetupTests.cs — CS0234: UnityEngine.Rendering.Universal не найден. MoveSystemTests.cs, ThrustSystemTests.cs, RotateSystemTests.cs — CS0246: TimeData не найден. EcsEditModeTests.asmdef — duplicate references. com.unity.ide.vscode deprecated."
   severity: blocker
   test: 1
-  root_cause: ""
-  artifacts: []
-  missing: []
+  root_cause: "3 независимых бага: (1) EditModeTests.asmdef не ссылается на com.unity.render-pipelines.universal — URP установлен но тесты не видят namespace; (2) MoveSystemTests/ThrustSystemTests/RotateSystemTests используют bare TimeData вместо Unity.Core.TimeData (MoveToSystemTests делает правильно); (3) EcsEditModeTests.asmdef содержит дублированные ссылки Asteroids и Shtl.Mvvm"
+  artifacts:
+    - path: "Assets/Tests/EditMode/EditModeTests.asmdef"
+      issue: "Отсутствует ссылка на URP assembly"
+    - path: "Assets/Tests/EditMode/ECS/MoveSystemTests.cs"
+      issue: "TimeData без квалификации Unity.Core"
+    - path: "Assets/Tests/EditMode/ECS/ThrustSystemTests.cs"
+      issue: "TimeData без квалификации Unity.Core"
+    - path: "Assets/Tests/EditMode/ECS/RotateSystemTests.cs"
+      issue: "TimeData без квалификации Unity.Core"
+    - path: "Assets/Tests/EditMode/ECS/EcsEditModeTests.asmdef"
+      issue: "Дублированные ссылки Asteroids и Shtl.Mvvm"
+  missing:
+    - "Добавить ссылку на URP в EditModeTests.asmdef"
+    - "Добавить using Unity.Core или квалифицировать TimeData как Unity.Core.TimeData в 3 тест-файлах"
+    - "Удалить дублирующиеся записи из EcsEditModeTests.asmdef"
   debug_session: ""
