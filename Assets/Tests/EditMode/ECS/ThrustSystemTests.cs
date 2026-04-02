@@ -53,7 +53,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 isActive: true
             );
 
-            World.PushTime(new Unity.Core.TimeData(0.1, 0.1));
+            World.PushTime(new Unity.Core.TimeData(0.1f, 0.1f));
             _systemHandle.Update(World.Unmanaged);
             World.PopTime();
 

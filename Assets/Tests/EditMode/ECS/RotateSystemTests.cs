@@ -31,7 +31,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         {
             var entity = CreateRotateEntity(new float2(1f, 0f), 1f);
 
-            World.PushTime(new Unity.Core.TimeData(1.0, 1.0));
+            World.PushTime(new Unity.Core.TimeData(1.0f, 1.0f));
             _systemHandle.Update(World.Unmanaged);
             World.PopTime();
 
@@ -45,7 +45,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         {
             var entity = CreateRotateEntity(new float2(1f, 0f), -1f);
 
-            World.PushTime(new Unity.Core.TimeData(1.0, 1.0));
+            World.PushTime(new Unity.Core.TimeData(1.0f, 1.0f));
             _systemHandle.Update(World.Unmanaged);
             World.PopTime();
 
@@ -59,7 +59,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         {
             var entity = CreateRotateEntity(new float2(1f, 0f), 0f);
 
-            World.PushTime(new Unity.Core.TimeData(1.0, 1.0));
+            World.PushTime(new Unity.Core.TimeData(1.0f, 1.0f));
             _systemHandle.Update(World.Unmanaged);
             World.PopTime();
 
