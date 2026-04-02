@@ -1,6 +1,6 @@
 # Architecture
 
-**Дата анализа:** 2026-03-26
+**Дата анализа:** 2026-04-02
 
 ## Общий дизайн
 
@@ -12,216 +12,305 @@
 - Связывание модель↔вью реализовано через реактивные значения (`ObservableValue`, `ReactiveValue`) из библиотеки `Shtl.Mvvm`.
 - Конфигурация хранится в ScriptableObject-ассетах.
 
+## Архитектурные слои
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Unity MonoBehaviour (ApplicationEntry)              │
+│  ─ OnUpdate/OnPause/OnResume → C#-события           │
+├─────────────────────────────────────────────────────┤
+│  Application Layer                                   │
+│  ─ Application: владеет Pool, Catalog, Model, Game   │
+│  ─ Game: игровой процесс, спаун, коллизии            │
+│  ─ EntitiesCatalog: фабрика+реестр Model↔View        │
+│  ─ Screens: TitleScreen, GameScreen (MVVM)           │
+├─────────────────────────────────────────────────────┤
+│  Model Layer (ECS-подобное ядро)                     │
+│  ─ Model: реестр сущностей + ordered systems          │
+│  ─ Components: MoveComponent, ThrustComponent, ...    │
+│  ─ Systems: MoveSystem, ThrustSystem, GunSystem, ...  │
+│  ─ Entities: ShipModel, AsteroidModel, UfoBigModel, . │
+│  ─ ActionScheduler: отложенные действия               │
+├─────────────────────────────────────────────────────┤
+│  View Layer (MVVM)                                   │
+│  ─ ViewModels: ShipViewModel, AsteroidViewModel, ...  │
+│  ─ Visuals: ShipVisual, AsteroidVisual, ... (MonoB.)  │
+│  ─ Bindings: ObservableValue → ReactiveValue → UI     │
+├─────────────────────────────────────────────────────┤
+│  Config Layer                                        │
+│  ─ GameData (ScriptableObject) → ассеты              │
+└─────────────────────────────────────────────────────┘
+```
+
 ## Основные системы
 
 ### 1. Слой приложения (`Assets/Scripts/Application/`)
 
-**`ApplicationEntry`** (`Application/ApplicationEntry.cs`)
+**`ApplicationEntry`** (`ApplicationEntry.cs`)
 - Единственный `MonoBehaviour` в игровом коде (не считая визуалов).
 - Реализует `IApplicationComponent`: пробрасывает `Update`, `OnPause`, `OnResume` как C#-события.
 - Создаёт `Application`, `LeaderboardService`, `GameScreen`, `TitleScreen` в `Awake`.
-- Поле `[SerializeField] GameData _configs` — точка вброса конфига из сцены.
+- `[SerializeField] GameData _configs` — точка вброса конфига из сцены.
 
-**`Application`** (`Application/Application.cs`)
+**`Application`** (`Application.cs`)
 - Корневой объект приложения (чистый C#).
 - Владеет `GameObjectPool`, `EntitiesCatalog`, `Model`, `Game`, экранами.
+- Вычисляет GameArea из камеры: `sceneWidth = camera.aspect * orthographicSize * 2`.
 - Подписывается на `IApplicationComponent.OnUpdate` и вызывает `Model.Update(deltaTime)` каждый кадр.
 
-**`Game`** (`Application/Game.cs`)
+**`Game`** (`Game.cs`)
 - Управляет игровым процессом: старт, стоп, рестарт.
 - Спаунит корабль, астероиды, UFO через `EntitiesCatalog`.
 - Обрабатывает коллизии, уничтожение сущностей, логику разбивания астероидов на части.
 - Расписывает таймер появления новых врагов через `ActionScheduler`.
 
-**`EntitiesCatalog`** (`Application/EntitiesCatalog.cs`)
+**`EntitiesCatalog`** (`EntitiesCatalog.cs`)
 - Фабрика и реестр всех игровых сущностей.
-- Хранит двунаправленные словари: модель↔вью, `GameObject`↔модель.
+- Хранит двунаправленные словари: модель↔вью, `GameObject`↔модель, модель↔bindings.
 - При создании каждой сущности создаёт модель (`ModelFactory`), вью (`ViewFactory`) и `EventBindingContext` с привязками реактивных значений.
 - При уничтожении (`Release`) снимает привязки и возвращает объекты в пул.
 
-**`ModelFactory`** (`Application/ModelFactory.cs`)
-- Создаёт экземпляр модели через `new TModel()` и регистрирует его в `Model` (`Model.AddEntity`).
-- Задел под пул моделей (TODO в коде).
-
-**`ViewFactory`** (`Application/ViewFactory.cs`)
-- Обёртка над `GameObjectPool`: выдаёт `GameObject` из пула по prefab, возвращает обратно при `Release`.
-
 ### 2. Модельный слой — ECS-ядро (`Assets/Scripts/Model/`)
 
-**`Model`** (`Model/Model.cs`)
-- Реестр всех систем и сущностей.
-- Регистрирует системы в конструкторе в строгом порядке: `RotateSystem`, `ThrustSystem`, `MoveSystem`, `LifeTimeSystem`, `GunSystem`, `LaserSystem`, `ShootToSystem`, `MoveToSystem`.
-- В `Update(deltaTime)` каждый кадр:
-  1. Обновляет `ActionScheduler`.
-  2. Регистрирует новые сущности в системах через Visitor (`IGroupVisitor`).
-  3. Итерирует все системы (`system.Update`).
-  4. Вызывает `OnEntityDestroyed` для мёртвых сущностей и удаляет их.
-- Хранит игровое поле (`GameArea: Vector2`) и счёт (`Score`).
+**`Model`** (`Model.cs`) — центральный класс, владеет всеми сущностями и системами.
 
-**Сущности** (`Model/Entities/`)
-- `IGameEntityModel` — интерфейс: `IsDead()`, `Kill()`, `AcceptWith(IGroupVisitor)`.
-- Конкретные сущности: `ShipModel`, `AsteroidModel`, `BulletModel`, `UfoBigModel`, `UfoModel`.
-- Каждая сущность содержит компоненты как поля-объекты (composition), не наследование.
-- `UfoModel` наследует `UfoBigModel`, добавляя `MoveToComponent` (движение к кораблю).
-
-**Компоненты** (`Model/Components/`)
-- `MoveComponent` — позиция (`ObservableValue<Vector2>`), скорость (`ObservableValue<float>`), направление.
-- `RotateComponent` — направление вращения, цель.
-- `ThrustComponent` — флаг тяги (`ObservableValue<bool>`), параметры ускорения.
-- `GunComponent` — состояние обычного оружия, коллбэк `OnShooting`.
-- `LaserComponent` — состояние лазера, реактивные значения для HUD.
-- `LifeTimeComponent`, `MoveToComponent`, `ShootToComponent`.
-
-**Системы** (`Model/Systems/`)
-- Базовый класс `BaseModelSystem<TNode>`: хранит `Dictionary<IGameEntityModel, TNode>`, итерирует в `Update`.
-- Каждая система получает только нужные ей компоненты (или кортеж компонентов) в качестве `TNode`.
-- Например, `ThrustSystem` принимает кортеж `(ThrustComponent, MoveComponent, RotateComponent)`.
-
-**`ActionScheduler`** (`Model/ActionScheduler.cs`)
-- Планировщик отложенных действий (без корутин, тикается вручную в `Model.Update`).
-- Использует оптимизацию: отслеживает ближайший срабатывающий таймаут.
-
-### 3. Слой представления — MVVM (`Assets/Scripts/View/`)
-
-Библиотека `Shtl.Mvvm` предоставляет:
-- `AbstractViewModel` — базовый класс для ViewModel.
-- `AbstractWidgetView<TViewModel>` — базовый MonoBehaviour-вью, хранит `ViewModel` и `EventBindingContext Bind`.
-- `ReactiveValue<T>`, `ObservableValue<T>` — реактивные обёртки для подписки.
-- `EventBindingContext` — контейнер биндингов, позволяет разом снять все подписки через `CleanUp()`.
-
-**Паттерн для каждой игровой сущности:**
-1. ViewModel: `ShipViewModel`, `AsteroidViewModel`, `BulletViewModel`, `UfoViewModel` — набор `ReactiveValue<T>`.
-2. Visual (MonoBehaviour): `ShipVisual`, `AsteroidVisual`, `BulletVisual`, `UfoVisual` — подписывается на ViewModel в `OnConnected()`.
-3. Соединение через `view.Connect(viewModel)` в `EntitiesCatalog`.
-
-**GUI:**
-- `HudVisual` / `HudData` — данные корабля в реальном времени (координаты, скорость, лазер).
-- `ScoreVisual` / `ScoreViewModel` — экран окончания игры с таблицей лидеров.
-- `TitleScreenView` / `TitleScreenViewModel` — стартовый экран.
-
-**Биндинги:**
-- `BindingToExtensions` (`View/Bindings/BindingToExtensions.cs`) — расширение: `From(ReactiveValue<Vector2>).To(Transform)` обновляет позицию объекта напрямую.
-
-### 4. Экраны (`Application/Screens/`)
-
-- `AbstractScreen` — базовый класс, владеет `EventBindingContext`, предоставляет `CleanUp()`.
-- `TitleScreen` — связывает кнопку старта с запуском `Game.Start()`.
-- `GameScreen` — управляет состоянием `State.Game` / `State.EndGame`, биндит HUD к модели корабля, запускает загрузку таблицы лидеров.
-
-### 5. Лидерборд (`Application/Leaderboard/`)
-
-- `LeaderboardService` — сервисный класс, координирует авторизацию и отправку/получение очков через Unity Services.
-- Интерфейсы `IAuthProxy`, `ILeaderboardProxy` — абстрагируют Unity Gaming Services.
-- Реализации `UnityAuthProxy`, `UnityLeaderboardProxy` — вызывают Unity Authentication и Unity Leaderboards SDK.
-- Все асинхронные операции реализованы через `IEnumerator`-корутины с `CoroutineResult<T>`.
-
-### 6. Ввод (`Assets/Scripts/Input/`)
-
-- `PlayerInput` — чистый C#-класс, оборачивает Unity Input System (generated `PlayerActions`).
-- Публикует события: `OnAttackAction`, `OnRotateAction`, `OnTrustAction`, `OnLaserAction`, `OnBackAction`.
-- `Game` подписывается на события ввода и записывает намерения в компоненты модели.
-
-### 7. Утилиты (`Assets/Scripts/Utils/`)
-
-- `GameObjectPool` — пул `GameObject` по prefab-id (Stack-based).
-- `GameUtils` — вычисление случайных позиций спауна вне радиуса корабля.
-- `CoroutineResult<T>` — типизированный контейнер результата для корутин-цепочек.
-
-## Поток данных
-
-### Игровой цикл (кадр)
-
+**Регистрация систем (порядок важен!):**
 ```
-Unity Update()
-  → IApplicationComponent.OnUpdate event
-    → Application.OnUpdate(deltaTime)
-      → Model.Update(deltaTime)
-          1. ActionScheduler.Update         — таймеры (спаун, перезарядка)
-          2. регистрация новых сущностей в системах (Visitor)
-          3. foreach system: system.Update   — физика, оружие, AI
-          4. foreach dead entity:
-               → OnEntityDestroyed event
-                 → Game.OnEntityDestroyed
-                   → EntitiesCatalog.Release
-                     → EventBindingContext.CleanUp  — снять биндинги
-                     → ViewFactory.Release          — вернуть в пул
-                     → ModelFactory.Release         — (задел под пул)
+RotateSystem → ThrustSystem → MoveSystem → LifeTimeSystem → GunSystem → LaserSystem → ShootToSystem → MoveToSystem
+```
+Порядок гарантирует, что rotation обновится до thrust, thrust до move, и т.д.
+
+**Visitor-паттерн для регистрации компонентов:** `Model.GroupCreator` реализует `IGroupVisitor` и привязывает компоненты модели к нужным системам через `AcceptWith`. Каждый тип сущности регистрируется в своём наборе систем:
+- `ShipModel` → MoveSystem, RotateSystem, GunSystem, LaserSystem, ThrustSystem
+- `AsteroidModel` → MoveSystem
+- `BulletModel` → MoveSystem, LifeTimeSystem
+- `UfoBigModel` → MoveSystem, GunSystem, ShootToSystem
+- `UfoModel` → MoveSystem, GunSystem, ShootToSystem, MoveToSystem
+
+**Цикл обновления** (`Model.Update`, `Model.cs:124-154`):
+1. `ActionScheduler.Update(deltaTime)` — отложенные действия
+2. Новые сущности из `_newEntities` переносятся в `_entities`, регистрируются через Visitor
+3. Все системы обновляются по порядку: `foreach (var system in _systems) system.Update(deltaTime)`
+4. Мёртвые сущности (`IsDead()`) удаляются из систем, вызывается `OnEntityDestroyed`
+5. `_entities.RemoveWhere(x => x.IsDead())`
+
+### 3. Системы компонентов — подробно
+
+Все системы наследуют `BaseModelSystem<TNode>`, хранят `Dictionary<IGameEntityModel, TNode>` и итерируют по `.Values`.
+
+#### ThrustSystem (`ThrustSystem.cs`) — физика ускорения корабля
+
+**Алгоритм (строка 9-22):**
+
+Когда тяга активна (`IsActive == true`):
+1. Вычисляет ускорение: `acceleration = UnitsPerSecond * deltaTime`
+2. Строит вектор скорости: `velocity = текущее_направление × текущая_скорость + вектор_поворота × ускорение`
+3. Новое направление = `velocity.normalized`
+4. Новая скорость = `min(velocity.magnitude, MaxSpeed)`
+
+Когда тяга неактивна:
+1. Скорость уменьшается: `speed -= UnitsPerSecond / 2 * deltaTime` (торможение вдвое медленнее ускорения)
+2. Ограничение снизу: `max(speed, 0)`
+
+**Особенность:** направление и скорость хранятся раздельно в `MoveComponent`. Тяга складывает вектор текущей скорости и вектор ускорения в направлении поворота, что даёт плавные повороты в стиле классических Asteroids.
+
+**Edge case:** при развороте на 180° и равных magnitude текущей скорости и ускорения результирующий `velocity` может стать нулевым вектором — `normalized` от нуля даст `(0,0)`, и направление потеряется.
+
+#### RotateSystem (`RotateSystem.cs`) — вращение корабля
+
+**Алгоритм (строка 8-18):**
+1. Если `TargetDirection == 0` — ничего не делать (нет ввода)
+2. Создать кватернион вращения на `90° × deltaTime × direction` вокруг оси Z
+3. Умножить на текущий `Rotation.Value` (Vector2) — кватернион вращает 2D-вектор
+
+**Скорость вращения:** фиксированная, 90°/сек (`RotateComponent.DegreePerSecond = 90`).
+
+#### MoveSystem (`MoveSystem.cs`) — перемещение + тороидальный экран
+
+**Алгоритм (строка 14-21):**
+1. `newPosition = oldPosition + direction × speed × deltaTime`
+2. `PlaceWithinGameArea(ref position.x, gameArea.x)`
+3. `PlaceWithinGameArea(ref position.y, gameArea.y)`
+
+**Тороидальная обёртка** (`Model.PlaceWithinGameArea`, `Model.cs:156-167`):
+```csharp
+if (position > side / 2)
+    position = -side + position;  // ⚠ баг: должно быть position - side
+if (position < -side / 2)
+    position = side - position;   // ⚠ баг: должно быть position + side
 ```
 
-### Ввод игрока → модель
+**Известный баг:** формула для выхода за левую/нижнюю границу (`position = side - position`) инвертирует знак позиции вместо корректного wraparound. При `position = -6` и `side = 10` результат = `10 - (-6) = 16`, что находится далеко за правой границей. Корректная формула: `position = position + side`.
+
+#### GunSystem (`GunSystem.cs`) — механика перезарядки и стрельбы
+
+**Алгоритм (строка 7-26):**
+1. Если `CurrentShoots < MaxShoots` — идёт перезарядка:
+   - `ReloadRemaining -= deltaTime`
+   - Когда `ReloadRemaining <= 0`: сбросить таймер, установить `CurrentShoots = MaxShoots`
+   - **Особенность:** перезарядка восстанавливает ВСЕ выстрелы сразу, а не по одному
+2. Если `Shooting && CurrentShoots > 0`:
+   - `CurrentShoots--`
+   - Вызвать `OnShooting` callback
+3. Сбросить `Shooting = false` (событийная модель: один кадр — один выстрел)
+
+#### LaserSystem (`LaserSystem.cs`) — лазер с инкрементальной перезарядкой
+
+**Алгоритм (строка 7-26):**
+Аналогичен GunSystem, но:
+- `CurrentShoots` и `ReloadRemaining` — `ObservableValue<>` (реактивные, связаны с HUD)
+- Перезарядка восстанавливает **по одному** выстрелу за период (`CurrentShoots += 1`)
+- Стрельба тратит **по одному** (`CurrentShoots -= 1`)
+
+#### ShootToSystem (`ShootToSystem.cs`) — предиктивное прицеливание UFO
+
+**Алгоритм предсказания позиции игрока (строка 7-25):**
+1. Если `CurrentShoots <= 0` — нет патронов, не стрелять
+2. Вычислить расстояние до корабля: `distance = (shipPos - ufoPos).magnitude`
+3. Вычислить время подлёта пули: `time = distance / (20 - shipSpeed)`
+   - **20** — хардкод скорости пули (должна быть `configs.Bullet.Speed`)
+   - ⚠ **Division by zero**: если `shipSpeed == 20`, будет деление на ноль
+4. Предсказать будущую позицию корабля: `pendingPos = shipPos + shipDirection × shipSpeed × time`
+5. Направить пулю: `direction = (pendingPos - ufoPos).normalized`
+6. Установить `Gun.Shooting = true` (GunSystem обработает на этом же кадре)
+
+**Проблема алгоритма:** при `shipSpeed > 20` время становится отрицательным, и UFO будет целиться в обратную сторону от корабля.
+
+#### MoveToSystem (`MoveToSystem.cs`) — перехват корабля малым UFO
+
+**Алгоритм перехвата (строка 7-23):**
+1. Таймер `ReadyRemaining` уменьшается каждый кадр
+2. Когда `ReadyRemaining <= 0` (каждые 3 сек для UFO):
+   - Сбросить таймер
+   - `time = distanceToShip / (ufoSpeed - shipSpeed)`
+   - ⚠ **Division by zero**: если скорости равны
+   - Предсказать позицию корабля: `pendingPos = shipPos + shipDir × shipSpeed × time`
+   - Направить UFO к предсказанной точке
+
+**Ключевое отличие от ShootToSystem:** делит на разницу скоростей объектов (UFO vs корабль), а не на разницу скорости пули и корабля. Формула рассчитывает время перехвата при сближении.
+
+#### LifeTimeSystem (`LifeTimeSystem.cs`) — время жизни пуль
+
+Простой таймер: `TimeRemaining = max(TimeRemaining - deltaTime, 0)`. Когда достигает 0, `BulletModel.IsDead()` возвращает `true`.
+
+### 4. ActionScheduler — отложенные действия
+
+**Алгоритм** (`ActionScheduler.cs:31-57`):
+1. `_nextUpdateDuration` — оптимизация: не итерировать список, пока не пришло время ближайшего действия
+2. `_secondsSinceLastUpdate` — аккумулятор времени с последней обработки
+3. При обработке (обратный цикл `for (i = Count-1; i >= 0; i--)`):
+   - Вычитает накопленное время из Duration каждого entry
+   - Если Duration > 0 — обновляет `_nextUpdateDuration`
+   - Если Duration ≤ 0 — **swap-with-last** удаление (O(1) вместо O(n)):
+     ```
+     entries[i] = entries[last]; entries.RemoveAt(last);
+     ```
+   - Вызывает `entry.Action()` ПОСЛЕ удаления из списка
+4. Сбрасывает `_secondsSinceLastUpdate = 0`
+
+**Проблема:** действие может добавить новые entry через `ScheduleAction` во время итерации (TODO в коде, строка 28). SpawnNewEnemy делает именно это — reschedule себя. Swap-with-last + обратный цикл частично защищает, но теоретически race condition возможен.
+
+### 5. Управление жизненным циклом сущностей
+
+**Создание:**
+1. `EntitiesCatalog.CreateXxx()` → `ModelFactory.Get<T>()` → `new T()` + `Model.AddEntity()`
+2. Модель попадает в `_newEntities`
+3. На следующем `Model.Update()` переносится в `_entities` и регистрируется через Visitor
+
+**Уничтожение** (`Game.Kill()`, `Game.cs:170-196`):
+1. `entityModel.Kill()` → устанавливает `_killed = true`
+2. Для астероидов — алгоритм дробления:
+   - `age = asteroidAge - 1`
+   - Если `age > 0`: создать **2** новых астероида меньшего размера
+   - Скорость осколков: `min(originalSpeed × 2, 10f)` — удвоение с потолком 10
+3. Для любой сущности — `PlayEffect` (взрыв из пула)
+4. В `Model.Update()`: `IsDead()` → удаление из систем → `OnEntityDestroyed` → `EntitiesCatalog.Release`
+
+**Иерархия размеров астероидов:** 3 (big) → 2 (medium) → 1 (small) → уничтожен
+
+### 6. Коллизии и подсчёт очков
+
+**Пуля игрока vs астероид** (`Game.OnUserBulletCollided`, `Game.cs:128-144`):
+1. Kill пули
+2. Отключить коллайдер цели (`col.otherCollider.enabled = false`)
+3. Найти модель по `GameObject` через `EntitiesCatalog.TryFindModel<T>`
+4. `ReceiveScore` — добавить очки (Score = Score + entity.Data.Score)
+5. Kill астероида (запускает дробление)
+
+**Пуля игрока vs UFO** (`Game.cs:140-143`):
+- ⚠ **Баг:** `ReceiveScore` вызывается, но `Kill` для UFO **НЕ вызывается**. UFO остаётся бессмертным после попадания пули.
+
+**Лазер** (`Game.OnUserLaserShooting`, `Game.cs:210-238`):
+1. Создать визуальный эффект (LineRenderer из пула)
+2. Установить позицию и поворот по направлению корабля
+3. Запланировать удаление эффекта через `ActionScheduler`
+4. `Physics2D.RaycastNonAlloc` — лучевой кастинг по слоям "Asteroid" и "Enemy"
+5. Для каждого попадания: `ReceiveScore` + `Kill`
+6. Дальность: `GameArea.magnitude` (диагональ игровой области)
+
+**Столкновение корабля** (`Game.OnShipCollided`, `Game.cs:122-126`):
+- Kill корабля + Stop (конец игры)
+- Не различает тип столкновения (астероид/UFO/пуля)
+
+### 7. Спаун врагов
+
+**Периодический спаун** (`Game.SpawnNewEnemy`, `Game.cs:77-93`):
+1. `Random.Range(0, 3)` — равновероятный выбор: астероид, UFO малый, UFO большой
+2. Рекурсивная перепланировка через `ActionScheduler` с фиксированным интервалом `SpawnNewEnemyDurationSec`
+
+**Позиционирование астероидов** (`GameUtils.GetRandomAsteroidPosition`, `GameUtils.cs:24-37`):
+1. Случайная позиция в пределах GameArea
+2. Вычисление расстояния до корабля
+3. Если расстояние < `SpawnAllowedRadius` — сдвиг **к кораблю** (баг: `position += distance.normalized * allowedDistance`, где `allowedDistance < 0`)
+
+**Позиционирование UFO** (`GameUtils.GetRandomUfoPosition`, `GameUtils.cs:9-22`):
+1. Всегда `x = 0` (после вычитания gameArea*0.5 → левый край экрана)
+2. Случайный `y` в пределах gameArea
+3. Проверка расстояния по вертикали до корабля
+4. ⚠ Division by zero при `verticalDistance == 0`
+
+**Направление UFO при спауне:**
+- Малый UFO: `Random.insideUnitCircle.normalized` — в любую сторону
+- Большой UFO: `(Random.insideUnitCircle * new Vector2(1, 0.1f)).normalized` — преимущественно горизонтально (y-компонента подавлена в 10×)
+
+### 8. Машина состояний игры
 
 ```
-Unity Input System
-  → PlayerInput (C# events)
-    → Game.OnAttack / OnRotate / OnTrust / OnLaser
-      → ShipModel.Gun.Shooting = true   (и т.п.)
-        → GunSystem.UpdateNode обнаруживает флаг
-          → Gun.OnShooting callback
-            → Game.OnUserGunShooting
-              → EntitiesCatalog.CreateBullet
+TitleScreen (кнопка Start)
+    ↓
+Game.Start() → создание корабля, спаун врагов, подключение ввода
+    ↓
+[игровой цикл: Model.Update каждый кадр]
+    ↓
+Game.Stop() → при гибели корабля → отключение ввода, сброс ActionScheduler
+    ↓
+GameScreen.EndGame → показ очков, лидерборд
+    ↓
+Game.Restart() → Model.CleanUp() → Game.Start() (новый цикл)
 ```
 
-### Изменение модели → обновление вью
+### 9. MVVM-связывание
 
-```
-MoveSystem.UpdateNode
-  → MoveComponent.Position.Value = newPos   (ObservableValue)
-    → ReactiveValue<Vector2> в ViewModel (через EventBindingContext)
-      → Transform.position обновляется (BindingToExtensions)
-```
+**Паттерн создания entity с биндингами** (`EntitiesCatalog.CreateShip`, `EntitiesCatalog.cs:45-73`):
+1. Создать модель через `ModelFactory`
+2. Создать `ViewModel` (чистый C#)
+3. Создать `EventBindingContext` (управляет подписками)
+4. Связать: `bindings.From(model.Move.Position).To(viewModel.Position)` — ObservableValue → ReactiveValue
+5. `bindings.InvokeAll()` — выполнить начальную синхронизацию
+6. Создать View из пула, подключить ViewModel
+7. Сохранить в каталог
 
-### Коллизия → уничтожение сущности
+**Специальные привязки:**
+- Thrust sprite: `From(model.Thrust.IsActive).To(viewModel.Sprite, ...)` — переключение спрайта по булевому значению через лямбда-адаптер
+- Rotation: View сам конвертирует Vector2 → угол через `Atan2` и устанавливает `Quaternion.Euler`
+- Position: расширение `BindingToExtensions.To(transform)` — копирует x,y из Vector2 в Transform.position
 
-```
-Unity OnCollisionEnter2D (на Visual MonoBehaviour)
-  → ViewModel.OnCollision.Value?.Invoke(col)
-    → Game.OnUserBulletCollided / OnShipCollided
-      → entityModel.Kill()   → IsDead() = true
-        → Model.Update следующего кадра обнаружит мёртвую сущность
-          → OnEntityDestroyed → Release
-```
+### 10. Leaderboard — лучший результат
 
-## Паттерны проектирования
-
-| Паттерн | Где используется |
-|---------|-----------------|
-| **ECS (упрощённый)** | `Model` + `BaseModelSystem<TNode>` + компоненты в сущностях |
-| **Visitor** | `IGroupVisitor` / `IGameEntityModel.AcceptWith` — регистрация сущностей в системах |
-| **MVVM** | `AbstractViewModel` + `AbstractWidgetView<T>` + `ReactiveValue<T>` для всех визуалов |
-| **Observer / Reactive** | `ObservableValue<T>`, `ReactiveValue<T>`, `EventBindingContext` |
-| **Object Pool** | `GameObjectPool` для всех игровых GameObject |
-| **ScriptableObject Data** | `GameData`, `AsteroidData`, `UfoData`, `BaseGameEntityData` |
-| **Proxy / Interface** | `IAuthProxy`, `ILeaderboardProxy`, `IApplicationComponent` |
-| **Factory** | `ModelFactory`, `ViewFactory`, `EntitiesCatalog.CreateXxx` |
-| **Coroutine Result** | `CoroutineResult<T>` — аналог Promise для Unity-корутин |
-
-## Ключевые абстракции
-
-**`IGameEntityModel`** (`Model/Entities/IGameEntityModel.cs`)
-- Контракт: `IsDead()`, `Kill()`, `AcceptWith(IGroupVisitor)`.
-- Реализуют: `ShipModel`, `AsteroidModel`, `BulletModel`, `UfoBigModel`, `UfoModel`.
-
-**`IModelSystem`** (`Model/Systems/BaseModelSystem.cs`)
-- Контракт: `Update(float)`, `Remove(IGameEntityModel)`, `CleanUp()`.
-- Все системы наследуют `BaseModelSystem<TNode>`.
-
-**`IEntityView`** (`View/Base/IEntityView.cs`)
-- Контракт для вью-компонентов, необходим `GameObjectPool` для идентификации.
-
-**`IApplicationComponent`** (`Application/IApplicationComponent.cs`)
-- Мост между Unity `MonoBehaviour` и чистым C#-кодом приложения.
-- Изолирует `Application` от прямой зависимости на Unity.
-
-**`AbstractScreen`** (`Application/Screens/AbstractScreen.cs`)
-- Базовый класс экранов с управлением жизненным циклом биндингов.
-
-## Обработка ошибок
-
-- Нет глобального обработчика исключений.
-- Лидерборд: ошибки логируются через `Debug.LogError`, UI переходит в fallback-состояние (форма ввода имени).
-- `GameObjectPool.Release` бросает `Exception` при попытке вернуть незарегистрированный объект.
-- Корутинные операции передают ошибку через `CoroutineResult.Error` (паттерн без исключений).
-
----
-
-*Анализ архитектуры: 2026-03-26*
+**Алгоритм** (`GameScreen.SubmitAndShowLeaderboardRoutine`, `GameScreen.cs:225-289`):
+1. Загрузить текущий лучший результат игрока: `GetPlayerScore`
+2. `bestScore = max(serverScore ?? 0, currentScore)`
+3. Отправить `bestScore` (а не текущий) — гарантирует что на сервере всегда максимум
+4. Загрузить топ-10
+5. Загрузить персональный ранг повторно (мог измениться после submit)
+6. Защита от stale coroutine: `if (_score.ViewModel != viewModel) yield break` — если пользователь рестартнул игру, ранее запущенная корутина прекращается
