@@ -40,8 +40,8 @@
 
 ### Hybrid DOTS -- ECS Foundation
 
-- [ ] **ECS-01**: Пакеты com.unity.entities и com.unity.burst установлены и совместимы с Unity 6.3
-- [ ] **ECS-02**: IComponentData определены для всех игровых сущностей (Ship, Asteroid, Bullet, UfoBig, Ufo)
+- [x] **ECS-01**: Пакеты com.unity.entities и com.unity.burst установлены и совместимы с Unity 6.3
+- [x] **ECS-02**: IComponentData определены для всех игровых сущностей (Ship, Asteroid, Bullet, UfoBig, Ufo)
 - [ ] **ECS-03**: EntityFactory создает entities с правильными компонентами
 - [ ] **ECS-04**: ThrustSystem перенесена на ISystem с Burst-компиляцией
 - [ ] **ECS-05**: RotateSystem перенесена на ISystem с Burst-компиляцией
@@ -63,7 +63,7 @@
 
 ### Testing (TDD)
 
-- [ ] **TST-01**: EditMode тесты для всех ECS компонентов (создание, значения по умолчанию)
+- [x] **TST-01**: EditMode тесты для всех ECS компонентов (создание, значения по умолчанию)
 - [ ] **TST-02**: EditMode тесты для ThrustSystem (физика тяги, направление, максимальная скорость)
 - [ ] **TST-03**: EditMode тесты для MoveSystem (перемещение, тороидальное обертывание)
 - [ ] **TST-04**: EditMode тесты для RotateSystem (поворот, нормализация угла)
@@ -130,8 +130,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | URP-04 | Phase 3 | Complete |
 | URP-05 | Phase 3 | Complete |
 | URP-06 | Phase 3 | Complete |
-| ECS-01 | Phase 4 | Pending |
-| ECS-02 | Phase 4 | Pending |
+| ECS-01 | Phase 4 | Complete |
+| ECS-02 | Phase 4 | Complete |
 | ECS-03 | Phase 4 | Pending |
 | ECS-04 | Phase 4 | Pending |
 | ECS-05 | Phase 4 | Pending |
@@ -147,7 +147,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRG-04 | Phase 5 | Pending |
 | BRG-05 | Phase 5 | Pending |
 | BRG-06 | Phase 5 | Pending |
-| TST-01 | Phase 4 | Pending |
+| TST-01 | Phase 4 | Complete |
 | TST-02 | Phase 4 | Pending |
 | TST-03 | Phase 4 | Pending |
 | TST-04 | Phase 4 | Pending |
