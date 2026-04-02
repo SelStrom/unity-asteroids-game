@@ -5,6 +5,7 @@
     "com.unity.feature.2d": "2.0.1",
     "com.unity.ide.rider": "3.0.39",
     "com.unity.ide.vscode": "1.2.5",
+    "com.ivanmurzak.unity.mcp": "https://github.com/IvanMurzak/Unity-MCP.git?path=/Unity-MCP-Plugin/Assets/root",
     "com.unity.inputsystem": "1.19.0",
     "com.unity.services.authentication": "3.6.0",
     "com.unity.services.core": "1.16.0",
