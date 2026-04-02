@@ -99,6 +99,12 @@ None yet.
 - [Research]: Assembly forwarding Unity.TextMeshPro в Unity 6 требует практической проверки при первой сборке
 - [Research]: Задержка коллизий в 1 кадр при гибридном DOTS -- нужна оценка влияния на геймплей
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260403-2o4 | Настройка Unity-MCP сервера для Claude Code | 2026-04-03 | 8055dc8 | [260403-2o4-mcp](./quick/260403-2o4-mcp/) |
+
 ## Session Continuity
 
 Last session: 2026-04-02T23:27:28.075Z
