@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Играбельная классическая механика Asteroids -- фундамент для технической миграции на современный стек Unity
-**Current focus:** Phase 05 — bridge-layer-integration
+**Current focus:** Phase 02 — unity-6-3-upgrade
 
 ## Current Position
 
-Phase: 05
-Plan: Not started
-Status: Executing Phase 05
-Last activity: 2026-04-02
+Phase: 02 (unity-6-3-upgrade) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 02
+Last activity: 2026-04-02 -- Phase 02 execution started
 
 Progress: [█████████░] 93%
 
