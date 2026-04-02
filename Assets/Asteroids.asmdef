@@ -8,7 +8,9 @@
     "Shtl.Mvvm",
     "Unity.Services.Core",
     "Unity.Services.Authentication",
-    "Unity.Services.Leaderboards"
+    "Unity.Services.Leaderboards",
+    "AsteroidsECS",
+    "Unity.Entities"
   ],
   "includePlatforms": [
     "Editor",

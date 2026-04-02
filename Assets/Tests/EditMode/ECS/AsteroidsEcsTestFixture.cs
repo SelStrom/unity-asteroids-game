@@ -180,5 +180,19 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 World.GetExistingSystem<T>()
             );
         }
+
+        protected Entity CreateGunShootEventSingleton()
+        {
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddBuffer<GunShootEvent>(entity);
+            return entity;
+        }
+
+        protected Entity CreateLaserShootEventSingleton()
+        {
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddBuffer<LaserShootEvent>(entity);
+            return entity;
+        }
     }
 }
