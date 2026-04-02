@@ -1,0 +1,16 @@
+using Unity.Entities;
+using Unity.Mathematics;
+
+namespace SelStrom.Asteroids.ECS
+{
+    public struct GunData : IComponentData
+    {
+        public int MaxShoots;
+        public float ReloadDurationSec;
+        public int CurrentShoots;
+        public float ReloadRemaining;
+        public bool Shooting;
+        public float2 Direction;
+        public float2 ShootPosition;
+    }
+}
