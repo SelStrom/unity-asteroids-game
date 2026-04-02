@@ -28,7 +28,7 @@
 
 - ✓ Апгрейд на Unity 6.3 с адаптацией к встроенному TMP — Validated in Phase 2: Unity 6.3 Upgrade
 - ✓ Фикс shtl-mvvm для совместимости с Unity 6.3 (TMP как внутренний модуль) и обратной совместимости с Unity 2022.3+ — Validated in Phase 1: Dev Tooling + shtl-mvvm Fix
-- [ ] Миграция с Built-in Render Pipeline на URP
+- ✓ Миграция с Built-in Render Pipeline на URP — Validated in Phase 3: URP Migration
 - [ ] Переход геймплейной логики на гибридный DOTS (Entities для логики/физики, GameObjects для UI/визуала)
 
 ### Out of Scope
@@ -89,4 +89,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 after initialization*
+*Last updated: 2026-04-02 after Phase 3 completion*
