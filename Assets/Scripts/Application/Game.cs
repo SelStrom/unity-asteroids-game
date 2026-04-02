@@ -2,6 +2,7 @@ using System;
 using Model.Components;
 using SelStrom.Asteroids.Configs;
 using SelStrom.Asteroids.ECS;
+using EcsGunData = SelStrom.Asteroids.ECS.GunData;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -375,12 +376,12 @@ namespace SelStrom.Asteroids
         {
             if (_useEcs)
             {
-                var query = _entityManager.CreateEntityQuery(typeof(ShipTag), typeof(GunData), typeof(RotateData),
+                var query = _entityManager.CreateEntityQuery(typeof(ShipTag), typeof(EcsGunData), typeof(RotateData),
                     typeof(MoveData));
                 if (query.CalculateEntityCount() > 0)
                 {
                     var entity = query.GetSingletonEntity();
-                    var gunData = _entityManager.GetComponentData<GunData>(entity);
+                    var gunData = _entityManager.GetComponentData<EcsGunData>(entity);
                     var rotateData = _entityManager.GetComponentData<RotateData>(entity);
                     var moveData = _entityManager.GetComponentData<MoveData>(entity);
                     gunData.Shooting = true;
