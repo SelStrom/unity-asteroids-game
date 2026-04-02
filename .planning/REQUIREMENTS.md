@@ -56,9 +56,9 @@
 
 - [ ] **BRG-01**: Managed component GameObjectRef связывает Entity с GameObject/Transform
 - [ ] **BRG-02**: GameObjectSyncSystem синхронизирует позицию/ротацию из ECS в Transform каждый кадр
-- [ ] **BRG-03**: CollisionBridge передает результаты Physics2D коллизий в ECS World
-- [ ] **BRG-04**: ObservableBridgeSystem транслирует ECS-данные в ObservableValue для shtl-mvvm UI
-- [ ] **BRG-05**: Жизненный цикл Entity<->GameObject синхронизирован (создание, уничтожение)
+- [x] **BRG-03**: CollisionBridge передает результаты Physics2D коллизий в ECS World
+- [x] **BRG-04**: ObservableBridgeSystem транслирует ECS-данные в ObservableValue для shtl-mvvm UI
+- [x] **BRG-05**: Жизненный цикл Entity<->GameObject синхронизирован (создание, уничтожение)
 - [ ] **BRG-06**: Игра запускается в Editor и воспроизводит весь геймплей 1:1
 
 ### Testing (TDD)
@@ -72,7 +72,7 @@
 - [x] **TST-07**: EditMode тесты для ShootToSystem (предсказание позиции цели, расчет упреждения)
 - [x] **TST-08**: EditMode тесты для MoveToSystem (движение к цели)
 - [x] **TST-09**: EditMode тесты для CollisionHandler (правильные пары столкновений, очки)
-- [ ] **TST-10**: EditMode тесты для Bridge Layer (синхронизация позиций, жизненный цикл)
+- [x] **TST-10**: EditMode тесты для Bridge Layer (синхронизация позиций, жизненный цикл)
 - [x] **TST-11**: EditMode тесты для shtl-mvvm фикса (TMP-совместимость на обеих версиях Unity)
 - [ ] **TST-12**: PlayMode тесты для полного игрового цикла (старт -> игра -> конец)
 
@@ -143,9 +143,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ECS-11 | Phase 4 | Complete |
 | BRG-01 | Phase 5 | Pending |
 | BRG-02 | Phase 5 | Pending |
-| BRG-03 | Phase 5 | Pending |
-| BRG-04 | Phase 5 | Pending |
-| BRG-05 | Phase 5 | Pending |
+| BRG-03 | Phase 5 | Complete |
+| BRG-04 | Phase 5 | Complete |
+| BRG-05 | Phase 5 | Complete |
 | BRG-06 | Phase 5 | Pending |
 | TST-01 | Phase 4 | Complete |
 | TST-02 | Phase 4 | Complete |
@@ -156,7 +156,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TST-07 | Phase 4 | Complete |
 | TST-08 | Phase 4 | Complete |
 | TST-09 | Phase 4 | Complete |
-| TST-10 | Phase 5 | Pending |
+| TST-10 | Phase 5 | Complete |
 | TST-11 | Phase 1 | Complete |
 | TST-12 | Phase 5 | Pending |
 
