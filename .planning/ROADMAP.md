@@ -95,10 +95,10 @@ Plans:
   3. ECS-данные транслируются в ObservableValue для shtl-mvvm UI (очки, жизни, заряды отображаются корректно)
   4. Жизненный цикл Entity и GameObject синхронизирован (создание, уничтожение)
   5. Игра проходит полный цикл в PlayMode-тесте (старт -> игра -> конец) и воспроизводит весь геймплей 1:1
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
-- [ ] 05-01-PLAN.md -- Bridge-компоненты (GameObjectRef, ShootEvents), GameObjectSyncSystem, расширение Gun/Laser/LifeTime систем, EditMode тесты
+- [x] 05-01-PLAN.md -- Bridge-компоненты (GameObjectRef, ShootEvents), GameObjectSyncSystem, расширение Gun/Laser/LifeTime систем, EditMode тесты
 - [ ] 05-02-PLAN.md -- CollisionBridge, ObservableBridgeSystem, DeadEntityCleanupSystem, EditMode тесты (TST-10)
 - [ ] 05-03-PLAN.md -- Интеграция bridge в игровой код (EntitiesCatalog, Application, Game.cs), PlayMode тесты (TST-12), ручная верификация геймплея 1:1
 
@@ -113,4 +113,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Unity 6.3 Upgrade | 1/2 | In Progress|  |
 | 3. URP Migration | 0/2 | Not started | - |
 | 4. ECS Foundation | 0/4 | Not started | - |
-| 5. Bridge Layer + Integration | 0/3 | Not started | - |
+| 5. Bridge Layer + Integration | 1/3 | In Progress|  |

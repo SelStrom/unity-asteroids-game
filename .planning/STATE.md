@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 5 context gathered
-last_updated: "2026-04-02T22:08:58.761Z"
-last_activity: 2026-04-02
+status: completed
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-04-02T22:44:36.451Z"
+last_activity: 2026-04-02 -- Plan 05-01 executed
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 14
+  completed_plans: 12
   percent: 86
 ---
 
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 
 ## Current Position
 
-Phase: 5
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-04-02
+Phase: 05 (bridge-layer-integration) — EXECUTING
+Plan: 2 of 3
+Status: Plan 05-01 complete, continuing to 05-02
+Last activity: 2026-04-02 -- Plan 05-01 executed
 
 Progress: [█████████░] 86%
 
@@ -60,6 +60,7 @@ Progress: [█████████░] 86%
 | Phase 03 P01 | 7min | 2 tasks | 21 files |
 | Phase 03 P02 | 1min | 2 tasks | 0 files |
 | Phase 04 P02 | 4min | 2 tasks | 10 files |
+| Phase 05 P01 | 3min | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,9 @@ Recent decisions affecting current work:
 - [Phase 04]: 2D rotation via sin/cos instead of Quaternion for Burst compatibility
 - [Phase 04]: ShipPositionData update separated into own non-Burst system to keep MoveSystem fully Burst-compatible
 - [Phase 04]: PlaceWithinGameArea preserves original wrapping logic 1:1 (including known edge-case)
+- [Phase 05]: GameObjectRef как ICleanupComponentData (managed class) для доступа к Transform/GameObject
+- [Phase 05]: Singleton DynamicBuffer для shoot-events вместо per-entity буферов
+- [Phase 05]: GameObjectSyncSystem в PresentationSystemGroup для выполнения после всех Simulation-систем
 
 ### Pending Todos
 
@@ -96,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T22:08:58.719Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-bridge-layer-integration/05-CONTEXT.md
+Last session: 2026-04-02T22:44:36.408Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: None

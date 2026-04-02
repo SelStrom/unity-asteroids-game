@@ -46,16 +46,16 @@
 - [x] **ECS-04**: ThrustSystem перенесена на ISystem с Burst-компиляцией
 - [x] **ECS-05**: RotateSystem перенесена на ISystem с Burst-компиляцией
 - [x] **ECS-06**: MoveSystem перенесена на ISystem с Burst-компиляцией (включая тороидальное обертывание)
-- [ ] **ECS-07**: GunSystem перенесена на ISystem (перезарядка, стрельба)
-- [ ] **ECS-08**: LaserSystem перенесена на ISystem (заряды, cooldown)
+- [x] **ECS-07**: GunSystem перенесена на ISystem (перезарядка, стрельба)
+- [x] **ECS-08**: LaserSystem перенесена на ISystem (заряды, cooldown)
 - [x] **ECS-09**: ShootToSystem (AI наведение НЛО) перенесена на ISystem
 - [x] **ECS-10**: MoveToSystem (движение НЛО к цели) перенесена на ISystem
 - [x] **ECS-11**: CollisionHandler перенесен на ISystem (обработка столкновений через Physics2D результаты)
 
 ### Hybrid DOTS -- Bridge Layer
 
-- [ ] **BRG-01**: Managed component GameObjectRef связывает Entity с GameObject/Transform
-- [ ] **BRG-02**: GameObjectSyncSystem синхронизирует позицию/ротацию из ECS в Transform каждый кадр
+- [x] **BRG-01**: Managed component GameObjectRef связывает Entity с GameObject/Transform
+- [x] **BRG-02**: GameObjectSyncSystem синхронизирует позицию/ротацию из ECS в Transform каждый кадр
 - [ ] **BRG-03**: CollisionBridge передает результаты Physics2D коллизий в ECS World
 - [ ] **BRG-04**: ObservableBridgeSystem транслирует ECS-данные в ObservableValue для shtl-mvvm UI
 - [ ] **BRG-05**: Жизненный цикл Entity<->GameObject синхронизирован (создание, уничтожение)
@@ -67,8 +67,8 @@
 - [x] **TST-02**: EditMode тесты для ThrustSystem (физика тяги, направление, максимальная скорость)
 - [x] **TST-03**: EditMode тесты для MoveSystem (перемещение, тороидальное обертывание)
 - [x] **TST-04**: EditMode тесты для RotateSystem (поворот, нормализация угла)
-- [ ] **TST-05**: EditMode тесты для GunSystem (стрельба, перезарядка, лимит пуль)
-- [ ] **TST-06**: EditMode тесты для LaserSystem (заряды, cooldown, активация)
+- [x] **TST-05**: EditMode тесты для GunSystem (стрельба, перезарядка, лимит пуль)
+- [x] **TST-06**: EditMode тесты для LaserSystem (заряды, cooldown, активация)
 - [x] **TST-07**: EditMode тесты для ShootToSystem (предсказание позиции цели, расчет упреждения)
 - [x] **TST-08**: EditMode тесты для MoveToSystem (движение к цели)
 - [x] **TST-09**: EditMode тесты для CollisionHandler (правильные пары столкновений, очки)
@@ -136,13 +136,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ECS-04 | Phase 4 | Complete |
 | ECS-05 | Phase 4 | Complete |
 | ECS-06 | Phase 4 | Complete |
-| ECS-07 | Phase 4 | Pending |
-| ECS-08 | Phase 4 | Pending |
+| ECS-07 | Phase 4 | Complete |
+| ECS-08 | Phase 4 | Complete |
 | ECS-09 | Phase 4 | Complete |
 | ECS-10 | Phase 4 | Complete |
 | ECS-11 | Phase 4 | Complete |
-| BRG-01 | Phase 5 | Pending |
-| BRG-02 | Phase 5 | Pending |
+| BRG-01 | Phase 5 | Complete |
+| BRG-02 | Phase 5 | Complete |
 | BRG-03 | Phase 5 | Pending |
 | BRG-04 | Phase 5 | Pending |
 | BRG-05 | Phase 5 | Pending |
@@ -151,8 +151,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TST-02 | Phase 4 | Complete |
 | TST-03 | Phase 4 | Complete |
 | TST-04 | Phase 4 | Complete |
-| TST-05 | Phase 4 | Pending |
-| TST-06 | Phase 4 | Pending |
+| TST-05 | Phase 4 | Complete |
+| TST-06 | Phase 4 | Complete |
 | TST-07 | Phase 4 | Complete |
 | TST-08 | Phase 4 | Complete |
 | TST-09 | Phase 4 | Complete |
