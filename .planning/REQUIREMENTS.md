@@ -27,7 +27,7 @@
 - [x] **MVVM-03**: Библиотека компилируется и работает на Unity 2022.3+
 - [x] **MVVM-04**: Библиотека компилируется и работает на Unity 6.3
 - [x] **MVVM-05**: Фикс опубликован в репозиторий github.com/SelStrom/shtl-mvvm
-- [ ] **MVVM-06**: Проект Asteroids обновлен на новую версию shtl-mvvm
+- [x] **MVVM-06**: Проект Asteroids обновлен на новую версию shtl-mvvm
 
 ### URP Migration
 
@@ -73,7 +73,7 @@
 - [ ] **TST-08**: EditMode тесты для MoveToSystem (движение к цели)
 - [ ] **TST-09**: EditMode тесты для CollisionHandler (правильные пары столкновений, очки)
 - [ ] **TST-10**: EditMode тесты для Bridge Layer (синхронизация позиций, жизненный цикл)
-- [ ] **TST-11**: EditMode тесты для shtl-mvvm фикса (TMP-совместимость на обеих версиях Unity)
+- [x] **TST-11**: EditMode тесты для shtl-mvvm фикса (TMP-совместимость на обеих версиях Unity)
 - [ ] **TST-12**: PlayMode тесты для полного игрового цикла (старт -> игра -> конец)
 
 ## v2 Requirements
@@ -123,7 +123,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MVVM-03 | Phase 1 | Complete |
 | MVVM-04 | Phase 1 | Complete |
 | MVVM-05 | Phase 1 | Complete |
-| MVVM-06 | Phase 1 | Pending |
+| MVVM-06 | Phase 1 | Complete |
 | URP-01 | Phase 3 | Pending |
 | URP-02 | Phase 3 | Pending |
 | URP-03 | Phase 3 | Pending |
@@ -157,7 +157,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TST-08 | Phase 4 | Pending |
 | TST-09 | Phase 4 | Pending |
 | TST-10 | Phase 5 | Pending |
-| TST-11 | Phase 1 | Pending |
+| TST-11 | Phase 1 | Complete |
 | TST-12 | Phase 5 | Pending |
 
 **Coverage:**

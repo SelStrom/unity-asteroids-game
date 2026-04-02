@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-04-02T17:19:24.720Z"
+status: verifying
+stopped_at: Completed 01-03-PLAN.md
+last_updated: "2026-04-02T17:24:31.658Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 
 Phase: 01 (dev-tooling-shtl-mvvm-fix) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-02
 
 Progress: [░░░░░░░░░░] 0%
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01 P02 | 1min | 3 tasks | 3 files |
 | Phase 01 P01 | 2min | 3 tasks | 2 files |
+| Phase 01 P03 | 1min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,7 @@ Recent decisions affecting current work:
 - shtl-mvvm -- собственная библиотека пользователя, потребуется фикс в отдельном репозитории
 - [Phase 01]: Unity-MCP added via git URL (no version pinning) per plan specification
 - [Phase 01]: Заменить com.unity.textmeshpro на com.unity.ugui в shtl-mvvm package.json для Unity 6 совместимости
+- [Phase 01]: UPM git tag pinning (#v1.1.0) для shtl-mvvm вместо commit hash
 
 ### Pending Todos
 
@@ -82,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T17:19:24.681Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-04-02T17:24:31.618Z
+Stopped at: Completed 01-03-PLAN.md
 Resume file: None

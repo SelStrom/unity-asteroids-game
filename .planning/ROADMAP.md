@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01-PLAN.md -- Фикс shtl-mvvm: замена textmeshpro на ugui, условная компиляция, публикация тега v1.1.0
 - [x] 01-02-PLAN.md -- Настройка инструментов: Unity-MCP + тестовый фреймворк (EditMode/PlayMode assemblies)
-- [ ] 01-03-PLAN.md -- Обновление Asteroids на shtl-mvvm v1.1.0 + EditMode тесты TMP-совместимости
+- [x] 01-03-PLAN.md -- Обновление Asteroids на shtl-mvvm v1.1.0 + EditMode тесты TMP-совместимости
 
 ### Phase 2: Unity 6.3 Upgrade
 **Goal**: Проект Asteroids открывается, компилируется и запускается в Unity 6.3 с полным геймплеем 1:1
