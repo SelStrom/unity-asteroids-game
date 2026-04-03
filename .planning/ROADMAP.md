@@ -138,7 +138,11 @@ Plans:
   3. EcsMoveToSystem запускается в production — малые UFO преследуют игрока
   4. Регрессионный тест подтверждает наличие ShipPositionData singleton после инициализации
   5. LC-01..LC-07 добавлены в REQUIREMENTS.md traceability table
-**Plans:** 0 plans
+**Plans:** 2 plans
+
+Plans:
+- [ ] 07-01-PLAN.md -- ShipPositionData singleton wiring в InitializeEcsSingletons() + регрессионный тест + трассировочная таблица
+- [ ] 07-02-PLAN.md -- Ручная верификация геймплея 1:1 и UFO AI (LC-07)
 
 ## Progress
 
@@ -153,4 +157,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 4. ECS Foundation | 4/4 | Human UAT pending | 2026-04-03 |
 | 5. Bridge Layer + Integration | 5/5 | Complete | 2026-04-03 |
 | 6. Legacy Cleanup | 0/4 | Planned |  |
-| 7. ShipPositionData Wiring + Traceability Fix | 0/0 | Planned |  |
+| 7. ShipPositionData Wiring + Traceability Fix | 0/2 | Planned |  |
