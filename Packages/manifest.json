@@ -59,7 +59,6 @@
     }
   ],
   "testables": [
-    "com.unity.entities",
     "com.unity.test-framework"
   ]
 }

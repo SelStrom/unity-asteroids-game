@@ -1,3 +1,4 @@
+using Unity.Collections;
 using Unity.Entities;
 
 namespace SelStrom.Asteroids.ECS
@@ -33,19 +34,22 @@ namespace SelStrom.Asteroids.ECS
                 return;
             }
 
+            // Копируем события перед обработкой, т.к. structural changes (AddComponent)
+            // инвалидируют DynamicBuffer
+            var eventsCopy = events.ToNativeArray(Allocator.Temp);
+            events.Clear();
+
             var scoreEntity = SystemAPI.GetSingletonEntity<ScoreData>();
             var scoreData = em.GetComponentData<ScoreData>(scoreEntity);
 
-            for (int i = 0; i < events.Length; i++)
+            for (int i = 0; i < eventsCopy.Length; i++)
             {
-                var entityA = events[i].EntityA;
-                var entityB = events[i].EntityB;
-
-                ProcessCollision(ref em, entityA, entityB, ref scoreData);
+                ProcessCollision(ref em, eventsCopy[i].EntityA, eventsCopy[i].EntityB,
+                    ref scoreData);
             }
 
             em.SetComponentData(scoreEntity, scoreData);
-            events.Clear();
+            eventsCopy.Dispose();
         }
 
         private void ProcessCollision(

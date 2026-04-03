@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Unity.Core;
 using Unity.Entities;
 using SelStrom.Asteroids.ECS;
 
@@ -7,12 +8,14 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
     public class LaserSystemTests : AsteroidsEcsTestFixture
     {
         private Entity _entity;
+        private SystemHandle _systemHandle;
 
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
-            CreateAndGetSystem<EcsLaserSystem>();
+            _systemHandle = World.CreateSystem<EcsLaserSystem>();
+            CreateLaserShootEventSingleton();
             _entity = m_Manager.CreateEntity();
             m_Manager.AddComponentData(_entity, new LaserData
             {
@@ -22,6 +25,13 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 ReloadRemaining = 5.0f,
                 Shooting = false
             });
+        }
+
+        private void RunSystem(float deltaTime = 1.0f)
+        {
+            World.PushTime(new TimeData(deltaTime, deltaTime));
+            _systemHandle.Update(World.Unmanaged);
+            World.PopTime();
         }
 
         [Test]
@@ -36,7 +46,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = false
             });
 
-            World.Update();
+            RunSystem();
 
             var laser = m_Manager.GetComponentData<LaserData>(_entity);
             Assert.Less(laser.ReloadRemaining, 5.0f);
@@ -54,10 +64,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = false
             });
 
-            World.Update();
+            RunSystem();
 
             var laser = m_Manager.GetComponentData<LaserData>(_entity);
-            // Инкрементальная перезарядка: +1, не до MaxShoots
             Assert.AreEqual(1, laser.CurrentShoots);
             Assert.AreEqual(5.0f, laser.ReloadRemaining);
         }
@@ -74,7 +83,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = false
             });
 
-            World.Update();
+            RunSystem();
 
             var laser = m_Manager.GetComponentData<LaserData>(_entity);
             Assert.AreEqual(5.0f, laser.ReloadRemaining);
@@ -92,7 +101,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var laser = m_Manager.GetComponentData<LaserData>(_entity);
             Assert.AreEqual(2, laser.CurrentShoots);
@@ -110,7 +119,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var laser = m_Manager.GetComponentData<LaserData>(_entity);
             Assert.AreEqual(0, laser.CurrentShoots);
@@ -128,7 +137,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var laser = m_Manager.GetComponentData<LaserData>(_entity);
             Assert.IsFalse(laser.Shooting);
@@ -147,7 +156,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             });
 
             // Первый цикл перезарядки
-            World.Update();
+            RunSystem();
 
             var laser = m_Manager.GetComponentData<LaserData>(_entity);
             Assert.AreEqual(1, laser.CurrentShoots);
@@ -157,10 +166,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             m_Manager.SetComponentData(_entity, laser);
 
             // Второй цикл перезарядки
-            World.Update();
+            RunSystem();
 
             laser = m_Manager.GetComponentData<LaserData>(_entity);
-            // После 2 циклов должно быть ровно 2, а не MaxShoots (3)
             Assert.AreEqual(2, laser.CurrentShoots);
         }
     }

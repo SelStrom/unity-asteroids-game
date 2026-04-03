@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Unity.Core;
 using Unity.Entities;
 using Unity.Mathematics;
 using SelStrom.Asteroids.ECS;
@@ -8,13 +9,21 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
     public class EcsGunSystemTests : AsteroidsEcsTestFixture
     {
         private Entity _singletonEntity;
+        private SystemHandle _systemHandle;
 
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
-            CreateAndGetSystem<EcsGunSystem>();
+            _systemHandle = World.CreateSystem<EcsGunSystem>();
             _singletonEntity = CreateGunShootEventSingleton();
+        }
+
+        private void RunSystem(float deltaTime = 1.0f)
+        {
+            World.PushTime(new TimeData(deltaTime, deltaTime));
+            _systemHandle.Update(World.Unmanaged);
+            World.PopTime();
         }
 
         [Test]
@@ -30,7 +39,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = false
             });
 
-            World.Update();
+            RunSystem();
 
             var gun = m_Manager.GetComponentData<GunData>(entity);
             Assert.AreEqual(5, gun.CurrentShoots);
@@ -50,7 +59,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var gun = m_Manager.GetComponentData<GunData>(entity);
             Assert.AreEqual(2, gun.CurrentShoots);
@@ -72,7 +81,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var buffer = m_Manager.GetBuffer<GunShootEvent>(_singletonEntity);
             Assert.AreEqual(0, buffer.Length);
@@ -92,7 +101,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var buffer = m_Manager.GetBuffer<GunShootEvent>(_singletonEntity);
             Assert.AreEqual(1, buffer.Length);
@@ -112,7 +121,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var buffer = m_Manager.GetBuffer<GunShootEvent>(_singletonEntity);
             Assert.AreEqual(1, buffer.Length);
@@ -132,7 +141,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var gun = m_Manager.GetComponentData<GunData>(entity);
             Assert.IsFalse(gun.Shooting);
@@ -153,7 +162,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Direction = new float2(0f, 1f)
             });
 
-            World.Update();
+            RunSystem();
 
             var buffer = m_Manager.GetBuffer<GunShootEvent>(_singletonEntity);
             Assert.AreEqual(1, buffer.Length);

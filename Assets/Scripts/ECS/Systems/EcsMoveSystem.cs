@@ -45,7 +45,7 @@ namespace SelStrom.Asteroids.ECS
 
             if (position < -side / 2)
             {
-                position = side - position;
+                position = side + position;
             }
         }
     }

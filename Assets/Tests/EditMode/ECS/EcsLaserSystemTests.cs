@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Unity.Core;
 using Unity.Entities;
 using Unity.Mathematics;
 using SelStrom.Asteroids.ECS;
@@ -8,13 +9,21 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
     public class EcsLaserSystemTests : AsteroidsEcsTestFixture
     {
         private Entity _singletonEntity;
+        private SystemHandle _systemHandle;
 
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
-            CreateAndGetSystem<EcsLaserSystem>();
+            _systemHandle = World.CreateSystem<EcsLaserSystem>();
             _singletonEntity = CreateLaserShootEventSingleton();
+        }
+
+        private void RunSystem(float deltaTime = 1.0f)
+        {
+            World.PushTime(new TimeData(deltaTime, deltaTime));
+            _systemHandle.Update(World.Unmanaged);
+            World.PopTime();
         }
 
         [Test]
@@ -30,7 +39,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = false
             });
 
-            World.Update();
+            RunSystem();
 
             var laser = m_Manager.GetComponentData<LaserData>(entity);
             Assert.AreEqual(2, laser.CurrentShoots);
@@ -50,7 +59,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = false
             });
 
-            World.Update();
+            RunSystem();
 
             var laser = m_Manager.GetComponentData<LaserData>(entity);
             Assert.AreEqual(3, laser.CurrentShoots);
@@ -69,7 +78,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var laser = m_Manager.GetComponentData<LaserData>(entity);
             Assert.AreEqual(1, laser.CurrentShoots);
@@ -91,7 +100,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var buffer = m_Manager.GetBuffer<LaserShootEvent>(_singletonEntity);
             Assert.AreEqual(0, buffer.Length);
@@ -110,7 +119,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var laser = m_Manager.GetComponentData<LaserData>(entity);
             Assert.IsFalse(laser.Shooting);
@@ -131,7 +140,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Direction = new float2(1f, 0f)
             });
 
-            World.Update();
+            RunSystem();
 
             var buffer = m_Manager.GetBuffer<LaserShootEvent>(_singletonEntity);
             Assert.AreEqual(1, buffer.Length);

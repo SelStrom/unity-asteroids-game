@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Unity.Core;
 using Unity.Entities;
 using SelStrom.Asteroids.ECS;
 
@@ -7,12 +8,14 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
     public class GunSystemTests : AsteroidsEcsTestFixture
     {
         private Entity _entity;
+        private SystemHandle _systemHandle;
 
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
-            CreateAndGetSystem<EcsGunSystem>();
+            _systemHandle = World.CreateSystem<EcsGunSystem>();
+            CreateGunShootEventSingleton();
             _entity = m_Manager.CreateEntity();
             m_Manager.AddComponentData(_entity, new GunData
             {
@@ -22,6 +25,13 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 ReloadRemaining = 2.0f,
                 Shooting = false
             });
+        }
+
+        private void RunSystem(float deltaTime = 1.0f)
+        {
+            World.PushTime(new TimeData(deltaTime, deltaTime));
+            _systemHandle.Update(World.Unmanaged);
+            World.PopTime();
         }
 
         [Test]
@@ -36,10 +46,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = false
             });
 
-            World.Update();
+            RunSystem();
 
             var gun = m_Manager.GetComponentData<GunData>(_entity);
-            // deltaTime зависит от World.Time, но ReloadRemaining должен уменьшиться
             Assert.Less(gun.ReloadRemaining, 2.0f);
         }
 
@@ -55,7 +64,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = false
             });
 
-            World.Update();
+            RunSystem();
 
             var gun = m_Manager.GetComponentData<GunData>(_entity);
             Assert.AreEqual(3, gun.CurrentShoots);
@@ -74,7 +83,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = false
             });
 
-            World.Update();
+            RunSystem();
 
             var gun = m_Manager.GetComponentData<GunData>(_entity);
             Assert.AreEqual(2.0f, gun.ReloadRemaining);
@@ -92,7 +101,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var gun = m_Manager.GetComponentData<GunData>(_entity);
             Assert.AreEqual(2, gun.CurrentShoots);
@@ -110,7 +119,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var gun = m_Manager.GetComponentData<GunData>(_entity);
             Assert.AreEqual(0, gun.CurrentShoots);
@@ -128,7 +137,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Shooting = true
             });
 
-            World.Update();
+            RunSystem();
 
             var gun = m_Manager.GetComponentData<GunData>(_entity);
             Assert.IsFalse(gun.Shooting);
