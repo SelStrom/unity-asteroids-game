@@ -166,6 +166,29 @@ namespace SelStrom.Asteroids
                 var existingEntity = laserQuery.GetSingletonEntity();
                 _entityManager.GetBuffer<LaserShootEvent>(existingEntity).Clear();
             }
+
+            // ShipPositionData singleton
+            var shipPosQuery = _entityManager.CreateEntityQuery(typeof(ShipPositionData));
+            if (shipPosQuery.CalculateEntityCount() == 0)
+            {
+                var shipPosEntity = _entityManager.CreateEntity();
+                _entityManager.AddComponentData(shipPosEntity, new ShipPositionData
+                {
+                    Position = float2.zero,
+                    Speed = 0f,
+                    Direction = float2.zero
+                });
+            }
+            else
+            {
+                var existingEntity = shipPosQuery.GetSingletonEntity();
+                _entityManager.SetComponentData(existingEntity, new ShipPositionData
+                {
+                    Position = float2.zero,
+                    Speed = 0f,
+                    Direction = float2.zero
+                });
+            }
         }
 
         private void OnDeadEntity(DeadEntityInfo info)
