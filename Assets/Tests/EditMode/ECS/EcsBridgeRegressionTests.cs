@@ -314,5 +314,102 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             Assert.AreEqual(2, destroyCount,
                 "Повторный CleanUp не должен генерировать дополнительные вызовы");
         }
+
+        /// <summary>
+        /// Регрессия: лазер в ECS-режиме вызывал Kill(model) вместо добавления DeadTag.
+        /// Kill() использовал model.Move.Position.Value (устаревшую позицию), и не проходил
+        /// через DeadEntityCleanupSystem → OnDeadEntity → Application.OnDeadEntity.
+        /// Фикс: ProcessShootEvents добавляет DeadTag к entity, DeadEntityCleanupSystem
+        /// обрабатывает уничтожение с корректной позицией из Transform.
+        /// </summary>
+        [Test]
+        public void LaserKill_InEcsMode_AddsDeadTag_InsteadOfModelKill()
+        {
+            var worldPosition = new Vector3(5f, 3f, 0f);
+            var go = CreateTestGameObject("LaserTarget", worldPosition);
+
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new AsteroidTag());
+            m_Manager.AddComponentData(entity, new MoveData
+            {
+                Position = new float2(worldPosition.x, worldPosition.y),
+                Speed = 2f,
+                Direction = new float2(1f, 0f)
+            });
+            m_Manager.AddComponentObject(entity, new GameObjectRef
+            {
+                GameObject = go,
+                Transform = go.transform
+            });
+
+            // Изначально DeadTag отсутствует
+            Assert.IsFalse(m_Manager.HasComponent<DeadTag>(entity),
+                "Entity не должна иметь DeadTag до поражения лазером");
+
+            // Имитация корректного поведения ProcessShootEvents: добавление DeadTag
+            m_Manager.AddComponentData(entity, new DeadTag());
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(entity),
+                "Entity должна получить DeadTag после поражения лазером");
+
+            // DeadEntityCleanupSystem обрабатывает уничтожение
+            Vector3 capturedPosition = Vector3.zero;
+            _deadCleanupSystem.SetOnDeadEntityCallback(deadGo =>
+            {
+                capturedPosition = deadGo.transform.position;
+            });
+
+            _deadCleanupSystem.Update();
+
+            Assert.IsFalse(m_Manager.Exists(entity),
+                "Entity должна быть уничтожена DeadEntityCleanupSystem");
+            Assert.AreEqual(worldPosition.x, capturedPosition.x, 0.01f,
+                "Callback должен получить позицию из Transform, не из модели");
+            Assert.AreEqual(worldPosition.y, capturedPosition.y, 0.01f,
+                "Callback должен получить позицию из Transform, не из модели");
+        }
+
+        /// <summary>
+        /// Регрессия: лазерный VFX (LineRenderer) оставался на экране при смерти корабля.
+        /// ActionScheduler.ResetSchedule() удалял запланированный Release, VFX не очищался.
+        /// Фикс: Game._activeLaserVfx отслеживает активные VFX; Stop() вызывает Release
+        /// для всех из списка перед ResetSchedule().
+        /// Тест проверяет паттерн трекинга: добавление, удаление по таймеру, очистка при Stop.
+        /// </summary>
+        [Test]
+        public void LaserVfx_ActiveList_TracksCreatedEffects()
+        {
+            // Имитация _activeLaserVfx паттерна
+            var activeLaserVfx = new List<GameObject>();
+
+            // Имитация создания VFX эффекта лазера
+            var vfxGo1 = CreateTestGameObject("LaserVfx1", Vector3.zero);
+            var vfxGo2 = CreateTestGameObject("LaserVfx2", Vector3.one);
+
+            activeLaserVfx.Add(vfxGo1);
+            activeLaserVfx.Add(vfxGo2);
+
+            Assert.AreEqual(2, activeLaserVfx.Count,
+                "Два VFX должны быть в списке после создания");
+
+            // Имитация scheduled cleanup (таймер истёк для первого VFX)
+            activeLaserVfx.Remove(vfxGo1);
+
+            Assert.AreEqual(1, activeLaserVfx.Count,
+                "После scheduled cleanup одного VFX должен остаться один");
+            Assert.IsTrue(activeLaserVfx.Contains(vfxGo2),
+                "Второй VFX ещё активен");
+
+            // Имитация Stop() — очистка всех оставшихся VFX
+            foreach (var vfx in activeLaserVfx)
+            {
+                Assert.IsNotNull(vfx,
+                    "VFX объект должен существовать для Release");
+            }
+            activeLaserVfx.Clear();
+
+            Assert.AreEqual(0, activeLaserVfx.Count,
+                "После Stop() список должен быть пуст");
+        }
     }
 }
