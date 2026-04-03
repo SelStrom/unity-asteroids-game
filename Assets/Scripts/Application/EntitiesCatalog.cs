@@ -191,6 +191,11 @@ namespace SelStrom.Asteroids
             });
             _collisionBridge.RegisterMapping(view.gameObject, entity);
 
+            viewModel.OnCollision.Value = (col) =>
+            {
+                _collisionBridge.ReportCollision(view.gameObject, col.gameObject);
+            };
+
             AddToCatalog(view.gameObject, entity, EntityType.Asteroid, bindings);
         }
 
@@ -219,6 +224,11 @@ namespace SelStrom.Asteroids
                 GameObject = view.gameObject
             });
             _collisionBridge.RegisterMapping(view.gameObject, entity);
+
+            viewModel.OnCollision.Value = (col) =>
+            {
+                _collisionBridge.ReportCollision(view.gameObject, col.gameObject);
+            };
 
             AddToCatalog(view.gameObject, entity, EntityType.UfoBig, bindings);
         }
@@ -249,6 +259,11 @@ namespace SelStrom.Asteroids
                 GameObject = view.gameObject
             });
             _collisionBridge.RegisterMapping(view.gameObject, entity);
+
+            viewModel.OnCollision.Value = (col) =>
+            {
+                _collisionBridge.ReportCollision(view.gameObject, col.gameObject);
+            };
 
             AddToCatalog(view.gameObject, entity, EntityType.Ufo, bindings);
         }

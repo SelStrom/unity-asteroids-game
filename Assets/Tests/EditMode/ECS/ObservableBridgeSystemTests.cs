@@ -210,5 +210,89 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             Assert.DoesNotThrow(() => _system.Update(),
                 "System should not crash when no HudData or ShipViewModel is set");
         }
+
+        [Test]
+        public void ThrustActive_SetsThrustSprite()
+        {
+            var shipViewModel = new ShipViewModel();
+            var mainSprite = Sprite.Create(
+                Texture2D.whiteTexture,
+                new Rect(0, 0, 4, 4),
+                Vector2.one * 0.5f);
+            var thrustSprite = Sprite.Create(
+                Texture2D.whiteTexture,
+                new Rect(0, 0, 4, 4),
+                Vector2.one * 0.5f);
+
+            _system.SetShipViewModel(shipViewModel, mainSprite, thrustSprite);
+
+            CreateFullShipEntity(
+                position: float2.zero,
+                speed: 5f,
+                direction: new float2(1f, 0f),
+                rotation: new float2(1f, 0f),
+                thrustActive: true,
+                laserCurrentShoots: 3,
+                laserMaxShoots: 3,
+                reloadRemaining: 0f);
+
+            _system.Update();
+
+            Assert.AreEqual(thrustSprite, shipViewModel.Sprite.Value,
+                "ShipViewModel.Sprite should be ThrustSprite when thrust is active");
+        }
+
+        [Test]
+        public void ThrustInactive_SetsMainSprite()
+        {
+            var shipViewModel = new ShipViewModel();
+            var mainSprite = Sprite.Create(
+                Texture2D.whiteTexture,
+                new Rect(0, 0, 4, 4),
+                Vector2.one * 0.5f);
+            var thrustSprite = Sprite.Create(
+                Texture2D.whiteTexture,
+                new Rect(0, 0, 4, 4),
+                Vector2.one * 0.5f);
+
+            _system.SetShipViewModel(shipViewModel, mainSprite, thrustSprite);
+
+            CreateFullShipEntity(
+                position: float2.zero,
+                speed: 0f,
+                direction: float2.zero,
+                rotation: new float2(1f, 0f),
+                thrustActive: false,
+                laserCurrentShoots: 3,
+                laserMaxShoots: 3,
+                reloadRemaining: 0f);
+
+            _system.Update();
+
+            Assert.AreEqual(mainSprite, shipViewModel.Sprite.Value,
+                "ShipViewModel.Sprite should be MainSprite when thrust is inactive");
+        }
+
+        [Test]
+        public void ThrustActive_NullSprites_DoesNotUpdateSprite()
+        {
+            var shipViewModel = new ShipViewModel();
+            _system.SetShipViewModel(shipViewModel, null, null);
+
+            CreateFullShipEntity(
+                position: float2.zero,
+                speed: 5f,
+                direction: new float2(1f, 0f),
+                rotation: new float2(1f, 0f),
+                thrustActive: true,
+                laserCurrentShoots: 3,
+                laserMaxShoots: 3,
+                reloadRemaining: 0f);
+
+            _system.Update();
+
+            Assert.IsNull(shipViewModel.Sprite.Value,
+                "ShipViewModel.Sprite should remain null when sprites not configured");
+        }
     }
 }

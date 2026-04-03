@@ -8,7 +8,7 @@ namespace SelStrom.Asteroids
     public class UfoViewModel : AbstractViewModel
     {
         public readonly ReactiveValue<Vector2> Position = new();
-        public readonly ReactiveValue<Action> OnCollision = new();
+        public readonly ReactiveValue<Action<Collision2D>> OnCollision = new();
     }
 
     public class UfoVisual : AbstractWidgetView<UfoViewModel>, IEntityView
@@ -20,7 +20,7 @@ namespace SelStrom.Asteroids
 
         private void OnCollisionEnter2D(Collision2D col)
         {
-            ViewModel.OnCollision.Value?.Invoke();
+            ViewModel.OnCollision.Value?.Invoke(col);
         }
     }
 }

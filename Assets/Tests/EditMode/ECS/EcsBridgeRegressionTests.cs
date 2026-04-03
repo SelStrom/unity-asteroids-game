@@ -395,6 +395,54 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         }
 
         /// <summary>
+        /// Регрессия: AsteroidViewModel не имел поля OnCollision, из-за чего AsteroidVisual
+        /// не мог пробросить столкновения в CollisionBridge. Астероиды и UFO пролетали друг через друга.
+        /// Фикс: добавлено ReactiveValue{Action{Collision2D}} OnCollision в AsteroidViewModel и
+        /// OnCollisionEnter2D в AsteroidVisual. Аналогичное исправление для UfoViewModel.
+        /// </summary>
+        [Test]
+        public void AsteroidViewModel_HasOnCollision_WithCollision2DParameter()
+        {
+            var viewModel = new AsteroidViewModel();
+            Assert.IsNotNull(viewModel.OnCollision,
+                "AsteroidViewModel должен иметь поле OnCollision");
+
+            var callbackInvoked = false;
+            viewModel.OnCollision.Value = (col) =>
+            {
+                callbackInvoked = true;
+            };
+
+            // Проверяем что callback можно вызвать (с null Collision2D в тесте)
+            viewModel.OnCollision.Value?.Invoke(null);
+            Assert.IsTrue(callbackInvoked,
+                "OnCollision callback должен быть вызываемым");
+        }
+
+        /// <summary>
+        /// Регрессия: UfoViewModel.OnCollision был типа ReactiveValue{Action} (без параметра),
+        /// не передавал col.gameObject → CollisionBridge не получал информацию о втором участнике.
+        /// Фикс: тип изменён на ReactiveValue{Action{Collision2D}}.
+        /// </summary>
+        [Test]
+        public void UfoViewModel_HasOnCollision_WithCollision2DParameter()
+        {
+            var viewModel = new UfoViewModel();
+            Assert.IsNotNull(viewModel.OnCollision,
+                "UfoViewModel должен иметь поле OnCollision");
+
+            var callbackInvoked = false;
+            viewModel.OnCollision.Value = (col) =>
+            {
+                callbackInvoked = true;
+            };
+
+            viewModel.OnCollision.Value?.Invoke(null);
+            Assert.IsTrue(callbackInvoked,
+                "OnCollision callback должен быть вызываемым");
+        }
+
+        /// <summary>
         /// Регрессия: лазерный VFX (LineRenderer) оставался на экране при смерти корабля.
         /// ActionScheduler.ResetSchedule() удалял запланированный Release, VFX не очищался.
         /// Фикс: Game._activeLaserVfx отслеживает активные VFX; Stop() вызывает Release
