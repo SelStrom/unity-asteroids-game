@@ -84,7 +84,7 @@
 - [x] **LC-04**: ActionScheduler выделен из Model как standalone managed-класс
 - [x] **LC-05**: Model.cs удален -- score/state хранятся только в ECS singletons
 - [x] **LC-06**: Все существующие тесты проходят зеленым, новые тесты покрывают измененный code path
-- [ ] **LC-07**: Игра воспроизводит весь геймплей 1:1 без legacy-слоя
+- [x] **LC-07**: Игра воспроизводит весь геймплей 1:1 без legacy-слоя
 
 ## v2 Requirements
 
@@ -175,7 +175,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LC-04 | Phase 6 | Complete |
 | LC-05 | Phase 6 | Complete |
 | LC-06 | Phase 6 | Complete |
-| LC-07 | Phase 7 | Pending |
+| LC-07 | Phase 7 | Complete |
 
 **Coverage:**
 - v1 requirements: 55 total
