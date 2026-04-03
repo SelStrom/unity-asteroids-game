@@ -1,6 +1,6 @@
 using System;
-using Model.Components;
 using NUnit.Framework;
+using SelStrom.Asteroids.ECS;
 
 namespace SelStrom.Asteroids.Tests.EditMode
 {
@@ -54,8 +54,8 @@ namespace SelStrom.Asteroids.Tests.EditMode
         {
             Assert.IsNotNull(typeof(SelStrom.Asteroids.ApplicationEntry),
                 "ApplicationEntry должен компилироваться");
-            Assert.IsNotNull(typeof(MoveComponent),
-                "MoveComponent должен компилироваться");
+            Assert.IsNotNull(typeof(MoveData),
+                "MoveData должен компилироваться");
         }
     }
 }
