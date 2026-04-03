@@ -24,6 +24,7 @@ namespace SelStrom.Asteroids
         private bool _useEcs;
         private CollisionBridge _collisionBridge;
         private EntityManager _entityManager;
+        private readonly List<GameObject> _activeLaserVfx = new();
 
         public Game(EntitiesCatalog catalog, Model model, GameData configs, PlayerInput playerInput,
             GameScreen gameScreen)
@@ -75,6 +76,14 @@ namespace SelStrom.Asteroids
 
         private void Stop()
         {
+            // Освобождаем активные лазерные VFX перед сбросом планировщика,
+            // т.к. ResetSchedule() удалит запланированный Release для них
+            foreach (var vfxGo in _activeLaserVfx)
+            {
+                _catalog.ViewFactory.Release(vfxGo);
+            }
+            _activeLaserVfx.Clear();
+
             _model.ActionScheduler.ResetSchedule();
 
             _playerInput.OnAttackAction -= OnAttack;
@@ -202,9 +211,12 @@ namespace SelStrom.Asteroids
                     effect.transform.position = position;
                     var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
                     effect.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
+                    var effectGo = effect.gameObject;
+                    _activeLaserVfx.Add(effectGo);
                     _model.ActionScheduler.ScheduleAction(() =>
                     {
-                        _catalog.ViewFactory.Release(effect.gameObject);
+                        _activeLaserVfx.Remove(effectGo);
+                        _catalog.ViewFactory.Release(effectGo);
                     }, _configs.Laser.BeamEffectLifetimeSec);
 
                     var hits = new RaycastHit2D[30];
@@ -219,7 +231,13 @@ namespace SelStrom.Asteroids
                             if (_catalog.TryFindModel<IGameEntityModel>(gameObject, out var model))
                             {
                                 _model.ReceiveScore(model);
-                                Kill(model);
+                                if (_catalog.TryGetEntity(gameObject, out var entity))
+                                {
+                                    if (!_entityManager.HasComponent<DeadTag>(entity))
+                                    {
+                                        _entityManager.AddComponent<DeadTag>(entity);
+                                    }
+                                }
                             }
                         }
                     }
@@ -360,8 +378,13 @@ namespace SelStrom.Asteroids
             var direction = _shipModel.Laser.Direction;
             var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             effect.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
-            _model.ActionScheduler.ScheduleAction(() => { _catalog.ViewFactory.Release(effect.gameObject); },
-                _configs.Laser.BeamEffectLifetimeSec);
+            var effectGo = effect.gameObject;
+            _activeLaserVfx.Add(effectGo);
+            _model.ActionScheduler.ScheduleAction(() =>
+            {
+                _activeLaserVfx.Remove(effectGo);
+                _catalog.ViewFactory.Release(effectGo);
+            }, _configs.Laser.BeamEffectLifetimeSec);
 
             var hits = new RaycastHit2D[30];
             var size = Physics2D.RaycastNonAlloc(_shipModel.Move.Position.Value, _shipModel.Rotate.Rotation.Value, hits,
