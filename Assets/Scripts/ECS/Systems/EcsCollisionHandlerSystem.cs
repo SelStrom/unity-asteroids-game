@@ -99,6 +99,21 @@ namespace SelStrom.Asteroids.ECS
                 MarkDead(ref em, entityB);
                 return;
             }
+
+            // Asteroid + UFO (любой тип)
+            if (IsAsteroid(ref em, entityA) && IsUfoAny(ref em, entityB))
+            {
+                MarkDead(ref em, entityA);
+                MarkDead(ref em, entityB);
+                return;
+            }
+
+            if (IsAsteroid(ref em, entityB) && IsUfoAny(ref em, entityA))
+            {
+                MarkDead(ref em, entityB);
+                MarkDead(ref em, entityA);
+                return;
+            }
         }
 
         private bool IsPlayerBullet(ref EntityManager em, Entity entity)
@@ -120,6 +135,17 @@ namespace SelStrom.Asteroids.ECS
         {
             return em.HasComponent<AsteroidTag>(entity)
                    || em.HasComponent<UfoBigTag>(entity)
+                   || em.HasComponent<UfoTag>(entity);
+        }
+
+        private bool IsAsteroid(ref EntityManager em, Entity entity)
+        {
+            return em.HasComponent<AsteroidTag>(entity);
+        }
+
+        private bool IsUfoAny(ref EntityManager em, Entity entity)
+        {
+            return em.HasComponent<UfoBigTag>(entity)
                    || em.HasComponent<UfoTag>(entity);
         }
 
