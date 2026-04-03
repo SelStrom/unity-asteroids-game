@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using SelStrom.Asteroids.Configs;
+using SelStrom.Asteroids.ECS;
 using Shtl.Mvvm;
 using Unity.Entities;
 using UnityEngine;
@@ -11,10 +12,7 @@ namespace SelStrom.Asteroids
 {
     public struct GameScreenData
     {
-        public ShipModel ShipModel;
-        public Model Model;
         public Game Game;
-        public bool UseEcs;
     }
 
     public sealed class GameScreen : AbstractScreen
@@ -34,9 +32,9 @@ namespace SelStrom.Asteroids
         private readonly LeaderboardService _leaderboardService;
         private readonly MonoBehaviour _coroutineHost;
         private HudData _hudData;
-        
+
         private State _currentState;
-        
+
         private GameScreenData _data;
 
         public GameScreen(HudVisual hudVisual, ScoreVisual score, GameData configs,
@@ -60,73 +58,29 @@ namespace SelStrom.Asteroids
             _hudData = new HudData();
             _hudVisual.Connect(_hudData);
 
-            if (_data.UseEcs)
+            var world = World.DefaultGameObjectInjectionWorld;
+            var bridge = world.GetExistingSystemManaged<ObservableBridgeSystem>();
+            if (bridge != null)
             {
-                var world = World.DefaultGameObjectInjectionWorld;
-                var bridge = world.GetExistingSystemManaged<ObservableBridgeSystem>();
-                if (bridge != null)
-                {
-                    bridge.SetHudData(_hudData);
-                    bridge.SetLaserMaxShoots(_configs.Laser.LaserMaxShoots);
-                }
-            }
-            else
-            {
-                var shipModel = _data.ShipModel;
-                Bind.From(shipModel.Move.Position).To(OnShipPositionChanged);
-                Bind.From(shipModel.Move.Speed).To(OnShipSpeedChanged);
-                Bind.From(shipModel.Rotate.Rotation).To(OnShipRotationChanged);
-                Bind.From(shipModel.Laser.CurrentShoots).To(OnCurrentShootsChanged);
-                Bind.From(shipModel.Laser.ReloadRemaining).To(OnReloadRemainingChanged);
-
-                Bind.InvokeAll();
+                bridge.SetHudData(_hudData);
+                bridge.SetLaserMaxShoots(_configs.Laser.LaserMaxShoots);
             }
         }
 
         private void DeactivateHud()
         {
-            if (_data.UseEcs)
+            var world = World.DefaultGameObjectInjectionWorld;
+            if (world != null && world.IsCreated)
             {
-                var world = World.DefaultGameObjectInjectionWorld;
-                if (world != null && world.IsCreated)
+                var bridge = world.GetExistingSystemManaged<ObservableBridgeSystem>();
+                if (bridge != null)
                 {
-                    var bridge = world.GetExistingSystemManaged<ObservableBridgeSystem>();
-                    if (bridge != null)
-                    {
-                        bridge.ClearReferences();
-                    }
+                    bridge.ClearReferences();
                 }
             }
 
             CleanUp();
             _hudData = null;
-        }
-
-        private void OnReloadRemainingChanged(float timeRemaining)
-        {
-            _hudData.LaserReloadTime.Value = $"Reload laser: {TimeSpan.FromSeconds((int)timeRemaining):%s} sec";
-        }
-
-        private void OnCurrentShootsChanged(int shoots)
-        {
-            _hudData.LaserShootCount.Value = $"Laser shoots: {shoots.ToString()}";
-            _hudData.IsLaserReloadTimeVisible.Value = shoots < _configs.Laser.LaserMaxShoots;
-        }
-
-        private void OnShipRotationChanged(Vector2 direction)
-        {
-            _hudData.RotationAngle.Value =
-                $"Rotation: {(Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg).ToString("F1", CultureInfo.InvariantCulture)} degrees";
-        }
-
-        private void OnShipPositionChanged(Vector2 position)
-        {
-            _hudData.Coordinates.Value = $"Coordinates: {position.ToString("F1")}";
-        }
-
-        private void OnShipSpeedChanged(float speed)
-        {
-            _hudData.Speed.Value = $"Speed: {speed.ToString("F1", CultureInfo.InvariantCulture)} points/sec";
         }
 
         public void ToggleState(State state)
@@ -155,10 +109,28 @@ namespace SelStrom.Asteroids
             }
         }
 
+        private int ReadScoreFromEcs()
+        {
+            var world = World.DefaultGameObjectInjectionWorld;
+            if (world != null && world.IsCreated)
+            {
+                var em = world.EntityManager;
+                var query = em.CreateEntityQuery(typeof(ScoreData));
+                if (query.CalculateEntityCount() > 0)
+                {
+                    return em.GetComponentData<ScoreData>(query.GetSingletonEntity()).Value;
+                }
+            }
+
+            return 0;
+        }
+
         private void ShowEndGame()
         {
+            var score = _data.Game.GetCurrentScore();
+
             var scoreVm = new ScoreViewModel();
-            scoreVm.Score.Value = $"score: {_data.Model.Score}";
+            scoreVm.Score.Value = $"score: {score}";
             scoreVm.IsNameInputVisible.Value = false;
             scoreVm.IsLeaderboardVisible.Value = false;
             scoreVm.IsLoadingVisible.Value = true;
@@ -175,7 +147,7 @@ namespace SelStrom.Asteroids
             var savedName = PlayerPrefs.GetString(PlayerNameKey, "");
             if (!string.IsNullOrEmpty(savedName))
             {
-                SubmitAndShowLeaderboard(savedName, _data.Model.Score);
+                SubmitAndShowLeaderboard(savedName, score);
             }
             else
             {
@@ -203,7 +175,8 @@ namespace SelStrom.Asteroids
             viewModel.IsNameInputVisible.Value = false;
             viewModel.IsLoadingVisible.Value = true;
 
-            SubmitAndShowLeaderboard(playerName, _data.Model.Score);
+            var score = _data.Game.GetCurrentScore();
+            SubmitAndShowLeaderboard(playerName, score);
         }
 
         private void OnChangeNameClicked()
@@ -254,12 +227,12 @@ namespace SelStrom.Asteroids
         {
             var viewModel = _score.ViewModel;
             viewModel.IsLoadingVisible.Value = true;
-            
+
             var playerResult = new CoroutineResult<LeaderboardEntry?>();
             yield return _leaderboardService.GetPlayerScore(playerResult);
 
             var bestScore = Math.Max(playerResult.Value?.Score ?? 0, score);
-            
+
             var submitResult = new CoroutineResult();
             yield return _leaderboardService.SubmitScore(playerName, bestScore, submitResult);
 

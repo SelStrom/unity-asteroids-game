@@ -1,4 +1,8 @@
+using System;
 using SelStrom.Asteroids.Configs;
+using SelStrom.Asteroids.ECS;
+using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
@@ -8,7 +12,6 @@ namespace SelStrom.Asteroids
         private GameObjectPool _gameObjectPool;
         private IApplicationComponent _appComponent;
         private Game _game;
-        private Model _model;
         private ActionScheduler _actionScheduler;
         private Vector2 _gameArea;
         private GameScreen _gameScreen;
@@ -17,6 +20,8 @@ namespace SelStrom.Asteroids
         private PlayerInput _playerInput;
         private EntitiesCatalog _catalog;
         private TitleScreen _titleScreen;
+        private CollisionBridge _collisionBridge;
+        private EntityManager _entityManager;
 
         public void Connect(IApplicationComponent appComponent, GameData configs,
             Transform poolContainer, Transform gameContainer, GameScreen gameScreen, TitleScreen titleScreen)
@@ -30,7 +35,7 @@ namespace SelStrom.Asteroids
 
             _gameObjectPool = new GameObjectPool();
             _gameObjectPool.Connect(poolContainer);
-            
+
             _catalog = new EntitiesCatalog();
         }
 
@@ -44,11 +49,43 @@ namespace SelStrom.Asteroids
 
             _gameArea = new Vector2(sceneWidth, sceneHeight);
             _actionScheduler = new ActionScheduler();
-            _model = new Model { GameArea = _gameArea };
 
-            _catalog.Connect(_configs, new ModelFactory(_model), new ViewFactory(_gameObjectPool, _gameContainer));
+            var world = World.DefaultGameObjectInjectionWorld;
+            _entityManager = world.EntityManager;
 
-            _game = new Game(_catalog, _model, _actionScheduler, _gameArea, _configs, _playerInput, _gameScreen);
+            InitializeEcsSingletons();
+
+            _collisionBridge = new CollisionBridge();
+            var collisionBufferEntity = _entityManager.CreateEntity();
+            _entityManager.AddBuffer<CollisionEventData>(collisionBufferEntity);
+            _collisionBridge.Initialize(_entityManager, collisionBufferEntity);
+
+            _catalog.Connect(_configs, new ViewFactory(_gameObjectPool, _gameContainer),
+                _entityManager, _collisionBridge);
+
+            var deadSystem = world.GetExistingSystemManaged<DeadEntityCleanupSystem>();
+            if (deadSystem != null)
+            {
+                deadSystem.SetOnDeadEntityCallback(OnDeadEntity);
+            }
+
+            var bridgeSystem = world.GetExistingSystemManaged<ObservableBridgeSystem>();
+            if (bridgeSystem != null)
+            {
+                bridgeSystem.SetShipViewModel(
+                    _catalog.GetShipViewModel(),
+                    _configs.Ship.MainSprite,
+                    _configs.Ship.ThrustSprite);
+            }
+
+            var shootProcessor = world.GetExistingSystemManaged<ShootEventProcessorSystem>();
+            if (shootProcessor != null)
+            {
+                shootProcessor.SetDependencies(_catalog, _configs, _actionScheduler, _gameArea);
+            }
+
+            _game = new Game(_catalog, _actionScheduler, _gameArea, _configs, _playerInput,
+                _gameScreen, _entityManager);
 
             _appComponent.OnUpdate += OnUpdate;
             _appComponent.OnPause += OnPause;
@@ -58,7 +95,75 @@ namespace SelStrom.Asteroids
 
             _titleScreen.Connect(() => {
                 _game.Start();
+
+                // Обновить ShipViewModel после создания корабля
+                if (bridgeSystem != null)
+                {
+                    bridgeSystem.SetShipViewModel(
+                        _catalog.GetShipViewModel(),
+                        _configs.Ship.MainSprite,
+                        _configs.Ship.ThrustSprite);
+                }
             });
+        }
+
+        private void InitializeEcsSingletons()
+        {
+            // GameAreaData singleton
+            var gameAreaEntity = _entityManager.CreateEntity();
+            _entityManager.AddComponentData(gameAreaEntity, new GameAreaData
+            {
+                Size = new float2(_gameArea.x, _gameArea.y)
+            });
+
+            // ScoreData singleton
+            var scoreEntity = _entityManager.CreateEntity();
+            _entityManager.AddComponentData(scoreEntity, new ScoreData { Value = 0 });
+
+            // GunShootEvent buffer singleton
+            var gunEventEntity = _entityManager.CreateEntity();
+            _entityManager.AddBuffer<GunShootEvent>(gunEventEntity);
+
+            // LaserShootEvent buffer singleton
+            var laserEventEntity = _entityManager.CreateEntity();
+            _entityManager.AddBuffer<LaserShootEvent>(laserEventEntity);
+        }
+
+        private void OnDeadEntity(GameObject go)
+        {
+            _collisionBridge.UnregisterMapping(go);
+            var position = (Vector2)go.transform.position;
+
+            if (_catalog.TryGetEntityType(go, out var entityType))
+            {
+                if (entityType == EntityType.Asteroid)
+                {
+                    _game.PlayEffect(_configs.VfxBlowPrefab, position);
+                    if (_catalog.TryGetEntity(go, out var entity) && _entityManager.Exists(entity))
+                    {
+                        var ageData = _entityManager.GetComponentData<AgeData>(entity);
+                        var moveData = _entityManager.GetComponentData<MoveData>(entity);
+                        var age = ageData.Age - 1;
+                        if (age > 0)
+                        {
+                            var speed = Math.Min(moveData.Speed * 2, 10f);
+                            _catalog.CreateAsteroid(age, position, speed);
+                            _catalog.CreateAsteroid(age, position, speed);
+                        }
+                    }
+                }
+                else if (entityType == EntityType.Ship)
+                {
+                    _game.PlayEffect(_configs.VfxBlowPrefab, position);
+                    _game.StopGame();
+                }
+                else if (entityType == EntityType.UfoBig || entityType == EntityType.Ufo)
+                {
+                    _game.PlayEffect(_configs.VfxBlowPrefab, position);
+                }
+            }
+
+            _catalog.ReleaseByGameObject(go);
         }
 
         private void OnResume()
@@ -87,17 +192,17 @@ namespace SelStrom.Asteroids
         {
             _catalog.Dispose();
             _gameObjectPool.Dispose();
-            
+
             _catalog = null;
             _gameObjectPool = null;
             _appComponent = null;
             _game = null;
-            _model = null;
             _actionScheduler = null;
             _configs = null;
             _gameContainer = null;
             _playerInput = null;
             _gameScreen = null;
+            _collisionBridge = null;
         }
 
         public void Quit()
@@ -106,6 +211,28 @@ namespace SelStrom.Asteroids
             _appComponent.OnPause -= OnPause;
             _appComponent.OnResume -= OnResume;
             _playerInput.OnBackAction -= OnBack;
+
+            var world = World.DefaultGameObjectInjectionWorld;
+            if (world != null && world.IsCreated)
+            {
+                var shootProcessor = world.GetExistingSystemManaged<ShootEventProcessorSystem>();
+                if (shootProcessor != null)
+                {
+                    shootProcessor.ClearDependencies();
+                }
+
+                var bridgeSystem = world.GetExistingSystemManaged<ObservableBridgeSystem>();
+                if (bridgeSystem != null)
+                {
+                    bridgeSystem.ClearReferences();
+                }
+
+                var deadSystem = world.GetExistingSystemManaged<DeadEntityCleanupSystem>();
+                if (deadSystem != null)
+                {
+                    deadSystem.SetOnDeadEntityCallback(null);
+                }
+            }
 
             Dispose();
         }

@@ -1,6 +1,8 @@
 using System;
-using Model.Components;
 using SelStrom.Asteroids.Configs;
+using SelStrom.Asteroids.ECS;
+using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -10,38 +12,33 @@ namespace SelStrom.Asteroids
     {
         private readonly PlayerInput _playerInput;
         private readonly GameData _configs;
-        private readonly Model _model;
         private readonly ActionScheduler _actionScheduler;
         private readonly Vector2 _gameArea;
-
-        private ShipModel _shipModel;
         private readonly EntitiesCatalog _catalog;
         private readonly GameScreen _gameScreen;
+        private readonly EntityManager _entityManager;
 
-        public Game(EntitiesCatalog catalog, Model model, ActionScheduler actionScheduler, Vector2 gameArea,
-            GameData configs, PlayerInput playerInput, GameScreen gameScreen)
+        private int _currentScore;
+
+        public Game(EntitiesCatalog catalog, ActionScheduler actionScheduler, Vector2 gameArea,
+            GameData configs, PlayerInput playerInput, GameScreen gameScreen, EntityManager entityManager)
         {
             _gameScreen = gameScreen;
-            _model = model;
             _actionScheduler = actionScheduler;
             _gameArea = gameArea;
             _configs = configs;
             _playerInput = playerInput;
             _catalog = catalog;
-
-            // TODO @a.shatalov: refactor
-            _model.OnEntityDestroyed += OnEntityDestroyed;
+            _entityManager = entityManager;
         }
 
         public void Start()
         {
-            _shipModel = _catalog.CreateShip(OnShipCollided);
-            _shipModel.Gun.OnShooting = OnUserGunShooting;
-            _shipModel.Laser.OnShooting = OnUserLaserShooting;
+            _catalog.CreateShip();
 
             for (var i = 0; i < _configs.AsteroidInitialCount; i++)
             {
-                SpawnAsteroid(_shipModel.Move.Position.Value);
+                SpawnAsteroid(Vector2.zero);
             }
 
             _playerInput.OnAttackAction += OnAttack;
@@ -53,8 +50,6 @@ namespace SelStrom.Asteroids
 
             _gameScreen.Connect(new GameScreenData
             {
-                ShipModel = _shipModel,
-                Model = _model,
                 Game = this,
             });
             _gameScreen.ToggleState(GameScreen.State.Game);
@@ -72,25 +67,112 @@ namespace SelStrom.Asteroids
             _gameScreen.ToggleState(GameScreen.State.EndGame);
         }
 
+        public void StopGame()
+        {
+            ReadScoreFromEcs();
+            Stop();
+        }
+
+        private void ReadScoreFromEcs()
+        {
+            var query = _entityManager.CreateEntityQuery(typeof(ScoreData));
+            if (query.CalculateEntityCount() > 0)
+            {
+                var entity = query.GetSingletonEntity();
+                _currentScore = _entityManager.GetComponentData<ScoreData>(entity).Value;
+            }
+        }
+
+        public int GetCurrentScore()
+        {
+            ReadScoreFromEcs();
+            return _currentScore;
+        }
+
         public void Restart()
         {
-            _model.CleanUp();
+            _catalog.ReleaseAllGameEntities();
+            _actionScheduler.ResetSchedule();
+            ClearEcsEventBuffers();
+            ResetEcsScore();
             Start();
+        }
+
+        private void ClearEcsEventBuffers()
+        {
+            var gunQuery = _entityManager.CreateEntityQuery(typeof(GunShootEvent));
+            if (gunQuery.CalculateEntityCount() > 0)
+            {
+                var entities = gunQuery.ToEntityArray(Unity.Collections.Allocator.Temp);
+                for (int i = 0; i < entities.Length; i++)
+                {
+                    _entityManager.GetBuffer<GunShootEvent>(entities[i]).Clear();
+                }
+
+                entities.Dispose();
+            }
+
+            var laserQuery = _entityManager.CreateEntityQuery(typeof(LaserShootEvent));
+            if (laserQuery.CalculateEntityCount() > 0)
+            {
+                var entities = laserQuery.ToEntityArray(Unity.Collections.Allocator.Temp);
+                for (int i = 0; i < entities.Length; i++)
+                {
+                    _entityManager.GetBuffer<LaserShootEvent>(entities[i]).Clear();
+                }
+
+                entities.Dispose();
+            }
+
+            var collisionQuery = _entityManager.CreateEntityQuery(typeof(CollisionEventData));
+            if (collisionQuery.CalculateEntityCount() > 0)
+            {
+                var entities = collisionQuery.ToEntityArray(Unity.Collections.Allocator.Temp);
+                for (int i = 0; i < entities.Length; i++)
+                {
+                    _entityManager.GetBuffer<CollisionEventData>(entities[i]).Clear();
+                }
+
+                entities.Dispose();
+            }
+        }
+
+        private void ResetEcsScore()
+        {
+            var query = _entityManager.CreateEntityQuery(typeof(ScoreData));
+            if (query.CalculateEntityCount() > 0)
+            {
+                var entity = query.GetSingletonEntity();
+                _entityManager.SetComponentData(entity, new ScoreData { Value = 0 });
+            }
+        }
+
+        private Vector2 GetShipPosition()
+        {
+            var query = _entityManager.CreateEntityQuery(typeof(ShipPositionData));
+            if (query.CalculateEntityCount() > 0)
+            {
+                var data = query.GetSingleton<ShipPositionData>();
+                return new Vector2(data.Position.x, data.Position.y);
+            }
+
+            return Vector2.zero;
         }
 
         private void SpawnNewEnemy()
         {
+            var shipPosition = GetShipPosition();
             var index = Random.Range(0, 3);
             switch (index)
             {
                 case 0:
-                    SpawnAsteroid(_shipModel.Move.Position.Value);
+                    SpawnAsteroid(shipPosition);
                     break;
                 case 1:
-                    SpawnUfo(_shipModel.Move.Position.Value);
+                    SpawnUfo(shipPosition);
                     break;
                 case 2:
-                    SpawnBigUfo(_shipModel.Move.Position.Value);
+                    SpawnBigUfo(shipPosition);
                     break;
             }
 
@@ -100,15 +182,14 @@ namespace SelStrom.Asteroids
         private void SpawnUfo(Vector2 shipPosition)
         {
             var position = GameUtils.GetRandomUfoPosition(shipPosition, _gameArea, _configs.SpawnAllowedRadius);
-            _catalog.CreateUfo(_shipModel, position, Random.insideUnitCircle.normalized, OnUfoCollided, OnEnemyGunShooting);
+            _catalog.CreateUfo(position, Random.insideUnitCircle.normalized);
         }
 
         private void SpawnBigUfo(Vector2 shipPosition)
         {
             var position = GameUtils.GetRandomUfoPosition(shipPosition, _gameArea, _configs.SpawnAllowedRadius);
-            _catalog.CreateBigUfo(_shipModel, position,
-                (Random.insideUnitCircle * new Vector2(1, 0.1f)).normalized,
-                OnUfoCollided, OnEnemyGunShooting);
+            _catalog.CreateBigUfo(position,
+                (Random.insideUnitCircle * new Vector2(1, 0.1f)).normalized);
         }
 
         private void SpawnAsteroid(Vector2 shipPosition)
@@ -118,44 +199,8 @@ namespace SelStrom.Asteroids
             _catalog.CreateAsteroid(3, asteroidPosition, Random.Range(1f, 3f));
         }
 
-        private void OnUfoCollided(UfoBigModel model)
+        public void PlayEffect(GameObject prefab, in Vector2 position)
         {
-            Kill(model);
-        }
-
-        private void OnShipCollided(Collision2D obj)
-        {
-            Kill(_shipModel);
-            Stop();
-        }
-
-        private void OnUserBulletCollided(BulletModel bullet, Collision2D col)
-        {
-            Kill(bullet);
-            col.otherCollider.enabled = false;
-
-            // TODO @a.shatalov: impl score receiver
-            if (_catalog.TryFindModel<AsteroidModel>(col.gameObject, out var asteroidModel))
-            {
-                _model.ReceiveScore(asteroidModel);
-                Kill(asteroidModel);
-            }
-
-            if (_catalog.TryFindModel<UfoBigModel>(col.gameObject, out var ufoModel))
-            {
-                _model.ReceiveScore(ufoModel);
-            }
-        }
-        
-        private void OnEnemyBulletCollided(BulletModel bullet, Collision2D col)
-        {
-            Kill(bullet);
-            col.otherCollider.enabled = false;
-        }
-
-        private void PlayEffect(GameObject prefab, in Vector2 position)
-        {
-            // TODO @a.shatalov: cleanup effect
             var effect = _catalog.ViewFactory.Get<EffectVisual>(prefab);
             effect.transform.position = position;
             effect.Connect(OnEffectStopped);
@@ -166,103 +211,67 @@ namespace SelStrom.Asteroids
             _catalog.ViewFactory.Release(effect);
         }
 
-        private void OnEntityDestroyed(IGameEntityModel entityModel)
+        private bool TryGetShipEntity(out Entity shipEntity)
         {
-            _catalog.Release(entityModel);
-        }
-
-        private void Kill(IGameEntityModel entityModel)
-        {
-            entityModel.Kill();
-            switch (entityModel)
+            var query = _entityManager.CreateEntityQuery(typeof(ShipTag));
+            if (query.CalculateEntityCount() > 0)
             {
-                case AsteroidModel asteroidModel:
-                    PlayEffect(_configs.VfxBlowPrefab, asteroidModel.Move.Position.Value);
-
-                    var age = asteroidModel.Age - 1;
-                    if (age <= 0)
-                    {
-                        return;
-                    }
-
-                    var position = asteroidModel.Move.Position.Value;
-                    var speed = Math.Min(asteroidModel.Move.Speed.Value * 2, 10f);
-                    _catalog.CreateAsteroid(age, position, speed);
-                    _catalog.CreateAsteroid(age, position, speed);
-                    break;
-                case ShipModel shipModel:
-                    PlayEffect(_configs.VfxBlowPrefab, shipModel.Move.Position.Value);
-                    break;
-                case UfoBigModel ufoModel:
-                    PlayEffect(_configs.VfxBlowPrefab, ufoModel.Move.Position.Value);
-                    break;
-            }
-        }
-
-        private void OnEnemyGunShooting(GunComponent gun)
-        {
-            _catalog.CreateBullet(_configs.Bullet, _configs.Bullet.EnemyPrefab, gun.ShootPosition, gun.Direction,
-                OnEnemyBulletCollided);
-        }
-
-        private void OnUserGunShooting(GunComponent gun)
-        {
-            _catalog.CreateBullet(_configs.Bullet, _configs.Bullet.Prefab, gun.ShootPosition, gun.Direction,
-                OnUserBulletCollided);
-        }
-
-        private void OnUserLaserShooting(LaserComponent laserComponent)
-        {
-            var effect = _catalog.ViewFactory.Get<LineRenderer>(_configs.Laser.Prefab);
-            effect.transform.position = _shipModel.Move.Position.Value;
-            var direction = _shipModel.Laser.Direction;
-            var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            effect.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
-            _actionScheduler.ScheduleAction(() => { _catalog.ViewFactory.Release(effect.gameObject); },
-                _configs.Laser.BeamEffectLifetimeSec);
-
-            var hits = new RaycastHit2D[30];
-            var size = Physics2D.RaycastNonAlloc(_shipModel.Move.Position.Value, _shipModel.Rotate.Rotation.Value, hits,
-                _gameArea.magnitude, LayerMask.GetMask("Asteroid", "Enemy"));
-            if (size <= 0)
-            {
-                return;
+                shipEntity = query.GetSingletonEntity();
+                return true;
             }
 
-            for (var i = 0; i < size; i++)
-            {
-                var hit = hits[i];
-                var gameObject = hit.collider.gameObject;
-                if (_catalog.TryFindModel<IGameEntityModel>(gameObject, out var model))
-                {
-                    _model.ReceiveScore(model);
-                    Kill(model);
-                }
-            }
+            shipEntity = Entity.Null;
+            return false;
         }
 
         private void OnRotateAction(float direction)
         {
-            _shipModel.Rotate.TargetDirection = direction;
+            if (TryGetShipEntity(out var entity))
+            {
+                var rotateData = _entityManager.GetComponentData<RotateData>(entity);
+                rotateData.TargetDirection = direction;
+                _entityManager.SetComponentData(entity, rotateData);
+            }
         }
 
         private void OnTrust(bool isTrust)
         {
-            _shipModel.Thrust.IsActive.Value = isTrust;
+            if (TryGetShipEntity(out var entity))
+            {
+                var thrustData = _entityManager.GetComponentData<ThrustData>(entity);
+                thrustData.IsActive = isTrust;
+                _entityManager.SetComponentData(entity, thrustData);
+            }
         }
 
         private void OnAttack()
         {
-            _shipModel.Gun.Shooting = true;
-            _shipModel.Gun.Direction = _shipModel.Rotate.Rotation.Value;
-            _shipModel.Gun.ShootPosition = _shipModel.ShootPoint;
+            if (TryGetShipEntity(out var entity))
+            {
+                var gunData = _entityManager.GetComponentData<GunData>(entity);
+                var rotateData = _entityManager.GetComponentData<RotateData>(entity);
+                var moveData = _entityManager.GetComponentData<MoveData>(entity);
+
+                gunData.Shooting = true;
+                gunData.Direction = rotateData.Rotation;
+                gunData.ShootPosition = moveData.Position;
+                _entityManager.SetComponentData(entity, gunData);
+            }
         }
 
         private void OnLaser()
         {
-            _shipModel.Laser.Shooting = true;
-            _shipModel.Laser.Direction = _shipModel.Rotate.Rotation.Value;
-            _shipModel.Laser.ShootPosition = _shipModel.ShootPoint;
+            if (TryGetShipEntity(out var entity))
+            {
+                var laserData = _entityManager.GetComponentData<LaserData>(entity);
+                var rotateData = _entityManager.GetComponentData<RotateData>(entity);
+                var moveData = _entityManager.GetComponentData<MoveData>(entity);
+
+                laserData.Shooting = true;
+                laserData.Direction = rotateData.Rotation;
+                laserData.ShootPosition = moveData.Position;
+                _entityManager.SetComponentData(entity, laserData);
+            }
         }
     }
 }
