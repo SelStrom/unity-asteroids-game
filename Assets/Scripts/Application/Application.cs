@@ -1,8 +1,4 @@
-using System;
 using SelStrom.Asteroids.Configs;
-using SelStrom.Asteroids.ECS;
-using Unity.Entities;
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace SelStrom.Asteroids
@@ -13,16 +9,14 @@ namespace SelStrom.Asteroids
         private IApplicationComponent _appComponent;
         private Game _game;
         private Model _model;
+        private ActionScheduler _actionScheduler;
+        private Vector2 _gameArea;
         private GameScreen _gameScreen;
         private GameData _configs;
         private Transform _gameContainer;
         private PlayerInput _playerInput;
         private EntitiesCatalog _catalog;
         private TitleScreen _titleScreen;
-
-        private bool _useEcs = true;
-        private CollisionBridge _collisionBridge;
-        private Entity[] _ecsSingletonEntities;
 
         public void Connect(IApplicationComponent appComponent, GameData configs,
             Transform poolContainer, Transform gameContainer, GameScreen gameScreen, TitleScreen titleScreen)
@@ -36,7 +30,7 @@ namespace SelStrom.Asteroids
 
             _gameObjectPool = new GameObjectPool();
             _gameObjectPool.Connect(poolContainer);
-
+            
             _catalog = new EntitiesCatalog();
         }
 
@@ -48,73 +42,13 @@ namespace SelStrom.Asteroids
             var sceneHeight = orthographicSize * 2;
             Debug.Log("Scene size: " + sceneWidth + " x " + sceneHeight);
 
-            _model = new Model { GameArea = new Vector2(sceneWidth, sceneHeight) };
+            _gameArea = new Vector2(sceneWidth, sceneHeight);
+            _actionScheduler = new ActionScheduler();
+            _model = new Model { GameArea = _gameArea };
 
             _catalog.Connect(_configs, new ModelFactory(_model), new ViewFactory(_gameObjectPool, _gameContainer));
 
-            if (_useEcs)
-            {
-                var world = World.DefaultGameObjectInjectionWorld;
-                var em = world.EntityManager;
-
-                // Singleton entities
-                var gameAreaEntity = em.CreateEntity();
-                em.AddComponentData(gameAreaEntity, new GameAreaData
-                {
-                    Size = new float2(sceneWidth, sceneHeight)
-                });
-
-                var shipPosEntity = em.CreateEntity();
-                em.AddComponentData(shipPosEntity, new ShipPositionData());
-
-                var scoreEntity = em.CreateEntity();
-                em.AddComponentData(scoreEntity, new ScoreData { Value = 0 });
-
-                var collisionBufferEntity = em.CreateEntity();
-                em.AddBuffer<CollisionEventData>(collisionBufferEntity);
-
-                var gunEventEntity = em.CreateEntity();
-                em.AddBuffer<GunShootEvent>(gunEventEntity);
-
-                var laserEventEntity = em.CreateEntity();
-                em.AddBuffer<LaserShootEvent>(laserEventEntity);
-
-                _ecsSingletonEntities = new[]
-                {
-                    gameAreaEntity, shipPosEntity, scoreEntity,
-                    collisionBufferEntity, gunEventEntity, laserEventEntity
-                };
-
-                // CollisionBridge
-                _collisionBridge = new CollisionBridge();
-                _collisionBridge.Initialize(em, collisionBufferEntity);
-
-                // DeadEntityCleanupSystem callback
-                var cleanupSystem = world.GetExistingSystemManaged<DeadEntityCleanupSystem>();
-                if (cleanupSystem != null)
-                {
-                    cleanupSystem.SetOnDeadEntityCallback(OnDeadEntity);
-                }
-
-                // ObservableBridgeSystem — синхронизация ScoreData -> Model.Score
-                var bridgeSystem = world.GetExistingSystemManaged<ObservableBridgeSystem>();
-                if (bridgeSystem != null)
-                {
-                    bridgeSystem.SetModel(_model);
-                }
-
-                // EntitiesCatalog ECS
-                _catalog.ConnectEcs(em, _collisionBridge);
-            }
-
-            _game = new Game(_catalog, _model, _configs, _playerInput, _gameScreen);
-
-            if (_useEcs)
-            {
-                var world = World.DefaultGameObjectInjectionWorld;
-                var em = world.EntityManager;
-                _game.ConnectEcs(_useEcs, _collisionBridge, em);
-            }
+            _game = new Game(_catalog, _model, _actionScheduler, _gameArea, _configs, _playerInput, _gameScreen);
 
             _appComponent.OnUpdate += OnUpdate;
             _appComponent.OnPause += OnPause;
@@ -124,52 +58,7 @@ namespace SelStrom.Asteroids
 
             _titleScreen.Connect(() => {
                 _game.Start();
-
-                if (_useEcs)
-                {
-                    var world = World.DefaultGameObjectInjectionWorld;
-                    var bridge = world.GetExistingSystemManaged<ObservableBridgeSystem>();
-                    if (bridge != null)
-                    {
-                        bridge.SetShipViewModel(
-                            _catalog.GetShipViewModel(),
-                            _configs.Ship.MainSprite,
-                            _configs.Ship.ThrustSprite);
-                    }
-                }
             });
-        }
-
-        private void OnDeadEntity(GameObject go)
-        {
-            _collisionBridge.UnregisterMapping(go);
-
-            // Позиция из Transform — синхронизируется из ECS (GameObjectSyncSystem),
-            // модельный слой (model.Move.Position) не обновляется из ECS
-            var position = (Vector2)go.transform.position;
-
-            if (_catalog.TryFindModel<AsteroidModel>(go, out var asteroidModel))
-            {
-                _game.PlayEffect(_configs.VfxBlowPrefab, position);
-                var age = asteroidModel.Age - 1;
-                if (age > 0)
-                {
-                    var speed = Math.Min(asteroidModel.Move.Speed.Value * 2, 10f);
-                    _catalog.CreateAsteroid(age, position, speed);
-                    _catalog.CreateAsteroid(age, position, speed);
-                }
-            }
-            else if (_catalog.TryFindModel<ShipModel>(go, out _))
-            {
-                _game.PlayEffect(_configs.VfxBlowPrefab, position);
-                _game.StopFromEcs();
-            }
-            else if (_catalog.TryFindModel<UfoBigModel>(go, out _))
-            {
-                _game.PlayEffect(_configs.VfxBlowPrefab, position);
-            }
-
-            _catalog.ReleaseByGameObject(go);
         }
 
         private void OnResume()
@@ -184,16 +73,7 @@ namespace SelStrom.Asteroids
 
         private void OnUpdate(float deltaTime)
         {
-            if (_useEcs)
-            {
-                // ECS World updates automatically via Unity runtime
-                _model.ActionScheduler.Update(deltaTime);
-                _game.ProcessShootEvents();
-            }
-            else
-            {
-                _model.Update(deltaTime);
-            }
+            _actionScheduler.Update(deltaTime);
         }
 
         private void OnBack()
@@ -207,12 +87,13 @@ namespace SelStrom.Asteroids
         {
             _catalog.Dispose();
             _gameObjectPool.Dispose();
-
+            
             _catalog = null;
             _gameObjectPool = null;
             _appComponent = null;
             _game = null;
             _model = null;
+            _actionScheduler = null;
             _configs = null;
             _gameContainer = null;
             _playerInput = null;
@@ -221,38 +102,10 @@ namespace SelStrom.Asteroids
 
         public void Quit()
         {
-            if (_appComponent == null)
-            {
-                return;
-            }
-
             _appComponent.OnUpdate -= OnUpdate;
             _appComponent.OnPause -= OnPause;
             _appComponent.OnResume -= OnResume;
             _playerInput.OnBackAction -= OnBack;
-
-            if (_collisionBridge != null)
-            {
-                _collisionBridge.Clear();
-                _collisionBridge = null;
-            }
-
-            if (_ecsSingletonEntities != null)
-            {
-                var world = World.DefaultGameObjectInjectionWorld;
-                if (world != null && world.IsCreated)
-                {
-                    var em = world.EntityManager;
-                    foreach (var entity in _ecsSingletonEntities)
-                    {
-                        if (em.Exists(entity))
-                        {
-                            em.DestroyEntity(entity);
-                        }
-                    }
-                }
-                _ecsSingletonEntities = null;
-            }
 
             Dispose();
         }
