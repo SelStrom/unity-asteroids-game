@@ -96,6 +96,13 @@ namespace SelStrom.Asteroids
                     cleanupSystem.SetOnDeadEntityCallback(OnDeadEntity);
                 }
 
+                // ObservableBridgeSystem — синхронизация ScoreData -> Model.Score
+                var bridgeSystem = world.GetExistingSystemManaged<ObservableBridgeSystem>();
+                if (bridgeSystem != null)
+                {
+                    bridgeSystem.SetModel(_model);
+                }
+
                 // EntitiesCatalog ECS
                 _catalog.ConnectEcs(em, _collisionBridge);
             }

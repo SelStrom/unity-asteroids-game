@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-04-PLAN.md
+stopped_at: Completed 05-04-PLAN.md, 05-05-PLAN.md
 last_updated: "2026-04-03T12:07:49.302Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 17
-  completed_plans: 16
-  percent: 93
+  completed_plans: 17
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Играбельная классическая механика Asteroids -- фундамент для технической миграции на современный стек Unity
-**Current focus:** Phase 02 — unity-6-3-upgrade
+**Current focus:** Phase 05 — bridge-layer-integration (gap closure)
 
 ## Current Position
 
-Phase: 02 (unity-6-3-upgrade) — EXECUTING
-Plan: 2 of 3
-Status: Ready to execute
+Phase: 05 (bridge-layer-integration) — EXECUTING
+Plan: 5 of 5
+Status: All plans complete, awaiting verification
 Last activity: 2026-04-03
 
-Progress: [█████████░] 93%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -63,6 +63,7 @@ Progress: [█████████░] 93%
 | Phase 05 P02 | 4min | 2 tasks | 9 files |
 | Phase 02 P03 | 1min | 2 tasks | 6 files |
 | Phase 05 P04 | 1min | 1 tasks | 2 files |
+| Phase 05 P05 | 2min | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,7 @@ Recent decisions affecting current work:
 - [Phase 05]: ObservableBridgeSystem uses managed SystemBase for access to MVVM ReactiveValue types
 - [Phase 02]: Inline Unity.Core.TimeData qualification instead of using-directive to prevent namespace conflicts
 - [Phase 05]: DeadTag вместо Kill(model) для лазера в ECS-режиме -- единый путь уничтожения через DeadEntityCleanupSystem
+- [Phase 05]: Model.SetScore(int) public method for ECS bridge layer score sync
 
 ### Pending Todos
 
@@ -111,5 +113,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-03T12:07:49.263Z
-Stopped at: Completed 05-04-PLAN.md
+Stopped at: Completed 05-04-PLAN.md, 05-05-PLAN.md
 Resume file: None

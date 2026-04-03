@@ -65,6 +65,11 @@ namespace SelStrom.Asteroids
         
         public int Score { get; private set; }
 
+        public void SetScore(int value)
+        {
+            Score = value;
+        }
+
         public ActionScheduler ActionScheduler { get; }
 
         public Model()
