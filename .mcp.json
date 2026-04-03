@@ -3,6 +3,13 @@
     "unity-mcp": {
       "type": "http",
       "url": "http://127.0.0.1:50972/mcp"
+    },
+    "ai-game-developer": {
+      "headers": {
+        "Authorization": "Bearer lvUBWYYzl5DEgtCJwClfsTsEQjf4eSfUgDh2YU9ghVo"
+      },
+      "type": "http",
+      "url": "http://localhost:23537"
     }
   }
 }
