@@ -12,6 +12,7 @@ namespace SelStrom.Asteroids
     {
         private HudData _hudData;
         private ShipViewModel _shipViewModel;
+        private Model _model;
         private int _laserMaxShoots;
         private Sprite _mainSprite;
         private Sprite _thrustSprite;
@@ -28,6 +29,11 @@ namespace SelStrom.Asteroids
             _thrustSprite = thrustSprite;
         }
 
+        public void SetModel(Model model)
+        {
+            _model = model;
+        }
+
         public void SetLaserMaxShoots(int maxShoots)
         {
             _laserMaxShoots = maxShoots;
@@ -37,13 +43,14 @@ namespace SelStrom.Asteroids
         {
             _hudData = null;
             _shipViewModel = null;
+            _model = null;
             _mainSprite = null;
             _thrustSprite = null;
         }
 
         protected override void OnUpdate()
         {
-            if (_hudData == null && _shipViewModel == null)
+            if (_hudData == null && _shipViewModel == null && _model == null)
             {
                 return;
             }
@@ -86,6 +93,16 @@ namespace SelStrom.Asteroids
                         _shipViewModel.Sprite.Value =
                             thrust.ValueRO.IsActive ? _thrustSprite : _mainSprite;
                     }
+                }
+            }
+
+            // Синхронизация ScoreData -> Model.Score для EndGame экрана
+            if (_model != null)
+            {
+                if (SystemAPI.HasSingleton<ScoreData>())
+                {
+                    var scoreData = SystemAPI.GetSingleton<ScoreData>();
+                    _model.SetScore(scoreData.Value);
                 }
             }
         }

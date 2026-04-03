@@ -286,6 +286,38 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         }
 
         /// <summary>
+        /// Регрессия: в ECS-режиме Score накапливался в ScoreData (ECS singleton),
+        /// но Model.Score оставался 0. GameScreen.ShowEndGame() читал Model.Score = 0.
+        /// Фикс: ObservableBridgeSystem синхронизирует ScoreData.Value -> Model.Score каждый кадр.
+        /// </summary>
+        [Test]
+        public void ScoreData_IsSynced_ToModelScore_ViaObservableBridge()
+        {
+            var model = new Model { GameArea = new Vector2(20f, 15f) };
+            Assert.AreEqual(0, model.Score, "Score должен начинаться с 0");
+
+            // Создаём ScoreData singleton с накопленным счётом
+            var scoreEntity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(scoreEntity, new ScoreData { Value = 350 });
+
+            // Создаём ObservableBridgeSystem, устанавливаем model
+            var bridge = World.GetOrCreateSystemManaged<ObservableBridgeSystem>();
+            bridge.SetModel(model);
+
+            bridge.Update();
+
+            Assert.AreEqual(350, model.Score,
+                "ObservableBridgeSystem должен синхронизировать ScoreData.Value в Model.Score");
+
+            // Обновляем счёт и проверяем повторную синхронизацию
+            m_Manager.SetComponentData(scoreEntity, new ScoreData { Value = 700 });
+            bridge.Update();
+
+            Assert.AreEqual(700, model.Score,
+                "Model.Score должен обновляться при изменении ScoreData");
+        }
+
+        /// <summary>
         /// Регрессия: при рестарте после смерти корабля — DeadEntityCleanupSystem уже удалял
         /// entity через ReleaseByGameObject, а затем Model.CleanUp() вызывал OnEntityDestroyed
         /// повторно → KeyNotFoundException в EntitiesCatalog.Release().
