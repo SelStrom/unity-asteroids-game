@@ -1,10 +1,11 @@
 ---
 phase: 3
 slug: urp-migration
-status: draft
+status: audited
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-04-02
+audited: 2026-04-03
 ---
 
 # Phase 3 — Validation Strategy
@@ -18,7 +19,7 @@ created: 2026-04-02
 | Property | Value |
 |----------|-------|
 | **Framework** | Unity Test Framework (NUnit) 1.6.0 |
-| **Config file** | `Assets/Tests/EditMode/EditModeTests.asmdef`, `Assets/Tests/PlayMode/PlayMode.asmdef` |
+| **Config file** | `Assets/Tests/EditMode/EditModeTests.asmdef`, `Assets/Tests/PlayMode/PlayModeTests.asmdef` |
 | **Quick run command** | Unity Editor > Window > General > Test Runner > EditMode > Run All |
 | **Full suite command** | Unity Editor > Window > General > Test Runner > All > Run All |
 | **Estimated runtime** | ~10 seconds |
@@ -36,27 +37,26 @@ created: 2026-04-02
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Test Type | Automated Command | Test Files | Status |
-|---------|------|------|-------------|-----------|-------------------|------------|--------|
-| 03-01-01 | 01 | 1 | URP-01, URP-02 | automated + manual | `grep -q "com.unity.render-pipelines.universal" Packages/manifest.json && test -f Assets/Settings/URP-2D-Asset.asset && test -f Assets/Settings/URP-2D-Renderer.asset` | UrpSetupTests.cs (4 tests) | pending |
-| 03-01-02 | 01 | 1 | URP-03 | automated | `test -f Assets/Media/materials/Laser-URP.mat && test -f Assets/Media/materials/Particle-URP.mat` | UrpMaterialTests.cs (5 tests) | pending |
-| 03-01-03 | 01 | 1 | URP-04 | automated | `test -f Assets/Settings/PostProcessing-Profile.asset` | UrpPostProcessingTests.cs (3 tests) | pending |
-| 03-02-01 | 02 | 2 | URP-01..URP-04 | automated | `grep -q "UrpSetupTests" Assets/Tests/EditMode/Upgrade/UrpSetupTests.cs && grep -q "UrpMaterialTests" Assets/Tests/EditMode/Upgrade/UrpMaterialTests.cs && grep -q "UrpPostProcessingTests" Assets/Tests/EditMode/Upgrade/UrpPostProcessingTests.cs` | UrpSetupTests, UrpMaterialTests, UrpPostProcessingTests (12 tests total) | pending |
-| 03-02-02 | 02 | 2 | URP-05 | manual | Visual comparison in Unity Editor Game View | N/A (human-verify checkpoint) | pending |
-| 03-02-03 | 02 | 2 | URP-06 | manual | Full gameplay cycle in Unity Editor | N/A (human-verify checkpoint) | pending |
+| Task ID | Plan | Wave | Requirement | Test Type | Test Files | Status |
+|---------|------|------|-------------|-----------|------------|--------|
+| 03-01-01 | 01 | 1 | URP-01, URP-02 | automated | UrpSetupTests.cs (4 tests) | ✅ green |
+| 03-01-02 | 01 | 1 | URP-03 | automated | UrpMaterialTests.cs (5 tests) | ✅ green |
+| 03-01-03 | 01 | 1 | URP-04 | automated | UrpPostProcessingTests.cs (3 tests) | ✅ green |
+| 03-02-01 | 02 | 2 | URP-01..URP-04 | automated | All 12 tests above | ✅ green |
+| 03-02-02 | 02 | 2 | URP-05 | manual | Visual comparison in Unity Editor | ✅ manual pass |
+| 03-02-03 | 02 | 2 | URP-06 | manual | Full gameplay cycle | ✅ manual pass |
 
-*Status: pending / green / red / flaky*
+*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
 ---
 
 ## Wave 0 Requirements
 
-Plan 01 Task 2 creates all Wave 0 test infrastructure:
-- `UrpSetupTests.cs` — 4 EditMode tests for URP pipeline setup (URP-01, URP-02)
-- `UrpMaterialTests.cs` — 5 EditMode tests for material conversion (URP-03)
-- `UrpPostProcessingTests.cs` — 3 EditMode tests for Post-Processing (URP-04)
+- [x] `UrpSetupTests.cs` — 4 EditMode tests for URP pipeline setup (URP-01, URP-02)
+- [x] `UrpMaterialTests.cs` — 5 EditMode tests for material conversion (URP-03)
+- [x] `UrpPostProcessingTests.cs` — 3 EditMode tests for Post-Processing (URP-04)
 
-Total: 12 automated EditMode tests covering URP-01 through URP-04. Tests are created alongside the URP configuration in Plan 01, ensuring immediate feedback.
+Total: 12 automated EditMode tests covering URP-01 through URP-04. All green.
 
 ---
 
@@ -81,3 +81,15 @@ Total: 12 automated EditMode tests covering URP-01 through URP-04. Tests are cre
 - [x] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** approved
+
+---
+
+## Validation Audit 2026-04-03
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+| Tests run | 12 EditMode |
+| All green | Yes |
