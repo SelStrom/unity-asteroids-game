@@ -141,7 +141,7 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 07-01-PLAN.md -- ShipPositionData singleton wiring в InitializeEcsSingletons() + регрессионный тест + трассировочная таблица
+- [x] 07-01-PLAN.md -- ShipPositionData singleton wiring в InitializeEcsSingletons() + регрессионный тест + трассировочная таблица
 - [ ] 07-02-PLAN.md -- Ручная верификация геймплея 1:1 и UFO AI (LC-07)
 
 ## Progress

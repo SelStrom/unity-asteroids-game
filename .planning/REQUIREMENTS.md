@@ -48,8 +48,8 @@
 - [x] **ECS-06**: MoveSystem перенесена на ISystem с Burst-компиляцией (включая тороидальное обертывание)
 - [x] **ECS-07**: GunSystem перенесена на ISystem (перезарядка, стрельба)
 - [x] **ECS-08**: LaserSystem перенесена на ISystem (заряды, cooldown)
-- [ ] **ECS-09**: ShootToSystem (AI наведение НЛО) перенесена на ISystem
-- [ ] **ECS-10**: MoveToSystem (движение НЛО к цели) перенесена на ISystem
+- [x] **ECS-09**: ShootToSystem (AI наведение НЛО) перенесена на ISystem
+- [x] **ECS-10**: MoveToSystem (движение НЛО к цели) перенесена на ISystem
 - [x] **ECS-11**: CollisionHandler перенесен на ISystem (обработка столкновений через Physics2D результаты)
 
 ### Hybrid DOTS -- Bridge Layer
