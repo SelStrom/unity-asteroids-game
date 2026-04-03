@@ -102,7 +102,7 @@ Plans:
 - [x] 05-01-PLAN.md -- Bridge-компоненты (GameObjectRef, ShootEvents), GameObjectSyncSystem, расширение Gun/Laser/LifeTime систем, EditMode тесты
 - [x] 05-02-PLAN.md -- CollisionBridge, ObservableBridgeSystem, DeadEntityCleanupSystem, EditMode тесты (TST-10)
 - [x] 05-03-PLAN.md -- Интеграция bridge в игровой код (EntitiesCatalog, Application, Game.cs), PlayMode тесты (TST-12), ручная верификация геймплея 1:1
-- [ ] 05-04-PLAN.md -- Gap closure: фикс лазерного kill-пути (DeadTag вместо Kill) + очистка лазерного VFX при гибели
+- [x] 05-04-PLAN.md -- Gap closure: фикс лазерного kill-пути (DeadTag вместо Kill) + очистка лазерного VFX при гибели
 - [ ] 05-05-PLAN.md -- Gap closure: синхронизация ScoreData -> Model.Score через ObservableBridgeSystem
 
 ## Progress
