@@ -86,6 +86,13 @@
 - [x] **LC-06**: Все существующие тесты проходят зеленым, новые тесты покрывают измененный code path
 - [x] **LC-07**: Игра воспроизводит весь геймплей 1:1 без legacy-слоя
 
+### UFO-Asteroid Collision
+
+- [ ] **COL-01**: EcsCollisionHandlerSystem обрабатывает пары AsteroidTag+UfoTag и AsteroidTag+UfoBigTag
+- [ ] **COL-02**: При столкновении UFO и астероид уничтожаются (MarkDead), очки не начисляются
+- [ ] **COL-03**: Регрессионные тесты подтверждают обработку коллизии UFO+Asteroid (Ufo, UfoBig, обратный порядок, отсутствие очков)
+- [ ] **COL-04**: Ручная верификация: UFO и астероиды коллайдятся в Play Mode
+
 ## v2 Requirements
 
 Отложены на будущие milestone.
@@ -176,12 +183,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LC-05 | Phase 6 | Complete |
 | LC-06 | Phase 6 | Complete |
 | LC-07 | Phase 7 | Complete |
+| COL-01 | Phase 8 | Planned |
+| COL-02 | Phase 8 | Planned |
+| COL-03 | Phase 8 | Planned |
+| COL-04 | Phase 8 | Planned |
 
 **Coverage:**
-- v1 requirements: 55 total
-- Mapped to phases: 55
+- v1 requirements: 59 total
+- Mapped to phases: 59
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-02*
-*Last updated: 2026-04-03 after gap closure phase creation*
+*Last updated: 2026-04-04 after Phase 8 planning*

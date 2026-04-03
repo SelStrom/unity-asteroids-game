@@ -147,16 +147,17 @@ Plans:
 ### Phase 8: UFO-Asteroid Collision
 **Goal**: Добавить обработку коллизии UFO+Asteroid в EcsCollisionHandlerSystem — в классическом Asteroids UFO и астероиды уничтожают друг друга при столкновении
 **Depends on**: Phase 7
-**Requirements**: TBD
+**Requirements**: COL-01, COL-02, COL-03, COL-04
 **Success Criteria** (what must be TRUE):
   1. EcsCollisionHandlerSystem обрабатывает пары AsteroidTag+UfoTag и AsteroidTag+UfoBigTag
   2. При столкновении UFO и астероид уничтожаются (MarkDead)
   3. Регрессионный тест подтверждает обработку коллизии UFO+Asteroid
   4. Ручная верификация: UFO и астероиды коллайдятся в Play Mode
-**Plans:** 0 plans
+**Plans:** 2 plans
 
 Plans:
-(not yet planned)
+- [ ] 08-01-PLAN.md -- TDD: регрессионные тесты + реализация UFO+Asteroid коллизии в EcsCollisionHandlerSystem
+- [ ] 08-02-PLAN.md -- Ручная верификация UFO+Asteroid коллизии в Play Mode
 
 ## Progress
 
@@ -172,4 +173,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 5. Bridge Layer + Integration | 5/5 | Complete | 2026-04-03 |
 | 6. Legacy Cleanup | 4/4 | Complete | 2026-04-03 |
 | 7. ShipPositionData Wiring + Traceability Fix | 2/2 | Complete | 2026-04-04 |
-| 8. UFO-Asteroid Collision | 0/0 | Planned |  |
+| 8. UFO-Asteroid Collision | 0/2 | Planned |  |
