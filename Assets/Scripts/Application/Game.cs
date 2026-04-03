@@ -96,7 +96,27 @@ namespace SelStrom.Asteroids
 
         public void StopFromEcs()
         {
+            // Синхронизируем ScoreData -> Model.Score перед Stop(),
+            // т.к. ObservableBridgeSystem (PresentationSystemGroup) ещё не обновился,
+            // а ShowEndGame() читает Model.Score сразу в Stop()
+            SyncEcsScoreToModel();
             Stop();
+        }
+
+        private void SyncEcsScoreToModel()
+        {
+            if (!_useEcs)
+            {
+                return;
+            }
+
+            var scoreQuery = _entityManager.CreateEntityQuery(typeof(ScoreData));
+            if (scoreQuery.CalculateEntityCount() > 0)
+            {
+                var entity = scoreQuery.GetSingletonEntity();
+                var scoreData = _entityManager.GetComponentData<ScoreData>(entity);
+                _model.SetScore(scoreData.Value);
+            }
         }
 
         public void Restart()

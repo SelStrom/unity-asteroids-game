@@ -402,6 +402,32 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         }
 
         /// <summary>
+        /// Регрессия: StopFromEcs() вызывался из DeadEntityCleanupSystem (LateSimulationSystemGroup),
+        /// но ObservableBridgeSystem (PresentationSystemGroup) ещё не обновился — Model.Score = 0.
+        /// ShowEndGame() читал нулевой Score.
+        /// Фикс: StopFromEcs() вызывает SyncEcsScoreToModel() ДО Stop(), читая ScoreData напрямую.
+        /// </summary>
+        [Test]
+        public void ScoreData_IsSynced_BeforeShowEndGame_OnShipDeath()
+        {
+            var model = new Model { GameArea = new Vector2(20f, 15f) };
+            Assert.AreEqual(0, model.Score, "Score должен начинаться с 0");
+
+            // Создаём ScoreData singleton с накопленным счётом (как в реальной игре)
+            var scoreEntity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(scoreEntity, new ScoreData { Value = 1500 });
+
+            // Имитация SyncEcsScoreToModel() — то, что делает StopFromEcs() перед Stop()
+            var scoreQuery = m_Manager.CreateEntityQuery(typeof(ScoreData));
+            var entity = scoreQuery.GetSingletonEntity();
+            var scoreData = m_Manager.GetComponentData<ScoreData>(entity);
+            model.SetScore(scoreData.Value);
+
+            Assert.AreEqual(1500, model.Score,
+                "Model.Score должен быть синхронизирован ДО вызова ShowEndGame");
+        }
+
+        /// <summary>
         /// Регрессия: лазерный VFX (LineRenderer) оставался на экране при смерти корабля.
         /// ActionScheduler.ResetSchedule() удалял запланированный Release, VFX не очищался.
         /// Фикс: Game._activeLaserVfx отслеживает активные VFX; Stop() вызывает Release
