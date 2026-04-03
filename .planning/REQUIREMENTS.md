@@ -91,7 +91,7 @@
 - [x] **COL-01**: EcsCollisionHandlerSystem обрабатывает пары AsteroidTag+UfoTag и AsteroidTag+UfoBigTag
 - [x] **COL-02**: При столкновении UFO и астероид уничтожаются (MarkDead), очки не начисляются
 - [x] **COL-03**: Регрессионные тесты подтверждают обработку коллизии UFO+Asteroid (Ufo, UfoBig, обратный порядок, отсутствие очков)
-- [ ] **COL-04**: Ручная верификация: UFO и астероиды коллайдятся в Play Mode
+- [x] **COL-04**: Ручная верификация: UFO и астероиды коллайдятся в Play Mode
 
 ## v2 Requirements
 
@@ -183,10 +183,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LC-05 | Phase 6 | Complete |
 | LC-06 | Phase 6 | Complete |
 | LC-07 | Phase 7 | Complete |
-| COL-01 | Phase 8 | Planned |
-| COL-02 | Phase 8 | Planned |
-| COL-03 | Phase 8 | Planned |
-| COL-04 | Phase 8 | Planned |
+| COL-01 | Phase 8 | Complete |
+| COL-02 | Phase 8 | Complete |
+| COL-03 | Phase 8 | Complete |
+| COL-04 | Phase 8 | Complete |
 
 **Coverage:**
 - v1 requirements: 59 total
@@ -195,4 +195,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-02*
-*Last updated: 2026-04-04 after Phase 8 planning*
+*Last updated: 2026-04-04 after Phase 8 gap closure*
