@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-04-03T13:23:30.763Z"
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-04-03T13:34:24.123Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 21
-  completed_plans: 18
+  completed_plans: 19
   percent: 100
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 ## Current Position
 
 Phase: 06 (legacy-cleanup) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-04-03
 
@@ -65,6 +65,7 @@ Progress: [██████████] 100%
 | Phase 05 P04 | 1min | 1 tasks | 2 files |
 | Phase 05 P05 | 2min | 1 tasks | 4 files |
 | Phase 06 P01 | 2min | 2 tasks | 2 files |
+| Phase 06 P02 | 4min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,10 @@ Recent decisions affecting current work:
 - [Phase 05]: Model.SetScore(int) public method for ECS bridge layer score sync
 - [Phase 06]: ActionScheduler извлечен из Model как standalone поле -- managed callbacks несовместимы с Burst
 - [Phase 06]: Model.Update() больше не вызывается -- legacy-системы не тикают, только ECS
+- [Phase 06]: EntityType enum вместо TryFindModel для определения типа entity
+- [Phase 06]: Player input пишется напрямую в ECS components через EntityManager
+- [Phase 06]: ShootEventProcessorSystem bridge для обработки GunShootEvent/LaserShootEvent
+- [Phase 06]: ECS singletons инициализируются программно в Application.Start()
 
 ### Pending Todos
 
@@ -119,6 +124,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T13:23:30.751Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-04-03T13:34:24.084Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
