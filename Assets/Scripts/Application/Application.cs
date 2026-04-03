@@ -9,6 +9,8 @@ namespace SelStrom.Asteroids
         private IApplicationComponent _appComponent;
         private Game _game;
         private Model _model;
+        private ActionScheduler _actionScheduler;
+        private Vector2 _gameArea;
         private GameScreen _gameScreen;
         private GameData _configs;
         private Transform _gameContainer;
@@ -40,11 +42,13 @@ namespace SelStrom.Asteroids
             var sceneHeight = orthographicSize * 2;
             Debug.Log("Scene size: " + sceneWidth + " x " + sceneHeight);
 
-            _model = new Model { GameArea = new Vector2(sceneWidth, sceneHeight) };
-            
+            _gameArea = new Vector2(sceneWidth, sceneHeight);
+            _actionScheduler = new ActionScheduler();
+            _model = new Model { GameArea = _gameArea };
+
             _catalog.Connect(_configs, new ModelFactory(_model), new ViewFactory(_gameObjectPool, _gameContainer));
-            
-            _game = new Game(_catalog, _model, _configs, _playerInput, _gameScreen);
+
+            _game = new Game(_catalog, _model, _actionScheduler, _gameArea, _configs, _playerInput, _gameScreen);
 
             _appComponent.OnUpdate += OnUpdate;
             _appComponent.OnPause += OnPause;
@@ -69,7 +73,7 @@ namespace SelStrom.Asteroids
 
         private void OnUpdate(float deltaTime)
         {
-            _model.Update(deltaTime);
+            _actionScheduler.Update(deltaTime);
         }
 
         private void OnBack()
@@ -89,6 +93,7 @@ namespace SelStrom.Asteroids
             _appComponent = null;
             _game = null;
             _model = null;
+            _actionScheduler = null;
             _configs = null;
             _gameContainer = null;
             _playerInput = null;
