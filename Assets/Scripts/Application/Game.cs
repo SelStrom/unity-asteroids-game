@@ -248,7 +248,7 @@ namespace SelStrom.Asteroids
         {
             if (TryGetShipEntity(out var entity))
             {
-                var gunData = _entityManager.GetComponentData<GunData>(entity);
+                var gunData = _entityManager.GetComponentData<ECS.GunData>(entity);
                 var rotateData = _entityManager.GetComponentData<RotateData>(entity);
                 var moveData = _entityManager.GetComponentData<MoveData>(entity);
 

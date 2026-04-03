@@ -110,23 +110,62 @@ namespace SelStrom.Asteroids
         private void InitializeEcsSingletons()
         {
             // GameAreaData singleton
-            var gameAreaEntity = _entityManager.CreateEntity();
-            _entityManager.AddComponentData(gameAreaEntity, new GameAreaData
+            var gameAreaQuery = _entityManager.CreateEntityQuery(typeof(GameAreaData));
+            if (gameAreaQuery.CalculateEntityCount() == 0)
             {
-                Size = new float2(_gameArea.x, _gameArea.y)
-            });
+                var gameAreaEntity = _entityManager.CreateEntity();
+                _entityManager.AddComponentData(gameAreaEntity, new GameAreaData
+                {
+                    Size = new float2(_gameArea.x, _gameArea.y)
+                });
+            }
+            else
+            {
+                var existingEntity = gameAreaQuery.GetSingletonEntity();
+                _entityManager.SetComponentData(existingEntity, new GameAreaData
+                {
+                    Size = new float2(_gameArea.x, _gameArea.y)
+                });
+            }
 
             // ScoreData singleton
-            var scoreEntity = _entityManager.CreateEntity();
-            _entityManager.AddComponentData(scoreEntity, new ScoreData { Value = 0 });
+            var scoreQuery = _entityManager.CreateEntityQuery(typeof(ScoreData));
+            if (scoreQuery.CalculateEntityCount() == 0)
+            {
+                var scoreEntity = _entityManager.CreateEntity();
+                _entityManager.AddComponentData(scoreEntity, new ScoreData { Value = 0 });
+            }
+            else
+            {
+                var existingEntity = scoreQuery.GetSingletonEntity();
+                _entityManager.SetComponentData(existingEntity, new ScoreData { Value = 0 });
+            }
 
             // GunShootEvent buffer singleton
-            var gunEventEntity = _entityManager.CreateEntity();
-            _entityManager.AddBuffer<GunShootEvent>(gunEventEntity);
+            var gunQuery = _entityManager.CreateEntityQuery(typeof(GunShootEvent));
+            if (gunQuery.CalculateEntityCount() == 0)
+            {
+                var gunEventEntity = _entityManager.CreateEntity();
+                _entityManager.AddBuffer<GunShootEvent>(gunEventEntity);
+            }
+            else
+            {
+                var existingEntity = gunQuery.GetSingletonEntity();
+                _entityManager.GetBuffer<GunShootEvent>(existingEntity).Clear();
+            }
 
             // LaserShootEvent buffer singleton
-            var laserEventEntity = _entityManager.CreateEntity();
-            _entityManager.AddBuffer<LaserShootEvent>(laserEventEntity);
+            var laserQuery = _entityManager.CreateEntityQuery(typeof(LaserShootEvent));
+            if (laserQuery.CalculateEntityCount() == 0)
+            {
+                var laserEventEntity = _entityManager.CreateEntity();
+                _entityManager.AddBuffer<LaserShootEvent>(laserEventEntity);
+            }
+            else
+            {
+                var existingEntity = laserQuery.GetSingletonEntity();
+                _entityManager.GetBuffer<LaserShootEvent>(existingEntity).Clear();
+            }
         }
 
         private void OnDeadEntity(GameObject go)
