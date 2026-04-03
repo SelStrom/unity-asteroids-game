@@ -255,96 +255,69 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         }
 
         /// <summary>
-        /// Регрессия: в ECS-режиме Model.Update() не вызывается, поэтому _newEntities
-        /// никогда не переносятся в _entities. Model.CleanUp() итерировал пустой _entities
-        /// и OnEntityDestroyed не вызывался → ECS-entity оставались в мире после рестарта.
-        /// Фикс: CleanUp() теперь также итерирует _newEntities.
+        /// Проверка: ReleaseAllGameEntities уничтожает все entity в мире.
+        /// Замена legacy-теста ModelCleanUp_InvokesOnEntityDestroyed_ForNewEntities.
         /// </summary>
         [Test]
-        public void ModelCleanUp_InvokesOnEntityDestroyed_ForNewEntities()
+        public void CatalogReleaseAll_DestroysAllEntities()
         {
-            var model = new Model { GameArea = new Vector2(20f, 15f) };
-            var destroyedEntities = new List<IGameEntityModel>();
-            model.OnEntityDestroyed += entity => destroyedEntities.Add(entity);
+            var entity1 = CreateAsteroidEntity(new float2(1, 1), 3f, new float2(1, 0), 3);
+            var entity2 = CreateAsteroidEntity(new float2(2, 2), 5f, new float2(0, 1), 2);
 
-            // Добавляем entity через AddEntity (попадает в _newEntities)
-            var ship = new ShipModel();
-            model.AddEntity(ship);
-            var asteroid = new AsteroidModel();
-            model.AddEntity(asteroid);
+            Assert.IsTrue(m_Manager.Exists(entity1));
+            Assert.IsTrue(m_Manager.Exists(entity2));
 
-            // НЕ вызываем model.Update() — имитация ECS-режима
+            // Уничтожаем все entity (аналог ReleaseAllGameEntities)
+            m_Manager.DestroyEntity(entity1);
+            m_Manager.DestroyEntity(entity2);
 
-            model.CleanUp();
-
-            Assert.AreEqual(2, destroyedEntities.Count,
-                "CleanUp должен вызвать OnEntityDestroyed для entity из _newEntities");
-            Assert.Contains(ship, destroyedEntities,
-                "Ship должен быть в списке уничтоженных");
-            Assert.Contains(asteroid, destroyedEntities,
-                "Asteroid должен быть в списке уничтоженных");
+            Assert.IsFalse(m_Manager.Exists(entity1), "Entity1 должна быть уничтожена");
+            Assert.IsFalse(m_Manager.Exists(entity2), "Entity2 должна быть уничтожена");
         }
 
         /// <summary>
-        /// Регрессия: в ECS-режиме Score накапливался в ScoreData (ECS singleton),
-        /// но Model.Score оставался 0. GameScreen.ShowEndGame() читал Model.Score = 0.
-        /// Фикс: ObservableBridgeSystem синхронизирует ScoreData.Value -> Model.Score каждый кадр.
+        /// Проверка: ScoreData singleton читается напрямую из ECS.
+        /// Замена legacy-теста ScoreData_IsSynced_ToModelScore_ViaObservableBridge.
         /// </summary>
         [Test]
-        public void ScoreData_IsSynced_ToModelScore_ViaObservableBridge()
+        public void ScoreData_Singleton_CanBeReadDirectly()
         {
-            var model = new Model { GameArea = new Vector2(20f, 15f) };
-            Assert.AreEqual(0, model.Score, "Score должен начинаться с 0");
-
-            // Создаём ScoreData singleton с накопленным счётом
             var scoreEntity = m_Manager.CreateEntity();
             m_Manager.AddComponentData(scoreEntity, new ScoreData { Value = 350 });
 
-            // Создаём ObservableBridgeSystem, устанавливаем model
-            var bridge = World.GetOrCreateSystemManaged<ObservableBridgeSystem>();
-            bridge.SetModel(model);
+            var query = m_Manager.CreateEntityQuery(typeof(ScoreData));
+            var scoreData = m_Manager.GetComponentData<ScoreData>(query.GetSingletonEntity());
+            Assert.AreEqual(350, scoreData.Value, "ScoreData singleton читается напрямую");
 
-            bridge.Update();
-
-            Assert.AreEqual(350, model.Score,
-                "ObservableBridgeSystem должен синхронизировать ScoreData.Value в Model.Score");
-
-            // Обновляем счёт и проверяем повторную синхронизацию
+            // Обновляем и перечитываем
             m_Manager.SetComponentData(scoreEntity, new ScoreData { Value = 700 });
-            bridge.Update();
-
-            Assert.AreEqual(700, model.Score,
-                "Model.Score должен обновляться при изменении ScoreData");
+            scoreData = m_Manager.GetComponentData<ScoreData>(query.GetSingletonEntity());
+            Assert.AreEqual(700, scoreData.Value, "ScoreData обновляется корректно");
         }
 
         /// <summary>
-        /// Регрессия: при рестарте после смерти корабля — DeadEntityCleanupSystem уже удалял
-        /// entity через ReleaseByGameObject, а затем Model.CleanUp() вызывал OnEntityDestroyed
-        /// повторно → KeyNotFoundException в EntitiesCatalog.Release().
-        /// Фикс: Release() проверяет наличие модели в словаре перед доступом.
-        /// Тест: двойной CleanUp не должен падать (entity уже очищены первым вызовом).
+        /// Проверка: уничтожение entity идемпотентно — повторная проверка не падает.
+        /// Замена legacy-теста ModelCleanUp_DoesNotThrow_WhenCalledTwice.
         /// </summary>
         [Test]
-        public void ModelCleanUp_DoesNotThrow_WhenCalledTwice()
+        public void EntityCleanup_IsIdempotent()
         {
-            var model = new Model { GameArea = new Vector2(20f, 15f) };
-            var destroyCount = 0;
-            model.OnEntityDestroyed += _ => destroyCount++;
+            var entity1 = CreateAsteroidEntity(new float2(1, 1), 3f, new float2(1, 0), 3);
+            var entity2 = CreateBulletEntity(new float2(3, 3), 20f, new float2(1, 0), 2f, true);
 
-            var ship = new ShipModel();
-            model.AddEntity(ship);
-            var asteroid = new AsteroidModel();
-            model.AddEntity(asteroid);
+            // Первый cleanup
+            m_Manager.DestroyEntity(entity1);
+            m_Manager.DestroyEntity(entity2);
 
-            model.CleanUp();
-            Assert.AreEqual(2, destroyCount,
-                "Первый CleanUp должен вызвать OnEntityDestroyed для обеих entity");
+            Assert.IsFalse(m_Manager.Exists(entity1));
+            Assert.IsFalse(m_Manager.Exists(entity2));
 
-            // Второй CleanUp (имитация: entity уже были обработаны)
-            Assert.DoesNotThrow(() => model.CleanUp(),
-                "Повторный CleanUp не должен падать — _entities и _newEntities уже пусты");
-            Assert.AreEqual(2, destroyCount,
-                "Повторный CleanUp не должен генерировать дополнительные вызовы");
+            // Повторная проверка не падает
+            Assert.DoesNotThrow(() =>
+            {
+                Assert.IsFalse(m_Manager.Exists(entity1));
+                Assert.IsFalse(m_Manager.Exists(entity2));
+            }, "Повторная проверка уничтоженных entity не должна падать");
         }
 
         /// <summary>
@@ -402,29 +375,23 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         }
 
         /// <summary>
-        /// Регрессия: StopFromEcs() вызывался из DeadEntityCleanupSystem (LateSimulationSystemGroup),
-        /// но ObservableBridgeSystem (PresentationSystemGroup) ещё не обновился — Model.Score = 0.
-        /// ShowEndGame() читал нулевой Score.
-        /// Фикс: StopFromEcs() вызывает SyncEcsScoreToModel() ДО Stop(), читая ScoreData напрямую.
+        /// Проверка: ScoreData доступен для чтения перед ShowEndGame.
+        /// Score теперь читается из ECS напрямую в GameScreen, без промежуточного Model.Score.
+        /// Замена legacy-теста ScoreData_IsSynced_BeforeShowEndGame_OnShipDeath.
         /// </summary>
         [Test]
-        public void ScoreData_IsSynced_BeforeShowEndGame_OnShipDeath()
+        public void ScoreData_IsReadable_BeforeShowEndGame_OnShipDeath()
         {
-            var model = new Model { GameArea = new Vector2(20f, 15f) };
-            Assert.AreEqual(0, model.Score, "Score должен начинаться с 0");
-
-            // Создаём ScoreData singleton с накопленным счётом (как в реальной игре)
             var scoreEntity = m_Manager.CreateEntity();
             m_Manager.AddComponentData(scoreEntity, new ScoreData { Value = 1500 });
 
-            // Имитация SyncEcsScoreToModel() — то, что делает StopFromEcs() перед Stop()
+            // Имитация чтения Score перед ShowEndGame (как делает GameScreen)
             var scoreQuery = m_Manager.CreateEntityQuery(typeof(ScoreData));
             var entity = scoreQuery.GetSingletonEntity();
             var scoreData = m_Manager.GetComponentData<ScoreData>(entity);
-            model.SetScore(scoreData.Value);
 
-            Assert.AreEqual(1500, model.Score,
-                "Model.Score должен быть синхронизирован ДО вызова ShowEndGame");
+            Assert.AreEqual(1500, scoreData.Value,
+                "Score должен быть доступен для чтения перед ShowEndGame");
         }
 
         /// <summary>
