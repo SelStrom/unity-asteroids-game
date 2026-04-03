@@ -9,7 +9,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
     public class DeadEntityCleanupSystemTests : AsteroidsEcsTestFixture
     {
         private DeadEntityCleanupSystem _system;
-        private List<GameObject> _callbackResults;
+        private List<DeadEntityInfo> _callbackResults;
         private List<GameObject> _createdGameObjects;
 
         [SetUp]
@@ -17,9 +17,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         {
             base.SetUp();
             _system = World.AddSystemManaged(new DeadEntityCleanupSystem());
-            _callbackResults = new List<GameObject>();
+            _callbackResults = new List<DeadEntityInfo>();
             _createdGameObjects = new List<GameObject>();
-            _system.SetOnDeadEntityCallback(go => _callbackResults.Add(go));
+            _system.SetOnDeadEntityCallback(info => _callbackResults.Add(info));
         }
 
         [TearDown]
@@ -60,7 +60,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
 
             Assert.AreEqual(1, _callbackResults.Count,
                 "Callback should be called once");
-            Assert.AreEqual(go, _callbackResults[0],
+            Assert.AreEqual(go, _callbackResults[0].GameObject,
                 "Callback should receive the correct GameObject");
             Assert.IsFalse(m_Manager.Exists(entity),
                 "Entity should be destroyed");
@@ -140,6 +140,29 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 "Entity2 should be destroyed");
             Assert.IsFalse(m_Manager.Exists(entity3),
                 "Entity3 should be destroyed");
+        }
+
+        [Test]
+        public void PreservesAgeAndSpeedData_InCallback()
+        {
+            var go = CreateTestGameObject("AsteroidEntity");
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new DeadTag());
+            m_Manager.AddComponentData(entity, new AgeData { Age = 3 });
+            m_Manager.AddComponentData(entity, new MoveData { Speed = 5f });
+            m_Manager.AddComponentObject(entity, new GameObjectRef
+            {
+                GameObject = go,
+                Transform = go.transform
+            });
+
+            _system.Update();
+
+            Assert.AreEqual(1, _callbackResults.Count);
+            Assert.AreEqual(3, _callbackResults[0].Age,
+                "Age should be preserved from entity data");
+            Assert.AreEqual(5f, _callbackResults[0].Speed, 0.001f,
+                "Speed should be preserved from entity data");
         }
     }
 }

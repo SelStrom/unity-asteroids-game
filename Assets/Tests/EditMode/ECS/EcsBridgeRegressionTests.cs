@@ -65,13 +65,13 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             var structuralChangePerformed = false;
 
             // Callback делает structural change — это вызывало ошибку
-            _deadCleanupSystem.SetOnDeadEntityCallback(deadGo =>
+            _deadCleanupSystem.SetOnDeadEntityCallback(info =>
             {
                 var newEntity = m_Manager.CreateEntity();
                 m_Manager.AddComponentData(newEntity, new AsteroidTag());
                 m_Manager.AddComponentData(newEntity, new MoveData
                 {
-                    Position = new float2(deadGo.transform.position.x, deadGo.transform.position.y),
+                    Position = new float2(info.GameObject.transform.position.x, info.GameObject.transform.position.y),
                     Speed = 5f,
                     Direction = new float2(1f, 0f)
                 });
@@ -110,7 +110,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             });
 
             // Имитация дробления астероида: 2 новых entity
-            _deadCleanupSystem.SetOnDeadEntityCallback(deadGo =>
+            _deadCleanupSystem.SetOnDeadEntityCallback(info =>
             {
                 for (int i = 0; i < 2; i++)
                 {
@@ -118,7 +118,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                     m_Manager.AddComponentData(fragment, new AsteroidTag());
                     m_Manager.AddComponentData(fragment, new MoveData
                     {
-                        Position = new float2(deadGo.transform.position.x, deadGo.transform.position.y),
+                        Position = new float2(info.GameObject.transform.position.x, info.GameObject.transform.position.y),
                         Speed = 8f,
                         Direction = new float2(1f, 0f)
                     });
@@ -154,9 +154,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             });
 
             Vector3 capturedPosition = Vector3.zero;
-            _deadCleanupSystem.SetOnDeadEntityCallback(deadGo =>
+            _deadCleanupSystem.SetOnDeadEntityCallback(info =>
             {
-                capturedPosition = deadGo.transform.position;
+                capturedPosition = info.GameObject.transform.position;
             });
 
             _deadCleanupSystem.Update();
@@ -359,9 +359,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
 
             // DeadEntityCleanupSystem обрабатывает уничтожение
             Vector3 capturedPosition = Vector3.zero;
-            _deadCleanupSystem.SetOnDeadEntityCallback(deadGo =>
+            _deadCleanupSystem.SetOnDeadEntityCallback(info =>
             {
-                capturedPosition = deadGo.transform.position;
+                capturedPosition = info.GameObject.transform.position;
             });
 
             _deadCleanupSystem.Update();

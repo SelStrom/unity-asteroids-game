@@ -168,8 +168,9 @@ namespace SelStrom.Asteroids
             }
         }
 
-        private void OnDeadEntity(GameObject go)
+        private void OnDeadEntity(DeadEntityInfo info)
         {
+            var go = info.GameObject;
             _collisionBridge.UnregisterMapping(go);
             var position = (Vector2)go.transform.position;
 
@@ -178,17 +179,12 @@ namespace SelStrom.Asteroids
                 if (entityType == EntityType.Asteroid)
                 {
                     _game.PlayEffect(_configs.VfxBlowPrefab, position);
-                    if (_catalog.TryGetEntity(go, out var entity) && _entityManager.Exists(entity))
+                    var age = info.Age - 1;
+                    if (age > 0)
                     {
-                        var ageData = _entityManager.GetComponentData<AgeData>(entity);
-                        var moveData = _entityManager.GetComponentData<MoveData>(entity);
-                        var age = ageData.Age - 1;
-                        if (age > 0)
-                        {
-                            var speed = Math.Min(moveData.Speed * 2, 10f);
-                            _catalog.CreateAsteroid(age, position, speed);
-                            _catalog.CreateAsteroid(age, position, speed);
-                        }
+                        var speed = Math.Min(info.Speed * 2, 10f);
+                        _catalog.CreateAsteroid(age, position, speed);
+                        _catalog.CreateAsteroid(age, position, speed);
                     }
                 }
                 else if (entityType == EntityType.Ship)
