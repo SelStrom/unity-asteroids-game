@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2: Unity 6.3 Upgrade** - Апгрейд проекта на Unity 6.3 с сохранением функциональности 1:1
 - [ ] **Phase 3: URP Migration** - Миграция рендеринга с Built-in RP на Universal Render Pipeline
 - [ ] **Phase 4: ECS Foundation** - Создание ECS-компонентов и систем с TDD-тестами
-- [ ] **Phase 5: Bridge Layer + Integration** - Интеграция ECS с GameObjects и финальная верификация
+- [x] **Phase 5: Bridge Layer + Integration** - Интеграция ECS с GameObjects и финальная верификация (2026-04-03)
 
 ## Phase Details
 
