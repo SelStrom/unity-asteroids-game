@@ -121,6 +121,73 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         }
 
         [Test]
+        public void AsteroidHitsUfo_BothGetDeadTag()
+        {
+            var asteroid = CreateAsteroidEntity(
+                new float2(5f, 0f), 3f, new float2(-1f, 0f), 3, score: 100);
+            var ufo = CreateUfoEntity(
+                new float2(0f, 0f), 2f, new float2(1f, 0f), score: 500);
+
+            AddCollisionEvent(asteroid, ufo);
+            RunSystem();
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(asteroid),
+                "Asteroid should get DeadTag on collision with Ufo");
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(ufo),
+                "Ufo should get DeadTag on collision with Asteroid");
+        }
+
+        [Test]
+        public void AsteroidHitsUfoBig_BothGetDeadTag()
+        {
+            var asteroid = CreateAsteroidEntity(
+                new float2(5f, 0f), 3f, new float2(-1f, 0f), 3, score: 100);
+            var ufoBig = CreateUfoBigEntity(
+                new float2(0f, 0f), 2f, new float2(1f, 0f), score: 200);
+
+            AddCollisionEvent(asteroid, ufoBig);
+            RunSystem();
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(asteroid),
+                "Asteroid should get DeadTag on collision with UfoBig");
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(ufoBig),
+                "UfoBig should get DeadTag on collision with Asteroid");
+        }
+
+        [Test]
+        public void AsteroidHitsUfo_ScoreNotChanged()
+        {
+            var asteroid = CreateAsteroidEntity(
+                new float2(5f, 0f), 3f, new float2(-1f, 0f), 3, score: 100);
+            var ufo = CreateUfoEntity(
+                new float2(0f, 0f), 2f, new float2(1f, 0f), score: 500);
+
+            AddCollisionEvent(asteroid, ufo);
+            RunSystem();
+
+            var scoreData = m_Manager.GetComponentData<ScoreData>(_scoreEntity);
+            Assert.AreEqual(0, scoreData.Value,
+                "Score should remain 0 when Asteroid collides with Ufo (no player involvement)");
+        }
+
+        [Test]
+        public void AsteroidHitsUfo_ReversedOrder_BothGetDeadTag()
+        {
+            var asteroid = CreateAsteroidEntity(
+                new float2(5f, 0f), 3f, new float2(-1f, 0f), 3, score: 100);
+            var ufo = CreateUfoEntity(
+                new float2(0f, 0f), 2f, new float2(1f, 0f), score: 500);
+
+            AddCollisionEvent(ufo, asteroid);
+            RunSystem();
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(asteroid),
+                "Asteroid should get DeadTag when Ufo is entityA");
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(ufo),
+                "Ufo should get DeadTag when Ufo is entityA");
+        }
+
+        [Test]
         public void NoCollisionEvents_NothingHappens()
         {
             var ship = CreateShipEntity(new float2(0f, 0f), 5f);
