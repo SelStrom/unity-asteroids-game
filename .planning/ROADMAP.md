@@ -144,10 +144,24 @@ Plans:
 - [x] 07-01-PLAN.md -- ShipPositionData singleton wiring в InitializeEcsSingletons() + регрессионный тест + трассировочная таблица
 - [x] 07-02-PLAN.md -- Ручная верификация геймплея 1:1 и UFO AI (LC-07)
 
+### Phase 8: UFO-Asteroid Collision
+**Goal**: Добавить обработку коллизии UFO+Asteroid в EcsCollisionHandlerSystem — в классическом Asteroids UFO и астероиды уничтожают друг друга при столкновении
+**Depends on**: Phase 7
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+  1. EcsCollisionHandlerSystem обрабатывает пары AsteroidTag+UfoTag и AsteroidTag+UfoBigTag
+  2. При столкновении UFO и астероид уничтожаются (MarkDead)
+  3. Регрессионный тест подтверждает обработку коллизии UFO+Asteroid
+  4. Ручная верификация: UFO и астероиды коллайдятся в Play Mode
+**Plans:** 0 plans
+
+Plans:
+(not yet planned)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -158,14 +172,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 5. Bridge Layer + Integration | 5/5 | Complete | 2026-04-03 |
 | 6. Legacy Cleanup | 4/4 | Complete | 2026-04-03 |
 | 7. ShipPositionData Wiring + Traceability Fix | 2/2 | Complete | 2026-04-04 |
-
-## Backlog
-
-### Phase 999.1: UFO-Asteroid Collision Missing (BACKLOG)
-
-**Goal:** UFO не коллайдятся с астероидами — в EcsCollisionHandlerSystem.ProcessCollision отсутствует обработка пары UFO+Asteroid. В классическом Asteroids UFO и астероиды уничтожают друг друга при столкновении. Нужно добавить обработку: явные пары AsteroidTag+UfoTag/UfoBigTag.
-**Requirements:** TBD
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (promote with /gsd:review-backlog when ready)
+| 8. UFO-Asteroid Collision | 0/0 | Planned |  |
