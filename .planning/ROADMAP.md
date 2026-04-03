@@ -142,7 +142,7 @@ Plans:
 
 Plans:
 - [x] 07-01-PLAN.md -- ShipPositionData singleton wiring в InitializeEcsSingletons() + регрессионный тест + трассировочная таблица
-- [ ] 07-02-PLAN.md -- Ручная верификация геймплея 1:1 и UFO AI (LC-07)
+- [x] 07-02-PLAN.md -- Ручная верификация геймплея 1:1 и UFO AI (LC-07)
 
 ## Progress
 
@@ -156,5 +156,16 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 3. URP Migration | 2/2 | Human UAT pending | 2026-04-02 |
 | 4. ECS Foundation | 4/4 | Human UAT pending | 2026-04-03 |
 | 5. Bridge Layer + Integration | 5/5 | Complete | 2026-04-03 |
-| 6. Legacy Cleanup | 0/4 | Planned |  |
-| 7. ShipPositionData Wiring + Traceability Fix | 0/2 | Planned |  |
+| 6. Legacy Cleanup | 4/4 | Complete | 2026-04-03 |
+| 7. ShipPositionData Wiring + Traceability Fix | 2/2 | Complete | 2026-04-04 |
+
+## Backlog
+
+### Phase 999.1: UFO-Asteroid Collision Missing (BACKLOG)
+
+**Goal:** UFO не коллайдятся с астероидами — в EcsCollisionHandlerSystem.ProcessCollision отсутствует обработка пары UFO+Asteroid. В классическом Asteroids UFO и астероиды уничтожают друг друга при столкновении. Нужно добавить обработку: явные пары AsteroidTag+UfoTag/UfoBigTag.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
