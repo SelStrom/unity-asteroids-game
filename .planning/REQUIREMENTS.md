@@ -88,9 +88,9 @@
 
 ### UFO-Asteroid Collision
 
-- [ ] **COL-01**: EcsCollisionHandlerSystem обрабатывает пары AsteroidTag+UfoTag и AsteroidTag+UfoBigTag
-- [ ] **COL-02**: При столкновении UFO и астероид уничтожаются (MarkDead), очки не начисляются
-- [ ] **COL-03**: Регрессионные тесты подтверждают обработку коллизии UFO+Asteroid (Ufo, UfoBig, обратный порядок, отсутствие очков)
+- [x] **COL-01**: EcsCollisionHandlerSystem обрабатывает пары AsteroidTag+UfoTag и AsteroidTag+UfoBigTag
+- [x] **COL-02**: При столкновении UFO и астероид уничтожаются (MarkDead), очки не начисляются
+- [x] **COL-03**: Регрессионные тесты подтверждают обработку коллизии UFO+Asteroid (Ufo, UfoBig, обратный порядок, отсутствие очков)
 - [ ] **COL-04**: Ручная верификация: UFO и астероиды коллайдятся в Play Mode
 
 ## v2 Requirements
