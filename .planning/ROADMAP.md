@@ -153,11 +153,11 @@ Plans:
   2. При столкновении UFO и астероид уничтожаются (MarkDead)
   3. Регрессионный тест подтверждает обработку коллизии UFO+Asteroid
   4. Ручная верификация: UFO и астероиды коллайдятся в Play Mode
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans executed
 
 Plans:
 - [x] 08-01-PLAN.md -- TDD: регрессионные тесты + реализация UFO+Asteroid коллизии в EcsCollisionHandlerSystem
-- [ ] 08-02-PLAN.md -- Ручная верификация UFO+Asteroid коллизии в Play Mode
+- [x] 08-02-PLAN.md -- Ручная верификация UFO+Asteroid коллизии в Play Mode
 
 ## Progress
 
