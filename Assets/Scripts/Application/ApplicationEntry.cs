@@ -52,7 +52,7 @@ namespace SelStrom.Asteroids
             }
         }
 
-        private void OnApplicationQuit()
+        private void OnDestroy()
         {
             _application.Quit();
         }

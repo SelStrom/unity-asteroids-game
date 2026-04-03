@@ -22,6 +22,7 @@ namespace SelStrom.Asteroids
 
         private bool _useEcs = true;
         private CollisionBridge _collisionBridge;
+        private Entity[] _ecsSingletonEntities;
 
         public void Connect(IApplicationComponent appComponent, GameData configs,
             Transform poolContainer, Transform gameContainer, GameScreen gameScreen, TitleScreen titleScreen)
@@ -78,6 +79,12 @@ namespace SelStrom.Asteroids
                 var laserEventEntity = em.CreateEntity();
                 em.AddBuffer<LaserShootEvent>(laserEventEntity);
 
+                _ecsSingletonEntities = new[]
+                {
+                    gameAreaEntity, shipPosEntity, scoreEntity,
+                    collisionBufferEntity, gunEventEntity, laserEventEntity
+                };
+
                 // CollisionBridge
                 _collisionBridge = new CollisionBridge();
                 _collisionBridge.Initialize(em, collisionBufferEntity);
@@ -130,26 +137,29 @@ namespace SelStrom.Asteroids
         {
             _collisionBridge.UnregisterMapping(go);
 
+            // Позиция из Transform — синхронизируется из ECS (GameObjectSyncSystem),
+            // модельный слой (model.Move.Position) не обновляется из ECS
+            var position = (Vector2)go.transform.position;
+
             if (_catalog.TryFindModel<AsteroidModel>(go, out var asteroidModel))
             {
-                _game.PlayEffect(_configs.VfxBlowPrefab, asteroidModel.Move.Position.Value);
+                _game.PlayEffect(_configs.VfxBlowPrefab, position);
                 var age = asteroidModel.Age - 1;
                 if (age > 0)
                 {
-                    var position = asteroidModel.Move.Position.Value;
                     var speed = Math.Min(asteroidModel.Move.Speed.Value * 2, 10f);
                     _catalog.CreateAsteroid(age, position, speed);
                     _catalog.CreateAsteroid(age, position, speed);
                 }
             }
-            else if (_catalog.TryFindModel<ShipModel>(go, out var shipModel))
+            else if (_catalog.TryFindModel<ShipModel>(go, out _))
             {
-                _game.PlayEffect(_configs.VfxBlowPrefab, shipModel.Move.Position.Value);
+                _game.PlayEffect(_configs.VfxBlowPrefab, position);
                 _game.StopFromEcs();
             }
-            else if (_catalog.TryFindModel<UfoBigModel>(go, out var ufoModel))
+            else if (_catalog.TryFindModel<UfoBigModel>(go, out _))
             {
-                _game.PlayEffect(_configs.VfxBlowPrefab, ufoModel.Move.Position.Value);
+                _game.PlayEffect(_configs.VfxBlowPrefab, position);
             }
 
             _catalog.ReleaseByGameObject(go);
@@ -204,6 +214,11 @@ namespace SelStrom.Asteroids
 
         public void Quit()
         {
+            if (_appComponent == null)
+            {
+                return;
+            }
+
             _appComponent.OnUpdate -= OnUpdate;
             _appComponent.OnPause -= OnPause;
             _appComponent.OnResume -= OnResume;
@@ -213,6 +228,23 @@ namespace SelStrom.Asteroids
             {
                 _collisionBridge.Clear();
                 _collisionBridge = null;
+            }
+
+            if (_ecsSingletonEntities != null)
+            {
+                var world = World.DefaultGameObjectInjectionWorld;
+                if (world != null && world.IsCreated)
+                {
+                    var em = world.EntityManager;
+                    foreach (var entity in _ecsSingletonEntities)
+                    {
+                        if (em.Exists(entity))
+                        {
+                            em.DestroyEntity(entity);
+                        }
+                    }
+                }
+                _ecsSingletonEntities = null;
             }
 
             Dispose();

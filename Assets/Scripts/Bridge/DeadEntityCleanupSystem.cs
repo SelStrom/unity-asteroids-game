@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using SelStrom.Asteroids.ECS;
 using Unity.Collections;
 using Unity.Entities;
@@ -10,6 +11,7 @@ namespace SelStrom.Asteroids
     public partial class DeadEntityCleanupSystem : SystemBase
     {
         private Action<GameObject> _onDeadEntity;
+        private readonly List<GameObject> _deadGameObjects = new();
 
         public void SetOnDeadEntityCallback(Action<GameObject> callback)
         {
@@ -19,13 +21,15 @@ namespace SelStrom.Asteroids
         protected override void OnUpdate()
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
+            _deadGameObjects.Clear();
 
+            // Собираем мёртвые GameObject'ы перед structural changes
             foreach (var (goRef, entity) in
                      SystemAPI.Query<GameObjectRef>()
                          .WithAll<DeadTag>()
                          .WithEntityAccess())
             {
-                _onDeadEntity?.Invoke(goRef.GameObject);
+                _deadGameObjects.Add(goRef.GameObject);
                 ecb.RemoveComponent<GameObjectRef>(entity);
                 ecb.DestroyEntity(entity);
             }
@@ -40,6 +44,13 @@ namespace SelStrom.Asteroids
 
             ecb.Playback(EntityManager);
             ecb.Dispose();
+
+            // Вызываем callbacks после завершения итерации и ECB playback,
+            // т.к. callbacks могут делать structural changes (CreateAsteroid и т.д.)
+            foreach (var go in _deadGameObjects)
+            {
+                _onDeadEntity?.Invoke(go);
+            }
         }
     }
 }

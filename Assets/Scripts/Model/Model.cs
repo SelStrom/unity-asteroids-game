@@ -172,12 +172,21 @@ namespace SelStrom.Asteroids
             {
                 system.CleanUp();
             }
-            
+
             foreach (var entity in _entities)
             {
                 OnEntityDestroyed?.Invoke(entity);
             }
             _entities.Clear();
+
+            // В ECS-режиме _newEntities не переносятся в _entities (Update не вызывается),
+            // поэтому нужно очистить их отдельно
+            foreach (var entity in _newEntities)
+            {
+                OnEntityDestroyed?.Invoke(entity);
+            }
+            _newEntities.Clear();
+
             Score = 0;
         }
     }

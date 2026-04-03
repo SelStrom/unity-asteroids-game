@@ -32,13 +32,16 @@ namespace SelStrom.Asteroids.Tests.PlayMode
             var world = World.DefaultGameObjectInjectionWorld;
             Assert.IsNotNull(world, "DefaultGameObjectInjectionWorld should exist");
 
-            var shipQuery = world.EntityManager.CreateEntityQuery(typeof(ShipTag));
-            Assert.GreaterOrEqual(shipQuery.CalculateEntityCount(), 1,
-                "World should contain at least 1 Ship entity");
-
+            // GameAreaData создаётся в Application.Start() при загрузке сцены
             var gameAreaQuery = world.EntityManager.CreateEntityQuery(typeof(GameAreaData));
             Assert.AreEqual(1, gameAreaQuery.CalculateEntityCount(),
                 "GameArea singleton should exist");
+
+            // ShipTag создаётся только после Game.Start() (через TitleScreen),
+            // поэтому без запуска игры корабля в мире не будет
+            var shipQuery = world.EntityManager.CreateEntityQuery(typeof(ShipTag));
+            Assert.AreEqual(0, shipQuery.CalculateEntityCount(),
+                "Ship entity should not exist before game starts");
         }
 
         [UnityTest]

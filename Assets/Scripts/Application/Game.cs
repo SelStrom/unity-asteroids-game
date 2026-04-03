@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Model.Components;
 using SelStrom.Asteroids.Configs;
 using SelStrom.Asteroids.ECS;
@@ -92,7 +93,45 @@ namespace SelStrom.Asteroids
         public void Restart()
         {
             _model.CleanUp();
+
+            if (_useEcs)
+            {
+                // Очищаем ECS event-буферы и сбрасываем score
+                ClearEcsEventBuffers();
+            }
+
             Start();
+        }
+
+        private void ClearEcsEventBuffers()
+        {
+            var gunQuery = _entityManager.CreateEntityQuery(typeof(GunShootEvent));
+            if (gunQuery.CalculateEntityCount() > 0)
+            {
+                var entity = gunQuery.GetSingletonEntity();
+                _entityManager.GetBuffer<GunShootEvent>(entity).Clear();
+            }
+
+            var laserQuery = _entityManager.CreateEntityQuery(typeof(LaserShootEvent));
+            if (laserQuery.CalculateEntityCount() > 0)
+            {
+                var entity = laserQuery.GetSingletonEntity();
+                _entityManager.GetBuffer<LaserShootEvent>(entity).Clear();
+            }
+
+            var collisionQuery = _entityManager.CreateEntityQuery(typeof(CollisionEventData));
+            if (collisionQuery.CalculateEntityCount() > 0)
+            {
+                var entity = collisionQuery.GetSingletonEntity();
+                _entityManager.GetBuffer<CollisionEventData>(entity).Clear();
+            }
+
+            var scoreQuery = _entityManager.CreateEntityQuery(typeof(ScoreData));
+            if (scoreQuery.CalculateEntityCount() > 0)
+            {
+                var entity = scoreQuery.GetSingletonEntity();
+                _entityManager.SetComponentData(entity, new ScoreData { Value = 0 });
+            }
         }
 
         public void PlayEffect(GameObject prefab, in Vector2 position)
@@ -109,15 +148,22 @@ namespace SelStrom.Asteroids
                 return;
             }
 
-            // GunShootEvents
+            // GunShootEvents — копируем в список перед обработкой,
+            // т.к. CreateBullet вызывает structural change и инвалидирует DynamicBuffer
             var gunQuery = _entityManager.CreateEntityQuery(typeof(GunShootEvent));
             if (gunQuery.CalculateEntityCount() > 0)
             {
                 var bufferEntity = gunQuery.GetSingletonEntity();
                 var gunEvents = _entityManager.GetBuffer<GunShootEvent>(bufferEntity);
+                var gunEventsCopy = new List<GunShootEvent>(gunEvents.Length);
                 for (int i = 0; i < gunEvents.Length; i++)
                 {
-                    var evt = gunEvents[i];
+                    gunEventsCopy.Add(gunEvents[i]);
+                }
+                gunEvents.Clear();
+
+                foreach (var evt in gunEventsCopy)
+                {
                     var position = new Vector2(evt.Position.x, evt.Position.y);
                     var direction = new Vector2(evt.Direction.x, evt.Direction.y);
                     if (evt.IsPlayer)
@@ -131,19 +177,24 @@ namespace SelStrom.Asteroids
                             OnEnemyBulletCollided);
                     }
                 }
-
-                gunEvents.Clear();
             }
 
-            // LaserShootEvents
+            // LaserShootEvents — копируем перед обработкой,
+            // т.к. Kill/CreateAsteroid могут вызвать structural change
             var laserQuery = _entityManager.CreateEntityQuery(typeof(LaserShootEvent));
             if (laserQuery.CalculateEntityCount() > 0)
             {
                 var bufferEntity = laserQuery.GetSingletonEntity();
                 var laserEvents = _entityManager.GetBuffer<LaserShootEvent>(bufferEntity);
+                var laserEventsCopy = new List<LaserShootEvent>(laserEvents.Length);
                 for (int i = 0; i < laserEvents.Length; i++)
                 {
-                    var evt = laserEvents[i];
+                    laserEventsCopy.Add(laserEvents[i]);
+                }
+                laserEvents.Clear();
+
+                foreach (var evt in laserEventsCopy)
+                {
                     var position = new Vector2(evt.Position.x, evt.Position.y);
                     var direction = new Vector2(evt.Direction.x, evt.Direction.y);
 
@@ -173,8 +224,6 @@ namespace SelStrom.Asteroids
                         }
                     }
                 }
-
-                laserEvents.Clear();
             }
         }
 

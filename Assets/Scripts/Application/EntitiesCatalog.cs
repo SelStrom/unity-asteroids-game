@@ -374,7 +374,11 @@ namespace SelStrom.Asteroids
 
         public void Release(IGameEntityModel model)
         {
-            var view = _modelToVisual[model];
+            // Модель могла быть уже удалена через ReleaseByGameObject (например, DeadEntityCleanupSystem)
+            if (!_modelToVisual.TryGetValue(model, out var view))
+            {
+                return;
+            }
 
             if (_modelToBindings.TryGetValue(model, out var bindings))
             {
@@ -388,9 +392,13 @@ namespace SelStrom.Asteroids
 
             if (_useEcs)
             {
-                if (_gameObjectToEntity.TryGetValue(view.gameObject, out _))
+                if (_gameObjectToEntity.TryGetValue(view.gameObject, out var entity))
                 {
                     _gameObjectToEntity.Remove(view.gameObject);
+                    if (_entityManager.Exists(entity))
+                    {
+                        _entityManager.DestroyEntity(entity);
+                    }
                 }
             }
 
@@ -412,6 +420,15 @@ namespace SelStrom.Asteroids
 
             if (_useEcs)
             {
+                // Уничтожаем оставшиеся ECS-entity (если не были уничтожены в Release)
+                foreach (var entity in _gameObjectToEntity.Values)
+                {
+                    if (_entityManager.Exists(entity))
+                    {
+                        _entityManager.DestroyEntity(entity);
+                    }
+                }
+
                 _collisionBridge?.Clear();
                 _gameObjectToEntity.Clear();
             }
