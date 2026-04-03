@@ -107,21 +107,24 @@ Plans:
 - [x] 05-05-PLAN.md -- Gap closure: синхронизация ScoreData -> Model.Score через ObservableBridgeSystem
 
 ### Phase 6: Legacy Cleanup
-**Goal**: Полное удаление legacy MonoBehaviour-слоя (Model/Systems, Model/Entities, Model/Components), переключателя _useEcs, dual-creation паттерна. Перенос ActionScheduler на ECS. Единый ECS data path без дублирования.
+**Goal**: Полное удаление legacy MonoBehaviour-слоя (Model/Systems, Model/Entities, Model/Components), переключателя _useEcs, dual-creation паттерна. ActionScheduler как standalone managed-класс. Единый ECS data path без дублирования.
 **Depends on**: Phase 5
-**Requirements**: TBD (derive during /gsd:discuss-phase 6)
+**Requirements**: LC-01, LC-02, LC-03, LC-04, LC-05, LC-06, LC-07
 **Success Criteria** (what must be TRUE):
   1. Все legacy-системы (MoveSystem, RotateSystem, ThrustSystem, GunSystem, LaserSystem, ShootToSystem, MoveToSystem, LifeTimeSystem, BaseModelSystem) удалены
   2. Legacy-модели (ShipModel, AsteroidModel, BulletModel, UfoModel, UfoBigModel) и компоненты (Model/Components/) удалены
-  3. Переключатель _useEcs и dual-creation паттерн удалены — единый ECS data path
-  4. ActionScheduler перенесён на ECS (ISystem) или заменён ECS-аналогом
-  5. Model.cs упрощён или удалён — score/state хранятся только в ECS singletons
-  6. Все существующие тесты проходят зелёным, новые тесты покрывают изменённый code path
+  3. Переключатель _useEcs и dual-creation паттерн удалены -- единый ECS data path
+  4. ActionScheduler выделен из Model как standalone managed-класс
+  5. Model.cs удален -- score/state хранятся только в ECS singletons
+  6. Все существующие тесты проходят зеленым, новые тесты покрывают измененный code path
   7. Игра воспроизводит весь геймплей 1:1 без legacy-слоя
-**Plans:** 0 plans
+**Plans:** 4 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 6 to break down)
+- [ ] 06-01-PLAN.md -- Удаление _useEcs и else-веток, извлечение ActionScheduler из Model, _gameArea как поле
+- [ ] 06-02-PLAN.md -- Рефакторинг EntitiesCatalog (без ModelFactory, EntityType tracking), OnDeadEntity через ECS tags, Score из ECS
+- [ ] 06-03-PLAN.md -- Удаление 26 legacy-файлов, очистка ObservableBridgeSystem, рефакторинг тестов
+- [ ] 06-04-PLAN.md -- Запуск тестов и ручная верификация геймплея 1:1
 
 ## Progress
 
@@ -134,5 +137,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Unity 6.3 Upgrade | 3/3 | Human UAT pending | 2026-04-02 |
 | 3. URP Migration | 2/2 | Human UAT pending | 2026-04-02 |
 | 4. ECS Foundation | 4/4 | Human UAT pending | 2026-04-03 |
-| 5. Bridge Layer + Integration | 3/5 | In Progress |  |
-| 6. Legacy Cleanup | 0/0 | Not planned |  |
+| 5. Bridge Layer + Integration | 5/5 | Complete | 2026-04-03 |
+| 6. Legacy Cleanup | 0/4 | Planned |  |
