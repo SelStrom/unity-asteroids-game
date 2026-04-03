@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: resolved
 phase: 05-bridge-layer-integration
 source: [05-VERIFICATION.md]
 started: 2026-04-03T12:00:00Z
-updated: 2026-04-03T14:30:00Z
+updated: 2026-04-03T12:12:00Z
 ---
 
 ## Current Test
@@ -39,7 +39,7 @@ blocked: 0
 ## Gaps
 
 - truth: "Лазер уничтожает большой астероид, осколки появляются на позиции родителя"
-  status: failed
+  status: resolved
   reason: "User reported: При использовании лазера, большой астеройд не уничтожается, маленькие появляются в неправильных координатах."
   severity: major
   test: 1
@@ -57,7 +57,7 @@ blocked: 0
   debug_session: ".planning/debug/laser-asteroid-kill-bug.md"
 
 - truth: "Эффект лазера уничтожается при гибели игрока"
-  status: failed
+  status: resolved
   reason: "User reported: Если при использовании лазер игрока убили, эффект лазера остается на сцене и не уничтожается."
   severity: major
   test: 1
@@ -75,7 +75,7 @@ blocked: 0
   debug_session: ".planning/debug/laser-vfx-persist-on-death.md"
 
 - truth: "Score обновляется в окне результатов при уничтожении врагов"
-  status: failed
+  status: resolved
   reason: "User reported: Score в окне результатов не обновляется, не понятно, толи это проблема UI, толи в модели не начисляется."
   severity: major
   test: 1
