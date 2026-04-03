@@ -7,11 +7,11 @@ stopped_at: Completed 05-04-PLAN.md, 05-05-PLAN.md
 last_updated: "2026-04-03T12:07:49.302Z"
 last_activity: 2026-04-03
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 4
   total_plans: 17
   completed_plans: 17
-  percent: 100
+  percent: 85
 ---
 
 # Project State
@@ -97,6 +97,10 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 None yet.
+
+### Roadmap Evolution
+
+- Phase 6 added: Legacy Cleanup — удаление legacy MonoBehaviour-слоя, перенос ActionScheduler на ECS, единый ECS data path
 
 ### Blockers/Concerns
 

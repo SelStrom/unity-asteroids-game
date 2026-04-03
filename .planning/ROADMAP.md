@@ -17,6 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 3: URP Migration** - Миграция рендеринга с Built-in RP на Universal Render Pipeline
 - [ ] **Phase 4: ECS Foundation** - Создание ECS-компонентов и систем с TDD-тестами
 - [x] **Phase 5: Bridge Layer + Integration** - Интеграция ECS с GameObjects и финальная верификация (2026-04-03)
+- [ ] **Phase 6: Legacy Cleanup** - Удаление legacy MonoBehaviour-слоя, перенос ActionScheduler на ECS, единый ECS data path
 
 ## Phase Details
 
@@ -105,10 +106,27 @@ Plans:
 - [x] 05-04-PLAN.md -- Gap closure: фикс лазерного kill-пути (DeadTag вместо Kill) + очистка лазерного VFX при гибели
 - [x] 05-05-PLAN.md -- Gap closure: синхронизация ScoreData -> Model.Score через ObservableBridgeSystem
 
+### Phase 6: Legacy Cleanup
+**Goal**: Полное удаление legacy MonoBehaviour-слоя (Model/Systems, Model/Entities, Model/Components), переключателя _useEcs, dual-creation паттерна. Перенос ActionScheduler на ECS. Единый ECS data path без дублирования.
+**Depends on**: Phase 5
+**Requirements**: TBD (derive during /gsd:discuss-phase 6)
+**Success Criteria** (what must be TRUE):
+  1. Все legacy-системы (MoveSystem, RotateSystem, ThrustSystem, GunSystem, LaserSystem, ShootToSystem, MoveToSystem, LifeTimeSystem, BaseModelSystem) удалены
+  2. Legacy-модели (ShipModel, AsteroidModel, BulletModel, UfoModel, UfoBigModel) и компоненты (Model/Components/) удалены
+  3. Переключатель _useEcs и dual-creation паттерн удалены — единый ECS data path
+  4. ActionScheduler перенесён на ECS (ISystem) или заменён ECS-аналогом
+  5. Model.cs упрощён или удалён — score/state хранятся только в ECS singletons
+  6. Все существующие тесты проходят зелёным, новые тесты покрывают изменённый code path
+  7. Игра воспроизводит весь геймплей 1:1 без legacy-слоя
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 6 to break down)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -116,4 +134,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Unity 6.3 Upgrade | 3/3 | Human UAT pending | 2026-04-02 |
 | 3. URP Migration | 2/2 | Human UAT pending | 2026-04-02 |
 | 4. ECS Foundation | 4/4 | Human UAT pending | 2026-04-03 |
-| 5. Bridge Layer + Integration | 3/5 | In Progress|  |
+| 5. Bridge Layer + Integration | 3/5 | In Progress |  |
+| 6. Legacy Cleanup | 0/0 | Not planned |  |
