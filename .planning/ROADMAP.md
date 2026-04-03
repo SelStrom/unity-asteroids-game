@@ -83,7 +83,7 @@ Plans:
 Plans:
 - [x] 04-01-PLAN.md -- Установка com.unity.entities, IComponentData компоненты, тестовая инфраструктура, тесты компонентов
 - [x] 04-02-PLAN.md -- EntityFactory + Burst-системы (Rotate, Thrust, Move, LifeTime) и тесты
-- [ ] 04-03-PLAN.md -- Системы вооружения (Gun, Laser) и тесты
+- [x] 04-03-PLAN.md -- Системы вооружения (Gun, Laser) и тесты
 - [x] 04-04-PLAN.md -- AI-системы (ShootTo, MoveTo) и CollisionHandler с mock-данными и тесты
 
 ### Phase 5: Bridge Layer + Integration
@@ -110,8 +110,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Dev Tooling + shtl-mvvm Fix | 0/3 | Not started | - |
-| 2. Unity 6.3 Upgrade | 1/2 | In Progress|  |
-| 3. URP Migration | 0/2 | Not started | - |
-| 4. ECS Foundation | 0/4 | Not started | - |
-| 5. Bridge Layer + Integration | 1/3 | In Progress|  |
+| 1. Dev Tooling + shtl-mvvm Fix | 3/3 | Human UAT pending | 2026-04-02 |
+| 2. Unity 6.3 Upgrade | 3/3 | Human UAT pending | 2026-04-02 |
+| 3. URP Migration | 2/2 | Human UAT pending | 2026-04-02 |
+| 4. ECS Foundation | 4/4 | Human UAT pending | 2026-04-03 |
+| 5. Bridge Layer + Integration | 3/3 | Human UAT pending | 2026-04-03 |
