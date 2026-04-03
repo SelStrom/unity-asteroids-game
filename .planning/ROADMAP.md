@@ -18,6 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 4: ECS Foundation** - Создание ECS-компонентов и систем с TDD-тестами
 - [x] **Phase 5: Bridge Layer + Integration** - Интеграция ECS с GameObjects и финальная верификация (2026-04-03)
 - [ ] **Phase 6: Legacy Cleanup** - Удаление legacy MonoBehaviour-слоя, перенос ActionScheduler на ECS, единый ECS data path
+- [ ] **Phase 7: ShipPositionData Wiring + Traceability Fix** - Фикс production wiring ShipPositionData singleton, закрытие гэпов ECS-09/ECS-10/UFO AI, трассировка LC-*
 
 ## Phase Details
 
@@ -126,10 +127,23 @@ Plans:
 - [x] 06-03-PLAN.md -- Удаление 26 legacy-файлов, очистка ObservableBridgeSystem, рефакторинг тестов
 - [x] 06-04-PLAN.md -- Запуск тестов и ручная верификация геймплея 1:1
 
+### Phase 7: ShipPositionData Wiring + Traceability Fix
+**Goal**: ShipPositionData singleton создаётся в production, UFO AI системы (ShootTo, MoveTo) работают, LC-* требования добавлены в трассировочную таблицу
+**Depends on**: Phase 6
+**Requirements**: ECS-09, ECS-10, LC-01, LC-02, LC-03, LC-04, LC-05, LC-06, LC-07
+**Gap Closure:** Closes gaps from v1.1.0 audit
+**Success Criteria** (what must be TRUE):
+  1. ShipPositionData singleton создаётся в InitializeEcsSingletons() и доступен ECS-системам
+  2. EcsShootToSystem запускается в production — UFO стреляют в игрока с упреждением
+  3. EcsMoveToSystem запускается в production — малые UFO преследуют игрока
+  4. Регрессионный тест подтверждает наличие ShipPositionData singleton после инициализации
+  5. LC-01..LC-07 добавлены в REQUIREMENTS.md traceability table
+**Plans:** 0 plans
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -139,3 +153,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 4. ECS Foundation | 4/4 | Human UAT pending | 2026-04-03 |
 | 5. Bridge Layer + Integration | 5/5 | Complete | 2026-04-03 |
 | 6. Legacy Cleanup | 0/4 | Planned |  |
+| 7. ShipPositionData Wiring + Traceability Fix | 0/0 | Planned |  |

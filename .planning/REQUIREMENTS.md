@@ -48,8 +48,8 @@
 - [x] **ECS-06**: MoveSystem перенесена на ISystem с Burst-компиляцией (включая тороидальное обертывание)
 - [x] **ECS-07**: GunSystem перенесена на ISystem (перезарядка, стрельба)
 - [x] **ECS-08**: LaserSystem перенесена на ISystem (заряды, cooldown)
-- [x] **ECS-09**: ShootToSystem (AI наведение НЛО) перенесена на ISystem
-- [x] **ECS-10**: MoveToSystem (движение НЛО к цели) перенесена на ISystem
+- [ ] **ECS-09**: ShootToSystem (AI наведение НЛО) перенесена на ISystem
+- [ ] **ECS-10**: MoveToSystem (движение НЛО к цели) перенесена на ISystem
 - [x] **ECS-11**: CollisionHandler перенесен на ISystem (обработка столкновений через Physics2D результаты)
 
 ### Hybrid DOTS -- Bridge Layer
@@ -75,6 +75,16 @@
 - [x] **TST-10**: EditMode тесты для Bridge Layer (синхронизация позиций, жизненный цикл)
 - [x] **TST-11**: EditMode тесты для shtl-mvvm фикса (TMP-совместимость на обеих версиях Unity)
 - [x] **TST-12**: PlayMode тесты для полного игрового цикла (старт -> игра -> конец)
+
+### Legacy Cleanup
+
+- [x] **LC-01**: Все legacy-системы (MoveSystem, RotateSystem, ThrustSystem, GunSystem, LaserSystem, ShootToSystem, MoveToSystem, LifeTimeSystem, BaseModelSystem) удалены
+- [x] **LC-02**: Legacy-модели (ShipModel, AsteroidModel, BulletModel, UfoModel, UfoBigModel) и компоненты (Model/Components/) удалены
+- [x] **LC-03**: Переключатель _useEcs и dual-creation паттерн удалены -- единый ECS data path
+- [x] **LC-04**: ActionScheduler выделен из Model как standalone managed-класс
+- [x] **LC-05**: Model.cs удален -- score/state хранятся только в ECS singletons
+- [x] **LC-06**: Все существующие тесты проходят зеленым, новые тесты покрывают измененный code path
+- [ ] **LC-07**: Игра воспроизводит весь геймплей 1:1 без legacy-слоя
 
 ## v2 Requirements
 
@@ -138,8 +148,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ECS-06 | Phase 4 | Complete |
 | ECS-07 | Phase 4 | Complete |
 | ECS-08 | Phase 4 | Complete |
-| ECS-09 | Phase 4 | Complete |
-| ECS-10 | Phase 4 | Complete |
+| ECS-09 | Phase 7 | Pending |
+| ECS-10 | Phase 7 | Pending |
 | ECS-11 | Phase 4 | Complete |
 | BRG-01 | Phase 5 | Complete |
 | BRG-02 | Phase 5 | Complete |
@@ -159,12 +169,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TST-10 | Phase 5 | Complete |
 | TST-11 | Phase 1 | Complete |
 | TST-12 | Phase 5 | Complete |
+| LC-01 | Phase 6 | Complete |
+| LC-02 | Phase 6 | Complete |
+| LC-03 | Phase 6 | Complete |
+| LC-04 | Phase 6 | Complete |
+| LC-05 | Phase 6 | Complete |
+| LC-06 | Phase 6 | Complete |
+| LC-07 | Phase 7 | Pending |
 
 **Coverage:**
-- v1 requirements: 48 total
-- Mapped to phases: 48
+- v1 requirements: 55 total
+- Mapped to phases: 55
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-02*
-*Last updated: 2026-04-02 after roadmap creation*
+*Last updated: 2026-04-03 after gap closure phase creation*
