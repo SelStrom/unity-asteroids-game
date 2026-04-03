@@ -124,7 +124,7 @@ Plans:
 - [x] 06-01-PLAN.md -- Удаление _useEcs и else-веток, извлечение ActionScheduler из Model, _gameArea как поле
 - [x] 06-02-PLAN.md -- Рефакторинг EntitiesCatalog (без ModelFactory, EntityType tracking), OnDeadEntity через ECS tags, Score из ECS
 - [x] 06-03-PLAN.md -- Удаление 26 legacy-файлов, очистка ObservableBridgeSystem, рефакторинг тестов
-- [ ] 06-04-PLAN.md -- Запуск тестов и ручная верификация геймплея 1:1
+- [x] 06-04-PLAN.md -- Запуск тестов и ручная верификация геймплея 1:1
 
 ## Progress
 
