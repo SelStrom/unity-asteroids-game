@@ -11,16 +11,20 @@ namespace SelStrom.Asteroids
         private readonly PlayerInput _playerInput;
         private readonly GameData _configs;
         private readonly Model _model;
+        private readonly ActionScheduler _actionScheduler;
+        private readonly Vector2 _gameArea;
 
         private ShipModel _shipModel;
         private readonly EntitiesCatalog _catalog;
         private readonly GameScreen _gameScreen;
 
-        public Game(EntitiesCatalog catalog, Model model, GameData configs, PlayerInput playerInput,
-            GameScreen gameScreen)
+        public Game(EntitiesCatalog catalog, Model model, ActionScheduler actionScheduler, Vector2 gameArea,
+            GameData configs, PlayerInput playerInput, GameScreen gameScreen)
         {
             _gameScreen = gameScreen;
             _model = model;
+            _actionScheduler = actionScheduler;
+            _gameArea = gameArea;
             _configs = configs;
             _playerInput = playerInput;
             _catalog = catalog;
@@ -45,7 +49,7 @@ namespace SelStrom.Asteroids
             _playerInput.OnTrustAction += OnTrust;
             _playerInput.OnLaserAction += OnLaser;
 
-            _model.ActionScheduler.ScheduleAction(SpawnNewEnemy, _configs.SpawnNewEnemyDurationSec);
+            _actionScheduler.ScheduleAction(SpawnNewEnemy, _configs.SpawnNewEnemyDurationSec);
 
             _gameScreen.Connect(new GameScreenData
             {
@@ -58,7 +62,7 @@ namespace SelStrom.Asteroids
 
         private void Stop()
         {
-            _model.ActionScheduler.ResetSchedule();
+            _actionScheduler.ResetSchedule();
 
             _playerInput.OnAttackAction -= OnAttack;
             _playerInput.OnRotateAction -= OnRotateAction;
@@ -90,18 +94,18 @@ namespace SelStrom.Asteroids
                     break;
             }
 
-            _model.ActionScheduler.ScheduleAction(SpawnNewEnemy, _configs.SpawnNewEnemyDurationSec);
+            _actionScheduler.ScheduleAction(SpawnNewEnemy, _configs.SpawnNewEnemyDurationSec);
         }
 
         private void SpawnUfo(Vector2 shipPosition)
         {
-            var position = GameUtils.GetRandomUfoPosition(shipPosition, _model.GameArea, _configs.SpawnAllowedRadius);
+            var position = GameUtils.GetRandomUfoPosition(shipPosition, _gameArea, _configs.SpawnAllowedRadius);
             _catalog.CreateUfo(_shipModel, position, Random.insideUnitCircle.normalized, OnUfoCollided, OnEnemyGunShooting);
         }
 
         private void SpawnBigUfo(Vector2 shipPosition)
         {
-            var position = GameUtils.GetRandomUfoPosition(shipPosition, _model.GameArea, _configs.SpawnAllowedRadius);
+            var position = GameUtils.GetRandomUfoPosition(shipPosition, _gameArea, _configs.SpawnAllowedRadius);
             _catalog.CreateBigUfo(_shipModel, position,
                 (Random.insideUnitCircle * new Vector2(1, 0.1f)).normalized,
                 OnUfoCollided, OnEnemyGunShooting);
@@ -110,7 +114,7 @@ namespace SelStrom.Asteroids
         private void SpawnAsteroid(Vector2 shipPosition)
         {
             var asteroidPosition =
-                GameUtils.GetRandomAsteroidPosition(shipPosition, _model.GameArea, _configs.SpawnAllowedRadius);
+                GameUtils.GetRandomAsteroidPosition(shipPosition, _gameArea, _configs.SpawnAllowedRadius);
             _catalog.CreateAsteroid(3, asteroidPosition, Random.Range(1f, 3f));
         }
 
@@ -214,12 +218,12 @@ namespace SelStrom.Asteroids
             var direction = _shipModel.Laser.Direction;
             var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             effect.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
-            _model.ActionScheduler.ScheduleAction(() => { _catalog.ViewFactory.Release(effect.gameObject); },
+            _actionScheduler.ScheduleAction(() => { _catalog.ViewFactory.Release(effect.gameObject); },
                 _configs.Laser.BeamEffectLifetimeSec);
 
             var hits = new RaycastHit2D[30];
             var size = Physics2D.RaycastNonAlloc(_shipModel.Move.Position.Value, _shipModel.Rotate.Rotation.Value, hits,
-                _model.GameArea.magnitude, LayerMask.GetMask("Asteroid", "Enemy"));
+                _gameArea.magnitude, LayerMask.GetMask("Asteroid", "Enemy"));
             if (size <= 0)
             {
                 return;
