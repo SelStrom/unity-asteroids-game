@@ -19,6 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Bridge Layer + Integration** - Интеграция ECS с GameObjects и финальная верификация (2026-04-03)
 - [ ] **Phase 6: Legacy Cleanup** - Удаление legacy MonoBehaviour-слоя, перенос ActionScheduler на ECS, единый ECS data path
 - [ ] **Phase 7: ShipPositionData Wiring + Traceability Fix** - Фикс production wiring ShipPositionData singleton, закрытие гэпов ECS-09/ECS-10/UFO AI, трассировка LC-*
+- [ ] **Phase 9: ECS Tech Debt Cleanup** - Устранение tech debt: ordering-атрибуты, vestigial поля, dead bindings, двойная запись Transform, .meta файлы
 
 ## Phase Details
 
@@ -159,10 +160,24 @@ Plans:
 - [x] 08-01-PLAN.md -- TDD: регрессионные тесты + реализация UFO+Asteroid коллизии в EcsCollisionHandlerSystem
 - [x] 08-02-PLAN.md -- Ручная верификация UFO+Asteroid коллизии в Play Mode
 
+### Phase 9: ECS Tech Debt Cleanup
+**Goal**: Устранить накопленный tech debt: системные ordering-атрибуты, vestigial поля, dead MVVM bindings, двойная запись Transform, .meta файлы тестов
+**Depends on**: Phase 8
+**Requirements**: TD-01, TD-02, TD-03, TD-04, TD-05, TD-06
+**Gap Closure:** Closes tech debt from v1.1.0 audit
+**Success Criteria** (what must be TRUE):
+  1. EcsGunSystem и EcsLaserSystem имеют раскомментированные [UpdateAfter]/[UpdateBefore] атрибуты
+  2. EcsShootToSystem и EcsMoveToSystem имеют [UpdateAfter(EcsShipPositionUpdateSystem)]
+  3. ShootToData не содержит неиспользуемых полей ReadyRemaining/Every
+  4. Non-ship ViewModel классы не содержат dead Position binding
+  5. Ship Transform пишется одним путём (без двойной записи)
+  6. Все .meta файлы из Assets/Tests/ закоммичены
+**Plans:** 0 plans
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -174,3 +189,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 6. Legacy Cleanup | 4/4 | Complete | 2026-04-03 |
 | 7. ShipPositionData Wiring + Traceability Fix | 2/2 | Complete | 2026-04-04 |
 | 8. UFO-Asteroid Collision | 2/2 | Complete | 2026-04-04 |
+| 9. ECS Tech Debt Cleanup | 0/0 | Not started | — |
