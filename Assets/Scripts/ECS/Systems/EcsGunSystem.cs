@@ -2,6 +2,8 @@ using Unity.Entities;
 
 namespace SelStrom.Asteroids.ECS
 {
+    [UpdateAfter(typeof(EcsShipPositionUpdateSystem))]
+    [UpdateBefore(typeof(EcsLaserSystem))]
     public partial struct EcsGunSystem : ISystem
     {
         public void OnCreate(ref SystemState state)

@@ -3,6 +3,7 @@ using Unity.Mathematics;
 
 namespace SelStrom.Asteroids.ECS
 {
+    [UpdateAfter(typeof(EcsShipPositionUpdateSystem))]
     public partial struct EcsMoveToSystem : ISystem
     {
         public void OnCreate(ref SystemState state)
