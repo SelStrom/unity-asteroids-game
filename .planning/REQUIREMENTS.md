@@ -98,8 +98,8 @@
 - [ ] **TD-01**: EcsGunSystem и EcsLaserSystem имеют раскомментированные [UpdateAfter]/[UpdateBefore] ordering-атрибуты
 - [ ] **TD-02**: EcsShootToSystem и EcsMoveToSystem имеют [UpdateAfter(EcsShipPositionUpdateSystem)] для корректного ordering
 - [ ] **TD-03**: ShootToData не содержит неиспользуемых полей ReadyRemaining/Every (удалены или задействованы)
-- [ ] **TD-04**: Non-ship ViewModel классы не содержат dead Position ReactiveValue binding
-- [ ] **TD-05**: Ship Transform пишется одним путём без двойной записи (GameObjectSyncSystem или ObservableBridgeSystem)
+- [x] **TD-04**: Non-ship ViewModel классы не содержат dead Position ReactiveValue binding
+- [x] **TD-05**: Ship Transform пишется одним путём без двойной записи (GameObjectSyncSystem или ObservableBridgeSystem)
 - [x] **TD-06**: Все .meta файлы из Assets/Tests/ закоммичены в git
 
 ## v2 Requirements
@@ -199,8 +199,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TD-01 | Phase 9 | Pending |
 | TD-02 | Phase 9 | Pending |
 | TD-03 | Phase 9 | Pending |
-| TD-04 | Phase 9 | Pending |
-| TD-05 | Phase 9 | Pending |
+| TD-04 | Phase 9 | Complete |
+| TD-05 | Phase 9 | Complete |
 | TD-06 | Phase 9 | Complete |
 
 **Coverage:**

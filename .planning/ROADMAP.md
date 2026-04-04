@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Bridge Layer + Integration** - Интеграция ECS с GameObjects и финальная верификация (2026-04-03)
 - [ ] **Phase 6: Legacy Cleanup** - Удаление legacy MonoBehaviour-слоя, перенос ActionScheduler на ECS, единый ECS data path
 - [ ] **Phase 7: ShipPositionData Wiring + Traceability Fix** - Фикс production wiring ShipPositionData singleton, закрытие гэпов ECS-09/ECS-10/UFO AI, трассировка LC-*
-- [ ] **Phase 9: ECS Tech Debt Cleanup** - Устранение tech debt: ordering-атрибуты, vestigial поля, dead bindings, двойная запись Transform, .meta файлы
+- [x] **Phase 9: ECS Tech Debt Cleanup** - Устранение tech debt: ordering-атрибуты, vestigial поля, dead bindings, двойная запись Transform, .meta файлы (completed 2026-04-04)
 
 ## Phase Details
 
@@ -172,11 +172,11 @@ Plans:
   4. Non-ship ViewModel классы не содержат dead Position binding
   5. Ship Transform пишется одним путём (без двойной записи)
   6. Все .meta файлы из Assets/Tests/ закоммичены
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 09-01-PLAN.md -- ECS ordering-атрибуты (Gun, Laser, ShootTo, MoveTo) + очистка ShootToData vestigial полей
-- [ ] 09-02-PLAN.md -- Удаление dead MVVM Position bindings + устранение двойной записи Ship Transform
+- [x] 09-01-PLAN.md -- ECS ordering-атрибуты (Gun, Laser, ShootTo, MoveTo) + очистка ShootToData vestigial полей
+- [x] 09-02-PLAN.md -- Удаление dead MVVM Position bindings + устранение двойной записи Ship Transform
 - [x] 09-03-PLAN.md -- Коммит 3 untracked .meta файлов из Assets/Tests/
 
 ## Progress
@@ -194,4 +194,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 6. Legacy Cleanup | 4/4 | Complete | 2026-04-03 |
 | 7. ShipPositionData Wiring + Traceability Fix | 2/2 | Complete | 2026-04-04 |
 | 8. UFO-Asteroid Collision | 2/2 | Complete | 2026-04-04 |
-| 9. ECS Tech Debt Cleanup | 0/3 | Planning complete | -- |
+| 9. ECS Tech Debt Cleanup | 3/3 | Complete   | 2026-04-04 |
