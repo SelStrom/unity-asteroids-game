@@ -1,10 +1,11 @@
 ---
 phase: 7
 slug: shippositiondata-wiring
-status: draft
+status: audited
 nyquist_compliant: false
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-04-03
+audited: 2026-04-04
 ---
 
 # Phase 7 — Validation Strategy
@@ -38,9 +39,9 @@ created: 2026-04-03
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 07-01-01 | 01 | 1 | ECS-09, ECS-10 | unit | Test Runner -> SingletonInitTests | ❌ W0 | ⬜ pending |
-| 07-01-02 | 01 | 1 | ECS-09, ECS-10 | unit | Test Runner -> ShootToSystemTests, MoveToSystemTests | ✅ | ⬜ pending |
-| 07-02-01 | 02 | 1 | LC-01..LC-07 | documentation | Manual review | N/A | ⬜ pending |
+| 07-01-01 | 01 | 1 | ECS-09, ECS-10 | unit | Test Runner -> SingletonInitTests | ✅ | ⬜ needs-run |
+| 07-01-02 | 01 | 1 | ECS-09, ECS-10 | unit | Test Runner -> ShootToSystemTests, MoveToSystemTests | ✅ | ⬜ needs-run |
+| 07-02-01 | 02 | 1 | LC-01..LC-07 | documentation | Manual review | N/A | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -48,9 +49,10 @@ created: 2026-04-03
 
 ## Wave 0 Requirements
 
-- [ ] `Assets/Tests/EditMode/ECS/SingletonInitTests.cs` — regression test for ShipPositionData singleton creation in InitializeEcsSingletons()
+- [x] `Assets/Tests/EditMode/ECS/SingletonInitTests.cs` — regression test for ShipPositionData singleton creation in InitializeEcsSingletons()
 
 *Existing ShootTo/MoveTo system tests cover logic but use test fixture that masks production wiring gap.*
+*Wave 0 file created during Phase 7 Plan 01 execution (commit ca21cae).*
 
 ---
 
@@ -62,13 +64,19 @@ created: 2026-04-03
 
 ---
 
+## Audit Notes (2026-04-04)
+
+- **07-01-01**: SingletonInitTests.cs exists (3 tests: creation, default values, idempotency). Structurally correct, mirrors idempotent pattern from Application.InitializeEcsSingletons(). Cannot run from CLI -- Unity Editor holds project lock. Requires Test Runner execution.
+- **07-01-02**: ShootToSystemTests.cs (3 tests) and MoveToSystemTests.cs (3 tests) exist. Both use AsteroidsEcsTestFixture with CreateShipPositionSingleton helper. Cannot run from CLI -- same reason.
+- **07-02-01**: Traceability table verified. REQUIREMENTS.md contains all 9 requirements (ECS-09, ECS-10: Phase 7 Complete; LC-01..LC-06: Phase 6 Complete; LC-07: Phase 7 Complete). UAT approved per 07-02-SUMMARY.md.
+
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s
+- [ ] `nyquist_compliant: true` set in frontmatter (blocked: test execution requires Unity Test Runner)
 
-**Approval:** pending
+**Approval:** partial -- documentation gap (07-02-01) resolved, test files exist but execution blocked by Unity Editor lock. Run in Test Runner to complete.
