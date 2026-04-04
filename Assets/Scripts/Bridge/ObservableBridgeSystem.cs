@@ -75,12 +75,6 @@ namespace SelStrom.Asteroids
 
                 if (_shipViewModel != null)
                 {
-                    var pos = move.ValueRO.Position;
-                    _shipViewModel.Position.Value = new Vector2(pos.x, pos.y);
-
-                    var rot = rotate.ValueRO.Rotation;
-                    _shipViewModel.Rotation.Value = new Vector2(rot.x, rot.y);
-
                     if (_mainSprite != null && _thrustSprite != null)
                     {
                         _shipViewModel.Sprite.Value =

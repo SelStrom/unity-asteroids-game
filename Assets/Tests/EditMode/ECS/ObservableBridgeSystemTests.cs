@@ -151,50 +151,6 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         }
 
         [Test]
-        public void PushesPosition_ToShipViewModel()
-        {
-            var shipViewModel = new ShipViewModel();
-            _system.SetShipViewModel(shipViewModel, null, null);
-
-            CreateFullShipEntity(
-                position: new float2(1f, 2f),
-                speed: 0f,
-                direction: float2.zero,
-                rotation: new float2(1f, 0f),
-                thrustActive: false,
-                laserCurrentShoots: 3,
-                laserMaxShoots: 3,
-                reloadRemaining: 0f);
-
-            _system.Update();
-
-            Assert.AreEqual(new Vector2(1f, 2f), shipViewModel.Position.Value,
-                "ShipViewModel.Position should match ECS MoveData.Position");
-        }
-
-        [Test]
-        public void PushesRotation_ToShipViewModel()
-        {
-            var shipViewModel = new ShipViewModel();
-            _system.SetShipViewModel(shipViewModel, null, null);
-
-            CreateFullShipEntity(
-                position: float2.zero,
-                speed: 0f,
-                direction: float2.zero,
-                rotation: new float2(0.707f, 0.707f),
-                thrustActive: false,
-                laserCurrentShoots: 3,
-                laserMaxShoots: 3,
-                reloadRemaining: 0f);
-
-            _system.Update();
-
-            Assert.AreEqual(new Vector2(0.707f, 0.707f), shipViewModel.Rotation.Value,
-                "ShipViewModel.Rotation should match ECS RotateData.Rotation");
-        }
-
-        [Test]
         public void DoesNotCrash_WhenNoHudDataSet()
         {
             CreateFullShipEntity(
