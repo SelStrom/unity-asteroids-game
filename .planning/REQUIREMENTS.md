@@ -100,7 +100,7 @@
 - [ ] **TD-03**: ShootToData не содержит неиспользуемых полей ReadyRemaining/Every (удалены или задействованы)
 - [ ] **TD-04**: Non-ship ViewModel классы не содержат dead Position ReactiveValue binding
 - [ ] **TD-05**: Ship Transform пишется одним путём без двойной записи (GameObjectSyncSystem или ObservableBridgeSystem)
-- [ ] **TD-06**: Все .meta файлы из Assets/Tests/ закоммичены в git
+- [x] **TD-06**: Все .meta файлы из Assets/Tests/ закоммичены в git
 
 ## v2 Requirements
 
@@ -201,7 +201,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TD-03 | Phase 9 | Pending |
 | TD-04 | Phase 9 | Pending |
 | TD-05 | Phase 9 | Pending |
-| TD-06 | Phase 9 | Pending |
+| TD-06 | Phase 9 | Complete |
 
 **Coverage:**
 - v1 requirements: 65 total

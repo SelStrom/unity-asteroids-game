@@ -177,7 +177,7 @@ Plans:
 Plans:
 - [ ] 09-01-PLAN.md -- ECS ordering-атрибуты (Gun, Laser, ShootTo, MoveTo) + очистка ShootToData vestigial полей
 - [ ] 09-02-PLAN.md -- Удаление dead MVVM Position bindings + устранение двойной записи Ship Transform
-- [ ] 09-03-PLAN.md -- Коммит 3 untracked .meta файлов из Assets/Tests/
+- [x] 09-03-PLAN.md -- Коммит 3 untracked .meta файлов из Assets/Tests/
 
 ## Progress
 
