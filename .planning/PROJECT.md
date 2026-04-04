@@ -2,91 +2,68 @@
 
 ## What This Is
 
-Классическая аркадная игра Asteroids на Unity. Корабль, астероиды, НЛО, стрельба пулями и лазером, тороидальный экран, лидерборд через Unity Gaming Services. Текущая реализация — ECS-подобная архитектура на MonoBehaviour + MVVM (shtl-mvvm) для UI.
+Классическая аркадная игра Asteroids на Unity 6.3 с гибридным DOTS. ECS управляет логикой (8 Burst-систем), GameObjects — рендерингом и физикой, MVVM (shtl-mvvm) — UI. URP 2D Renderer с Post-Processing. Онлайн-лидерборд через Unity Gaming Services.
 
 ## Core Value
 
-Играбельная классическая механика Asteroids с онлайн-лидербордом — фундамент для технической миграции на современный стек Unity.
+Играбельная классическая механика Asteroids с онлайн-лидербордом — на современном стеке Unity с ECS-ядром для масштабируемости.
 
 ## Requirements
 
 ### Validated
 
-- ✓ Управление кораблём (тяга, поворот, инерция) — existing
-- ✓ Стрельба пулями с перезарядкой — existing
-- ✓ Лазерная атака с зарядами — existing
-- ✓ Астероиды с фрагментацией (big → medium → small) — existing
-- ✓ НЛО двух типов (big/small) с AI-наведением — existing
-- ✓ Тороидальный экран (обёртывание по краям) — existing
-- ✓ Подсчёт очков и система жизней — existing
-- ✓ Анонимная аутентификация через UGS — existing
-- ✓ Онлайн-лидерборд с именами игроков — existing
-- ✓ Экраны: Title, Game HUD, Result — existing
-- ✓ WebGL и Windows standalone сборки — existing
+- ✓ Фикс shtl-mvvm для совместимости с Unity 6.3 и обратной совместимости с 2022.3+ — v1.1.0
+- ✓ Апгрейд на Unity 6.3 с адаптацией к встроенному TMP — v1.1.0
+- ✓ Миграция с Built-in Render Pipeline на URP — v1.1.0
+- ✓ Переход геймплейной логики на гибридный DOTS (ECS + GameObjects) — v1.1.0
+- ✓ Удаление legacy MonoBehaviour-систем, единый ECS data path — v1.1.0
+- ✓ TDD-покрытие: 142 теста (135 EditMode + 7 PlayMode) — v1.1.0
+- ✓ UFO-Asteroid коллизии, UFO AI wiring — v1.1.0
+- ✓ ECS tech debt cleanup (ordering, vestigial fields, dead bindings) — v1.1.0
 
 ### Active
 
-- ✓ Апгрейд на Unity 6.3 с адаптацией к встроенному TMP — Validated in Phase 2: Unity 6.3 Upgrade
-- ✓ Фикс shtl-mvvm для совместимости с Unity 6.3 (TMP как внутренний модуль) и обратной совместимости с Unity 2022.3+ — Validated in Phase 1: Dev Tooling + shtl-mvvm Fix
-- ✓ Миграция с Built-in Render Pipeline на URP — Validated in Phase 3: URP Migration
-- ✓ Переход геймплейной логики на гибридный DOTS — Validated in Phase 4+5: ECS Foundation + Bridge Layer
+(Определяются при создании следующего milestone через `/gsd:new-milestone`)
 
 ### Out of Scope
 
-- Исправление существующих багов (7 критических из анализа) — не входит в scope миграции, функционал 1:1
+- Полный DOTS (без GameObjects) — Entities Graphics не поддерживает SpriteRenderer и WebGL
+- DOTS Physics 2D — пакет не существует в production-ready виде
+- 2D Lighting — новый функционал, не часть миграции 1:1
+- Исправление существующих багов — миграция 1:1, баги в отдельном milestone
+- Мобильные платформы — будущие планы, текущий scope: Editor + Windows + WebGL
 - Новые игровые механики — только миграция существующего функционала
-- Полный DOTS (без GameObjects) — выбран гибридный подход
-
-## Current Milestone: v1.0 Техническая миграция
-
-**Goal:** Перевести проект на современный стек Unity 6.3 + URP + гибридный DOTS, сохранив весь текущий функционал 1:1.
-
-**Target features:**
-1. Апгрейд на Unity 6.3 (включая TMP-совместимость и фикс shtl-mvvm)
-2. Миграция на Universal Render Pipeline
-3. Гибридный DOTS для геймплейной логики
 
 ## Context
 
-- **Движок:** Unity 2022.3.60f1 LTS, C# 9.0, Mono backend
-- **Архитектура:** ECS-подобная на MonoBehaviour (8 систем, 5 типов сущностей, visitor-паттерн), MVVM через shtl-mvvm
-- **shtl-mvvm:** Собственная библиотека пользователя (github.com/SelStrom/shtl-mvvm), подключена через git. Имеет явную зависимость на com.unity.textmeshpro — требуется фикс для Unity 6.3
-- **Render:** Built-in Render Pipeline, 2D, ортографическая камера (size 22.5)
-- **UI:** uGUI + TextMeshPro + shtl-mvvm bindings
-- **Кодовая база:** ~50 C# файлов, ~2200 LOC, 0 тестов
+- **Движок:** Unity 6.3, C# 9.0, Mono backend
+- **Render:** URP 2D Renderer с Post-Processing (Bloom, Vignette)
+- **Архитектура:** Гибридный DOTS — 8 ECS ISystem (Thrust, Rotate, Move, Gun, Laser, ShootTo, MoveTo, CollisionHandler) + Bridge Layer (GameObjectSyncSystem, ObservableBridgeSystem, DeadEntityCleanupSystem) + GameObjects для рендера + MVVM UI
+- **Кодовая база:** ~4700 LOC scripts, ~4350 LOC tests, 142 теста
 - **Платформы:** Editor, WebGL, WindowsStandalone64
 
 ## Constraints
 
-- **Порядок миграции:** Unity 6.3 → URP → DOTS — каждый шаг на стабильной базе предыдущего
-- **Обратная совместимость shtl-mvvm:** Фикс TMP должен работать начиная с Unity 2022.3
-- **Функциональная эквивалентность:** Геймплей 1:1 после каждого этапа миграции
-- **Гибридный DOTS:** Entities для логики/физики, GameObjects для UI и визуала
+- **Функциональная эквивалентность:** Геймплей 1:1 после каждого изменения
+- **Гибридный DOTS:** Entities для логики, GameObjects для UI/визуала/физики
+- **Обратная совместимость shtl-mvvm:** Фикс работает начиная с Unity 2022.3
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Unity 6.3 первым шагом | Апгрейд редактора — базовое требование для URP и DOTS | — Pending |
-| Гибридный DOTS вместо полного | UI на GameObjects проще поддерживать с shtl-mvvm | — Pending |
-| Баги out of scope | Миграция 1:1, исправления в отдельном milestone | — Pending |
+| Unity 6.3 первым шагом | Апгрейд редактора — базовое требование для URP и DOTS | ✓ Good |
+| Гибридный DOTS вместо полного | UI на GameObjects проще поддерживать с shtl-mvvm, Entities Graphics не поддерживает SpriteRenderer | ✓ Good |
+| Баги out of scope | Миграция 1:1, исправления в отдельном milestone | ✓ Good |
+| 2D rotation via sin/cos | Burst-совместимость вместо Quaternion | ✓ Good |
+| ShipPositionData — отдельный singleton | MoveSystem остается Burst-совместимой | ✓ Good |
+| DeadTag вместо Kill(model) | Единый путь уничтожения через DeadEntityCleanupSystem | ✓ Good |
+| Standalone ActionScheduler | Managed callbacks несовместимы с Burst | ✓ Good |
+| EntityType enum вместо TryFindModel | Определение типа entity без зависимости от Model | ✓ Good |
 
-## Evolution
+## Shipped Milestones
 
-This document evolves at phase transitions and milestone boundaries.
-
-**After each phase transition** (via `/gsd:transition`):
-1. Requirements invalidated? → Move to Out of Scope with reason
-2. Requirements validated? → Move to Validated with phase reference
-3. New requirements emerged? → Add to Active
-4. Decisions to log? → Add to Key Decisions
-5. "What This Is" still accurate? → Update if drifted
-
-**After each milestone** (via `/gsd:complete-milestone`):
-1. Full review of all sections
-2. Core Value check — still the right priority?
-3. Audit Out of Scope — reasons still valid?
-4. Update Context with current state
+- **v1.1.0** — Техническая миграция (2026-04-04): Unity 6.3 + URP + гибридный DOTS. [Details](MILESTONES.md)
 
 ---
-*Last updated: 2026-04-04 after Phase 9 completion — all v1.1.0 milestone phases complete (Phases 1-9)*
+*Last updated: 2026-04-04 after v1.1.0 milestone*
