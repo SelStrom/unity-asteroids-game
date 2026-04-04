@@ -171,7 +171,6 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 direction: new float2(1f, 0f),
                 gunMaxShoots: 3,
                 gunReloadSec: 2f,
-                shootToEvery: 1f,
                 score: 200
             );
 
@@ -195,7 +194,6 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 direction: new float2(1f, 0f),
                 gunMaxShoots: 3,
                 gunReloadSec: 2f,
-                shootToEvery: 1f,
                 moveToEvery: 3f,
                 score: 500
             );

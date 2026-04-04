@@ -81,11 +81,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         {
             var entity = m_Manager.CreateEntity();
             m_Manager.AddComponentData(entity, new ShootToData());
-
-            var data = m_Manager.GetComponentData<ShootToData>(entity);
-
-            Assert.AreEqual(0f, data.Every);
-            Assert.AreEqual(0f, data.ReadyRemaining);
+            Assert.IsTrue(m_Manager.HasComponent<ShootToData>(entity));
         }
 
         [Test]

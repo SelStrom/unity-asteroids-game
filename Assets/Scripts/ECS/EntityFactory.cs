@@ -117,7 +117,6 @@ namespace SelStrom.Asteroids.ECS
             float2 direction,
             int gunMaxShoots,
             float gunReloadSec,
-            float shootToEvery,
             int score)
         {
             var entity = em.CreateEntity();
@@ -135,11 +134,7 @@ namespace SelStrom.Asteroids.ECS
                 CurrentShoots = gunMaxShoots,
                 ReloadRemaining = gunReloadSec
             });
-            em.AddComponentData(entity, new ShootToData
-            {
-                Every = shootToEvery,
-                ReadyRemaining = shootToEvery
-            });
+            em.AddComponentData(entity, new ShootToData());
             em.AddComponentData(entity, new ScoreValue
             {
                 Score = score
@@ -154,7 +149,6 @@ namespace SelStrom.Asteroids.ECS
             float2 direction,
             int gunMaxShoots,
             float gunReloadSec,
-            float shootToEvery,
             float moveToEvery,
             int score)
         {
@@ -173,11 +167,7 @@ namespace SelStrom.Asteroids.ECS
                 CurrentShoots = gunMaxShoots,
                 ReloadRemaining = gunReloadSec
             });
-            em.AddComponentData(entity, new ShootToData
-            {
-                Every = shootToEvery,
-                ReadyRemaining = shootToEvery
-            });
+            em.AddComponentData(entity, new ShootToData());
             em.AddComponentData(entity, new MoveToData
             {
                 Every = moveToEvery,

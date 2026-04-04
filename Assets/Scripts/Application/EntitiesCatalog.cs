@@ -215,7 +215,6 @@ namespace SelStrom.Asteroids
                 new float2(direction.x, direction.y),
                 _configs.UfoBig.Gun.MaxShoots,
                 _configs.UfoBig.Gun.ReloadDurationSec,
-                3f,
                 _configs.UfoBig.Score
             );
             _entityManager.AddComponentObject(entity, new GameObjectRef
@@ -249,7 +248,6 @@ namespace SelStrom.Asteroids
                 new float2(direction.x, direction.y),
                 _configs.Ufo.Gun.MaxShoots,
                 _configs.Ufo.Gun.ReloadDurationSec,
-                3f,
                 3f,
                 _configs.Ufo.Score
             );

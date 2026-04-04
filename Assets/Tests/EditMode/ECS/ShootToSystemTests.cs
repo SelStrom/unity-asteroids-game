@@ -38,11 +38,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 Direction = float2.zero,
                 ShootPosition = float2.zero
             });
-            m_Manager.AddComponentData(_ufoEntity, new ShootToData
-            {
-                Every = 1f,
-                ReadyRemaining = 0f
-            });
+            m_Manager.AddComponentData(_ufoEntity, new ShootToData());
         }
 
         [Test]
