@@ -78,11 +78,10 @@ Plans:
   1. Нажатие R во время игры запускает ракету из позиции корабля в направлении его rotation
   2. Ракета не запускается при пустом боезапасе
   3. При рестарте игры все активные ракеты уничтожаются и боезапас сбрасывается
-**Plans**: 3 plans
+**Plans**: 2 plans
 Plans:
-- [x] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
-- [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
-- [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
+- [ ] 13-01-PLAN.md -- Input action Rocket + RocketAmmoData shooting + EcsRocketAmmoSystem + тесты
+- [ ] 13-02-PLAN.md -- Game.OnRocket handler + Start/Stop подписки + ClearEcsEventBuffers
 
 ### Phase 14: Config & Visual Polish
 **Goal**: Все параметры ракеты настраиваемы через ScriptableObject, визуал завершен
@@ -123,6 +122,6 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | 10. ECS Core | 3/3 | Complete    | 2026-04-05 |
 | 11. Collision & Scoring | 1/1 | Complete    | 2026-04-05 |
 | 12. Bridge & Lifecycle | 3/3 | Complete    | 2026-04-05 |
-| 13. Input & Game Integration | 0/TBD | Not started | - |
+| 13. Input & Game Integration | 0/2 | Not started | - |
 | 14. Config & Visual Polish | 0/TBD | Not started | - |
 | 15. HUD | 0/TBD | Not started | - |
