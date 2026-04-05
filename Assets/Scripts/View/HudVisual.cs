@@ -35,6 +35,16 @@ namespace SelStrom.Asteroids
             Bind.From(ViewModel.LaserShootCount).To(_laserShootCount);
             Bind.From(ViewModel.LaserReloadTime).To(_laserReloadTime);
             Bind.From(ViewModel.IsLaserReloadTimeVisible).To(_laserReloadTime.gameObject);
+
+            if (_rocketAmmoCount == null || _rocketReloadTime == null)
+            {
+                Debug.LogWarning(
+                    "[HudVisual] _rocketAmmoCount or _rocketReloadTime is not assigned in Inspector. " +
+                    "Rocket HUD bindings skipped. Re-save the scene in Unity Editor.",
+                    this);
+                return;
+            }
+
             Bind.From(ViewModel.RocketAmmoCount).To(_rocketAmmoCount);
             Bind.From(ViewModel.RocketReloadTime).To(_rocketReloadTime);
             Bind.From(ViewModel.IsRocketReloadTimeVisible).To(_rocketReloadTime.gameObject);
