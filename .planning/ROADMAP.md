@@ -21,7 +21,7 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
 - [x] **Phase 10: ECS Core -- данные и логика ракет** - ECS-компоненты, системы наведения, боезапаса и перезарядки (completed 2026-04-05)
 - [x] **Phase 11: Collision & Scoring** - Коллизия ракеты с врагами, начисление очков, уничтожение ракеты (completed 2026-04-05)
 - [x] **Phase 12: Bridge & Lifecycle** - Связь ECS с GameObject, спавн визуала, синхронизация позиции и вращения (completed 2026-04-05)
-- [ ] **Phase 13: Input & Game Integration** - Запуск ракеты по кнопке R, интеграция в игровой цикл
+- [x] **Phase 13: Input & Game Integration** - Запуск ракеты по кнопке R, интеграция в игровой цикл (completed 2026-04-05)
 - [ ] **Phase 14: Config & Visual Polish** - ScriptableObject конфигурация, инверсионный след, взрыв VFX
 - [ ] **Phase 15: HUD** - Отображение боезапаса и таймера перезарядки ракет
 
@@ -80,8 +80,8 @@ Plans:
   3. При рестарте игры все активные ракеты уничтожаются и боезапас сбрасывается
 **Plans**: 2 plans
 Plans:
-- [ ] 13-01-PLAN.md -- Input action Rocket + RocketAmmoData shooting + EcsRocketAmmoSystem + тесты
-- [ ] 13-02-PLAN.md -- Game.OnRocket handler + Start/Stop подписки + ClearEcsEventBuffers
+- [x] 13-01-PLAN.md -- Input action Rocket + RocketAmmoData shooting + EcsRocketAmmoSystem + тесты
+- [x] 13-02-PLAN.md -- Game.OnRocket handler + Start/Stop подписки + ClearEcsEventBuffers
 
 ### Phase 14: Config & Visual Polish
 **Goal**: Все параметры ракеты настраиваемы через ScriptableObject, визуал завершен
@@ -122,6 +122,6 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | 10. ECS Core | 3/3 | Complete    | 2026-04-05 |
 | 11. Collision & Scoring | 1/1 | Complete    | 2026-04-05 |
 | 12. Bridge & Lifecycle | 3/3 | Complete    | 2026-04-05 |
-| 13. Input & Game Integration | 0/2 | Not started | - |
+| 13. Input & Game Integration | 2/2 | Complete    | 2026-04-05 |
 | 14. Config & Visual Polish | 0/TBD | Not started | - |
 | 15. HUD | 0/TBD | Not started | - |
