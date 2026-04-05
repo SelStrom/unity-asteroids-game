@@ -19,7 +19,7 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
 **Milestone Goal:** Добавить систему самонаводящихся ракет с полным TDD-покрытием, вписанную в ECS + визуал архитектуру.
 
 - [x] **Phase 10: ECS Core -- данные и логика ракет** - ECS-компоненты, системы наведения, боезапаса и перезарядки (completed 2026-04-05)
-- [ ] **Phase 11: Collision & Scoring** - Коллизия ракеты с врагами, начисление очков, уничтожение ракеты
+- [x] **Phase 11: Collision & Scoring** - Коллизия ракеты с врагами, начисление очков, уничтожение ракеты (completed 2026-04-05)
 - [ ] **Phase 12: Bridge & Lifecycle** - Связь ECS с GameObject, спавн визуала, синхронизация позиции и вращения
 - [ ] **Phase 13: Input & Game Integration** - Запуск ракеты по кнопке R, интеграция в игровой цикл
 - [ ] **Phase 14: Config & Visual Polish** - ScriptableObject конфигурация, инверсионный след, взрыв VFX
@@ -53,7 +53,7 @@ Plans:
   3. Ракета уничтожается при любом столкновении с врагом (включая случайные по пути к цели)
 **Plans**: 1 plans
 Plans:
-- [ ] 11-01-PLAN.md -- TDD: Коллизия ракеты с врагами (DeadTag + Score)
+- [x] 11-01-PLAN.md -- TDD: Коллизия ракеты с врагами (DeadTag + Score)
 
 ### Phase 12: Bridge & Lifecycle
 **Goal**: Ракета видима на экране -- ECS-данные синхронизируются с GameObject визуалом
@@ -121,7 +121,7 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 10. ECS Core | 3/3 | Complete    | 2026-04-05 |
-| 11. Collision & Scoring | 0/1 | Not started | - |
+| 11. Collision & Scoring | 1/1 | Complete    | 2026-04-05 |
 | 12. Bridge & Lifecycle | 0/TBD | Not started | - |
 | 13. Input & Game Integration | 0/TBD | Not started | - |
 | 14. Config & Visual Polish | 0/TBD | Not started | - |
