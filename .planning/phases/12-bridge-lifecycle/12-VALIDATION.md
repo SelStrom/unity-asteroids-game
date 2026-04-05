@@ -38,9 +38,12 @@ created: 2026-04-05
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 12-01-01 | 01 | 1 | VIS-01 | — | N/A | manual-only | — | — | ⬜ pending |
-| 12-01-02 | 01 | 1 | VIS-03 | — | N/A | unit | `GameObjectSyncSystemTests` | ❌ W0 | ⬜ pending |
-| 12-02-01 | 02 | 1 | TEST-02 | — | N/A | integration | `RocketLifecycleTests` | ❌ W0 | ⬜ pending |
+| 12-01-T1 | 01 | 1 | VIS-03 | — | N/A | unit | `GameObjectSyncSystemTests` | ❌ W0 | ⬜ pending |
+| 12-01-T2 | 01 | 1 | D-07 | — | N/A | grep | `grep RocketShootEvent RocketShootEvent.cs` | ❌ W0 | ⬜ pending |
+| 12-02-T1 | 02 | 2 | VIS-01 | — | N/A | grep | `grep RocketVisual RocketVisual.cs` | ❌ W0 | ⬜ pending |
+| 12-02-T2 | 02 | 2 | D-08, D-09 | — | N/A | grep | `grep ProcessRocketEvents ShootEventProcessorSystem.cs` | ❌ W0 | ⬜ pending |
+| 12-03-T1 | 03 | 3 | TEST-02 | — | N/A | integration | `RocketLifecycleTests` | ❌ W0 | ⬜ pending |
+| 12-03-T2 | 03 | 3 | VIS-01 | — | N/A | checkpoint:human-verify | — | — | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 

@@ -391,17 +391,13 @@ public void RocketLifecycle_SpawnToCleanup()
 | A3 | Physics Layer "PlayerBullet" подходит для ракеты | Pitfall 5 | Средний -- может потребоваться отдельный layer если логика коллизий отличается от пуль |
 | A4 | GunShootEvent/LaserShootEvent буферы создаются где-то за пределами EntityFactory.CreateShip | Pitfall 2 | Средний -- нужно найти где создаются буферы и добавить RocketShootEvent |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Где создаются DynamicBuffer<GunShootEvent> и DynamicBuffer<LaserShootEvent>?**
-   - What we know: `EntityFactory.CreateShip` не добавляет эти буферы. Они нужны для `ShootEventProcessorSystem`.
-   - What's unclear: Создаются ли они в `EcsGunSystem`/`EcsLaserSystem` при необходимости или при инициализации мира.
-   - Recommendation: Найти при реализации и добавить `DynamicBuffer<RocketShootEvent>` в то же место.
+   - **RESOLVED:** Singleton entity с буферами создаётся в Application.cs при старте ECS-мира. Plan 12-02 Task 2 добавляет `DynamicBuffer<RocketShootEvent>` в то же место (Application.cs singleton pattern).
 
 2. **Physics Layer для ракеты: PlayerBullet или отдельный Rocket?**
-   - What we know: В STATE.md упомянуто как blocker -- "Physics Layer 'Rocket': решить -- отдельный layer или переиспользовать PlayerBullet (Phase 11)"
-   - What's unclear: Было ли принято решение в Phase 11.
-   - Recommendation: Использовать "PlayerBullet" если коллизионная матрица идентична пулям. Создать отдельный layer только если нужна отличающаяся физика.
+   - **RESOLVED:** Использовать "PlayerBullet" -- коллизионная матрица идентична пулям (Phase 11 D-05: ракета коллидирует только с врагами). Отдельный layer не нужен.
 
 ## Sources
 
