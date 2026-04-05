@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace SelStrom.Asteroids.ECS
 {
@@ -8,5 +9,8 @@ namespace SelStrom.Asteroids.ECS
         public float ReloadDurationSec;
         public int CurrentAmmo;
         public float ReloadRemaining;
+        public bool Shooting;
+        public float2 Direction;
+        public float2 ShootPosition;
     }
 }

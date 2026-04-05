@@ -7,6 +7,7 @@ namespace SelStrom.Asteroids.ECS
     {
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<RocketShootEvent>();
         }
 
         public void OnDestroy(ref SystemState state)
@@ -16,8 +17,9 @@ namespace SelStrom.Asteroids.ECS
         public void OnUpdate(ref SystemState state)
         {
             var deltaTime = SystemAPI.Time.DeltaTime;
+            var rocketEvents = SystemAPI.GetSingletonBuffer<RocketShootEvent>();
 
-            foreach (var ammo in SystemAPI.Query<RefRW<RocketAmmoData>>())
+            foreach (var (ammo, entity) in SystemAPI.Query<RefRW<RocketAmmoData>>().WithEntityAccess())
             {
                 if (ammo.ValueRO.CurrentAmmo < ammo.ValueRO.MaxAmmo)
                 {
@@ -28,6 +30,19 @@ namespace SelStrom.Asteroids.ECS
                         ammo.ValueRW.CurrentAmmo += 1;
                     }
                 }
+
+                if (ammo.ValueRO.Shooting && ammo.ValueRO.CurrentAmmo > 0)
+                {
+                    ammo.ValueRW.CurrentAmmo--;
+                    rocketEvents.Add(new RocketShootEvent
+                    {
+                        ShooterEntity = entity,
+                        Position = ammo.ValueRO.ShootPosition,
+                        Direction = ammo.ValueRO.Direction
+                    });
+                }
+
+                ammo.ValueRW.Shooting = false;
             }
         }
     }

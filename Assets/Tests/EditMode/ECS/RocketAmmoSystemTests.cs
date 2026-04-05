@@ -10,17 +10,13 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
     {
         private SystemHandle _systemHandle;
 
+        private Entity _singletonEntity;
+
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
             _systemHandle = World.CreateSystem<EcsRocketAmmoSystem>();
-        }
-
-        private Entity _singletonEntity;
-
-        private void CreateRocketEventSingleton()
-        {
             _singletonEntity = m_Manager.CreateEntity();
             m_Manager.AddBuffer<RocketShootEvent>(_singletonEntity);
         }
@@ -143,8 +139,6 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         [Test]
         public void Shoot_WithAmmo_CreatesRocketShootEvent()
         {
-            CreateRocketEventSingleton();
-
             var entity = m_Manager.CreateEntity();
             m_Manager.AddComponentData(entity, new RocketAmmoData
             {
@@ -172,8 +166,6 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         [Test]
         public void Shoot_WithoutAmmo_NoEvent()
         {
-            CreateRocketEventSingleton();
-
             var entity = m_Manager.CreateEntity();
             m_Manager.AddComponentData(entity, new RocketAmmoData
             {
@@ -198,8 +190,6 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         [Test]
         public void Shoot_ResetsShootingFlag_Unconditionally()
         {
-            CreateRocketEventSingleton();
-
             var entity = m_Manager.CreateEntity();
             m_Manager.AddComponentData(entity, new RocketAmmoData
             {
@@ -221,8 +211,6 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         [Test]
         public void Shoot_WithAmmo_ResetsShootingFlag()
         {
-            CreateRocketEventSingleton();
-
             var entity = m_Manager.CreateEntity();
             m_Manager.AddComponentData(entity, new RocketAmmoData
             {
@@ -244,8 +232,6 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         [Test]
         public void Reload_StillWorks_WithShootingFields()
         {
-            CreateRocketEventSingleton();
-
             var entity = m_Manager.CreateEntity();
             m_Manager.AddComponentData(entity, new RocketAmmoData
             {
