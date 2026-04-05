@@ -1,117 +1,134 @@
 # Feature Landscape
 
-**Домен:** Миграция 2D-аркады Asteroids с Unity 2022.3 + Built-in RP на Unity 6.3 + URP + гибридный DOTS
-**Дата исследования:** 2026-04-02
+**Domain:** Самонаводящиеся ракеты для аркадного шутера Asteroids (Unity 6.3, гибридный DOTS)
+**Researched:** 2026-04-05
 
 ## Table Stakes
 
-Функции, без которых миграция считается неуспешной. Весь текущий геймплей должен работать 1:1.
+Фичи, которые игроки ожидают от системы самонаводящихся ракет. Без них механика ощущается сломанной.
 
-| Функция | Почему обязательна | Сложность | Примечания |
-|---------|-------------------|-----------|------------|
-| Апгрейд проекта на Unity 6.3 | Базовое требование, без него невозможны URP и DOTS | Low | Автоматический апгрейд через Unity Hub, ручная проверка скриптов |
-| Фикс shtl-mvvm: TMP как встроенный модуль | В Unity 6 TMP слит с uGUI (com.unity.ugui), пакет com.unity.textmeshpro удалён. shtl-mvvm имеет явную зависимость на него | Med | Нужен conditional reference: #if для версий 2022.3 vs 6.x, обратная совместимость обязательна |
-| Миграция материалов/шейдеров на URP | Спрайты на Built-in шейдерах станут розовыми/чёрными | Low | Render Pipeline Converter (Window > Rendering) автоматизирует. Для 2D-спрайтов замена минимальна: Sprites-Default -> Sprite-Lit-Default |
-| Настройка URP 2D Renderer Asset | URP требует Pipeline Asset + 2D Renderer. Без них рендеринг не работает | Low | Создать URP Asset, выбрать 2D Renderer, назначить в Project Settings > Graphics |
-| Сохранение Physics2D коллизий | Игра использует OnCollisionEnter2D и Physics2D.RaycastNonAlloc для лазера | Low | Physics2D работает в URP без изменений, это не зависит от рендер-пайплайна |
-| Сохранение Input System | Проект уже на новом Input System (1.19.0) с .inputactions | Low | Совместим с Unity 6.3, изменений не требуется |
-| Миграция TMP Essential Resources | При апгрейде на Unity 6 нужен ре-импорт TMP ресурсов (шрифты, шейдеры) | Low | Появится popup при первом открытии — принять и ре-импортировать |
-| Гибридный DOTS: IComponentData для игровой логики | Перенос MoveComponent, ThrustComponent и т.д. на ECS IComponentData | High | Ядро миграции. 8 систем, 5 типов сущностей. Требует Baker для каждого типа |
-| Гибридный DOTS: SystemBase/ISystem для систем | Перенос MoveSystem, ThrustSystem и др. на ECS SystemBase или ISystem | High | Замена ручного цикла Model.Update на World.Update. Порядок через [UpdateBefore/After] |
-| Гибридный DOTS: сохранение GameObject Views | UI и визуалы (ShipVisual, AsteroidVisual) остаются на MonoBehaviour + shtl-mvvm | Med | Companion components или managed references. SpriteRenderer на entities — companion component |
-| WebGL-совместимость DOTS | Текущий проект собирается под WebGL. Burst/Jobs должны работать | Med | Burst поддерживает WebGL (WASM). Но нет многопоточности в WebGL — Jobs выполняются синхронно |
+| Feature | Why Expected | Complexity | Dependencies | Notes |
+|---------|--------------|------------|-------------|-------|
+| Запуск ракеты по кнопке (R) | Базовый ввод; без него оружие недоступно | Low | Input System (`PlayerActions`), `RocketData` компонент, `RocketShootEvent` буфер | Аналог GunData.Shooting -- флаг + обработка в EcsRocketSystem |
+| Наведение на ближайшую цель | Суть "самонаводящейся" ракеты; без этого это просто пуля | High | `ShipPositionData` singleton, QueryBuilder для AsteroidTag/UfoTag/UfoBigTag, `RocketHomingData` компонент | Поиск ближайшего врага + поворот Direction к цели каждый кадр |
+| Ограниченный боезапас | Без лимита ракеты обесценивают пули и лазер | Low | `RocketData.MaxShoots`, `RocketData.CurrentShoots` | По аналогии с LaserData -- начальный запас из конфига |
+| Респавн ракет по таймеру | Игрок должен получать новые ракеты, иначе механика одноразовая | Low | `RocketData.ReloadRemaining`, `RocketData.ReloadDurationSec` | Инкрементальная перезарядка как у лазера (по одной) |
+| Время жизни ракеты (LifeTime) | Ракета не должна летать вечно -- забивает экран, нарушает баланс | Low | `LifeTimeData` (уже есть) | Переиспользуем существующий LifeTimeData + EcsDeadByLifeTimeSystem |
+| Коллизия ракеты с врагами | Ракета должна уничтожать цели | Med | `EcsCollisionHandlerSystem`, новый `RocketTag` + `PlayerRocketTag` | Расширить ProcessCollision для ракет; ракета = одноразовое попадание |
+| Коллизия ракеты со случайными врагами по пути | Ракета летит к цели, но поражает любого врага на пути | Low | Collider2D на GameObject ракеты | Физика Unity 2D обеспечит это автоматически через OnCollisionEnter2D |
+| HUD: количество доступных ракет | Игрок должен видеть боезапас | Low | ObservableBridgeSystem, MVVM ReactiveValue | Аналог отображения лазерных зарядов в HUD |
+| Визуал ракеты (спрайт) | Ракета должна быть видна и отличима от пули | Low | SpriteRenderer, GameObjectPool | По PROJECT.md: уменьшенный спрайт корабля |
+| Инверсионный след (частицы) | Визуальная обратная связь полета ракеты; без следа ракета неотличима от пули | Med | ParticleSystem на GameObject ракеты, URP совместимость | Rate Over Distance emission для непрерывного следа; нужна подходящая скорость эмиссии чтобы не было разрывов |
+| Конфигурация через ScriptableObject | Все параметры ракеты из конфигов, не захардкожены | Low | `RocketConfig` : `BaseGameEntityData`, GameData | Скорость, поворот (град/сек), макс. боезапас, время перезарядки, время жизни, очки |
 
 ## Differentiators
 
-Функции, которые даёт новый стек поверх 1:1 миграции. Не обязательны, но ценны.
+Фичи, которые выделяют реализацию. Не ожидаемы, но повышают ценность.
 
-| Функция | Ценность | Сложность | Примечания |
-|---------|----------|-----------|------------|
-| URP 2D Lighting | 2D-источники света для визуальных эффектов: свечение пуль, лазера, взрывов | Med | Не было возможности в Built-in RP. Sprite-Lit-Default материал уже поддерживает. Требует добавления 2D Light компонентов |
-| Burst-компиляция ECS систем | Значительное ускорение числовых расчётов (движение, физика прицеливания UFO) | Low | Для простой аркады прирост академический, но демонстрирует возможности стека |
-| Box2D v3 (новый 2D Physics API) | Улучшенная производительность, детерминизм, отладка физики | Low | Unity 6.3 добавляет low-level API на Box2D v3. Работает параллельно со старым API. Для аркады не критично |
-| Shader Graph для 2D эффектов | Визуальный редактор шейдеров для кастомных эффектов (свечение, искажение) | Med | URP + Shader Graph — мощная связка. В Built-in RP Shader Graph ограничен |
-| URP Post-Processing (Bloom, Vignette) | Глобальные визуальные эффекты: bloom на выстрелах, виньетка | Low | Встроен в URP Volume system. Kawase/Dual filtering bloom в Unity 6.3 |
-| Sprite Atlas Analyzer | Инструмент оптимизации атласов спрайтов | Low | Новый в Unity 6.3. Полезен для оптимизации draw calls |
-| SubScene для уровней | Стриминг и инкрементальная загрузка сцен через DOTS SubScene | Low | Для одноэкранной аркады избыточно, но полезно как архитектурный паттерн |
-| Entities Query + SystemAPI | Типобезопасные запросы к компонентам без ручных словарей | Low | Заменяет кастомный Dictionary<IGameEntityModel, TNode> в BaseModelSystem<TNode> |
+| Feature | Value Proposition | Complexity | Dependencies | Notes |
+|---------|-------------------|------------|-------------|-------|
+| Плавный поворот с ограниченным turn rate | Ракета летит по дуге, а не мгновенно меняет направление -- визуально красиво и создает контргейм (враги могут "уклониться") | Med | `RocketHomingData.TurnRateDegreesPerSec`, math.atan2 + clamp delta angle | Ключевой параметр баланса: слишком быстрый поворот = просто пуля, слишком медленный = промахи. Рекомендация: 180-270 град/сек |
+| Переключение цели при уничтожении текущей | Если цель умерла до попадания, ракета ищет новую | Med | Проверка HasComponent<DeadTag> на targetEntity каждый кадр | Без этого ракета теряет смысл при быстром уничтожении целей пулями |
+| Ракета вращается визуально по направлению полета | Спрайт разворачивается в сторону движения | Low | atan2 от Direction -> Quaternion.Euler в Visual/Bridge | Значительно улучшает "ощущение" ракеты |
+| Взрыв при попадании (VFX) | Визуальная награда за попадание | Low | Существующий ExplosionVFX + GameObjectPool | Переиспользовать паттерн взрыва астероидов/UFO |
+| HUD: таймер перезарядки ракет | Игрок видит когда придет следующая ракета | Low | ObservableBridgeSystem, MVVM | Аналог таймера лазера |
 
 ## Anti-Features
 
-Функции, которые сознательно НЕ нужно внедрять при миграции.
+Фичи, которые НЕ следует реализовывать.
 
-| Анти-функция | Почему избегать | Что делать вместо |
-|-------------|-----------------|-------------------|
-| Полный DOTS (без GameObjects для визуалов) | Entities Graphics не поддерживает SpriteRenderer нативно — только как companion component. Полный DOTS для 2D спрайтов требует кастомного рендеринга или NSprites | Гибридный подход: ECS для логики, GameObjects для визуалов |
-| DOTS 2D Physics (com.unity.2d.entities.physics) | Пакет в preview, не production-ready. Нет verified-версии для Unity 6.3 | Оставить стандартный Physics2D. Коллизии обрабатывать в MonoBehaviour, результаты передавать в ECS |
-| Unity AI (Beta) | Beta в Unity 6.3, не стабильно для production pipeline | Игнорировать на этапе миграции |
-| Netcode for Entities | Проект не мультиплеерный, онлайн только лидерборд через UGS | Оставить UGS Leaderboard API как есть |
-| CoreCLR / .NET 9 runtime | В roadmap Unity 2026, но ещё не доступно в 6.3. Mono backend стабилен | Оставить Mono. Перейти на CoreCLR когда станет verified |
-| Миграция shtl-mvvm на UI Toolkit | UI Toolkit ещё не полностью заменяет uGUI для runtime UI в играх. shtl-mvvm заточена под uGUI | Оставить uGUI + shtl-mvvm. UI Toolkit — отдельный будущий milestone |
-| Миграция всех багов одновременно | 7 известных критических багов. Исправление при миграции увеличивает риск регрессий | Баги — отдельный milestone после миграции (как указано в PROJECT.md) |
-| Новый Input System Actions Asset рефакторинг | Текущий Input System уже работает (v1.19.0 с .inputactions) | Оставить как есть, работает без изменений |
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Управляемая игроком ракета (player-guided missile) | Ломает flow аркадного геймплея -- игрок перестает управлять кораблем | Полностью автоматическое наведение после запуска (fire-and-forget) |
+| Множественные типы ракет | Явно out of scope в PROJECT.md; усложняет баланс и UI | Один тип ракеты с конфигурируемыми параметрами |
+| Proportional Navigation / предиктивное прицеливание | Избыточная сложность для аркады; PN предназначена для симуляторов. Цели (астероиды) движутся линейно -- простой seek достаточен | Простой seek: каждый кадр поворачивать Direction к текущей позиции цели с ограниченным turn rate |
+| Бесконечный поворот (мгновенная смена направления) | Ракета становится неотличима от "умной пули"; теряется визуальная дуга полета | Ограниченный turn rate (180-270 град/сек) -- ракета реально промахивается по быстрым целям |
+| Тороидальное наведение (учет wrap-around при расчете расстояния) | Крайне сложная геометрия: нужно проверять 9 "фантомных" позиций цели; непропорциональная сложность для edge case | Наводиться на "прямую" позицию цели. Тороидальное перемещение ракеты через MoveSystem уже работает -- ракета пройдет через край экрана и продолжит наводиться |
+| Ракеты для UFO (враждебные homing) | Радикально меняет баланс; требует отдельную систему уклонения | Только игрок стреляет ракетами |
+| Lock-on индикатор на цели | Перегружает минималистичный UI Asteroids | Ракета просто летит к ближайшему; игрок видит это по траектории |
 
 ## Feature Dependencies
 
 ```
-Unity 6.3 Upgrade
-  ├── TMP Migration (shtl-mvvm fix)
-  │     └── UI работоспособность (все экраны)
-  ├── URP Migration
-  │     ├── Material/Shader конвертация
-  │     ├── 2D Renderer Asset настройка
-  │     └── [опционально] 2D Lighting
-  │           └── [опционально] Post-Processing (Bloom)
-  └── Hybrid DOTS Migration
-        ├── IComponentData определения
-        ├── Baker авторинг компонентов
-        ├── ISystem/SystemBase системы
-        ├── Companion Objects (SpriteRenderer на entities)
-        └── World lifecycle (замена Model.Update)
-```
+Input (кнопка R)
+  -> RocketData компонент на Ship entity
+    -> EcsRocketSystem (перезарядка + событие запуска)
+      -> RocketShootEvent буфер
+        -> Спавн ракеты (EntityFactory.CreateRocket + GameObject)
+          -> RocketHomingData + MoveData + LifeTimeData на rocket entity
+            -> EcsRocketHomingSystem (наведение: поиск цели + поворот Direction)
+              -> EcsMoveSystem (уже есть -- двигает по Direction)
+                -> GameObjectSyncSystem (уже есть -- синхронизирует Position)
+                  -> CollisionHandler (расширить для RocketTag)
 
-Ключевые зависимости:
-- **Unity 6.3 Upgrade** обязан быть первым — всё остальное от него зависит
-- **TMP fix** блокирует любую работу с UI после апгрейда
-- **URP** и **DOTS** независимы друг от друга, но обе зависят от Unity 6.3
-- **URP** проще и быстрее, поэтому логично делать перед DOTS
-- **DOTS** — самая сложная часть, делать последней на стабильной базе
+Визуал (параллельно):
+  Спавн ракеты -> RocketVisual MonoBehaviour
+    -> SpriteRenderer (уменьшенный корабль)
+    -> ParticleSystem (инверсионный след)
+    -> Вращение спрайта по Direction
+
+HUD (параллельно):
+  RocketData -> ObservableBridgeSystem -> MVVM ReactiveValue -> HudVisual
+```
 
 ## MVP Recommendation
 
-### Приоритет 1: Unity 6.3 + TMP совместимость
-1. Апгрейд проекта на Unity 6.3
-2. Фикс shtl-mvvm для TMP как встроенного модуля (с обратной совместимостью)
-3. Ре-импорт TMP Essential Resources
-4. Проверка компиляции и запуска
+Приоритет реализации (строгий порядок по зависимостям):
 
-### Приоритет 2: URP миграция
-1. Установка URP пакета, создание 2D Renderer Asset
-2. Конвертация материалов через Render Pipeline Converter
-3. Проверка визуального соответствия 1:1
+1. **RocketData + RocketConfig** -- ECS компонент и ScriptableObject конфиг (аналог LaserData)
+2. **Input binding** -- кнопка R в PlayerActions.inputactions
+3. **EcsRocketSystem** -- перезарядка + генерация RocketShootEvent (аналог EcsLaserSystem)
+4. **EntityFactory.CreateRocket** -- спавн entity с RocketTag + MoveData + LifeTimeData + RocketHomingData
+5. **EcsRocketHomingSystem** -- ядро: поиск ближайшего врага + поворот Direction с ограниченным turn rate
+6. **CollisionHandler** -- расширить для PlayerRocketTag (ракета + враг = оба уничтожены + очки)
+7. **RocketVisual** -- спрайт + ParticleSystem trail + вращение по направлению
+8. **HUD** -- отображение боезапаса и таймера перезарядки
 
-### Приоритет 3: Гибридный DOTS
-1. Определение IComponentData для каждого компонента (Move, Thrust, Rotate, Gun, Laser, LifeTime, ShootTo, MoveTo)
-2. Baker авторинг для 5 типов сущностей
-3. Перенос 8 систем на ISystem с Burst
-4. Интеграция с GameObject Views через companion components
-5. Замена Model lifecycle на World lifecycle
+**Defer:**
+- Переключение цели при смерти текущей: реализовать в MVP, но если сложно -- fallback на "ракета продолжает лететь прямо"
+- Взрыв VFX при попадании: уже есть паттерн, добавить после базовой механики
+- Таймер перезарядки в HUD: после базового счетчика ракет
 
-### Отложить:
-- **2D Lighting / Post-Processing**: визуальные улучшения — отдельный milestone после стабильной миграции
-- **Box2D v3 API**: работает параллельно со старым API, переход необязателен
-- **Shader Graph эффекты**: декоративные, не влияют на функциональность
+## Complexity Assessment
+
+| Компонент | Сложность | Обоснование |
+|-----------|-----------|-------------|
+| RocketData + Config | Low | Копия LaserData с другими параметрами |
+| EcsRocketSystem | Low | Копия EcsLaserSystem |
+| Input binding | Low | Одно новое действие в InputActions |
+| EntityFactory.CreateRocket | Low | Аналог CreateBullet + доп. компоненты |
+| EcsRocketHomingSystem | **High** | Новая логика: поиск цели среди всех врагов (Query), расчет угла, clamp поворота. Должна быть корректной математически |
+| CollisionHandler расширение | Low | +2 ветки if в ProcessCollision |
+| RocketVisual + Trail | Med | Новый MonoBehaviour + ParticleSystem настройка + вращение спрайта |
+| HUD интеграция | Low | По аналогии с лазером через ObservableBridge |
+
+**Общая оценка: Medium.** Основная сложность сконцентрирована в EcsRocketHomingSystem. Все остальное -- расширение существующих паттернов.
+
+## Key Design Decisions
+
+### Seek vs Proportional Navigation
+**Решение: простой Seek с ограниченным turn rate.**
+Каждый кадр: вычислить угол к цели, повернуть Direction максимум на `TurnRate * deltaTime` градусов. Это дает визуально красивую дугу и достаточную точность для аркадных целей.
+
+### Burst-совместимость EcsRocketHomingSystem
+**Проблема:** Поиск ближайшего врага требует итерации по всем entity с AsteroidTag/UfoTag/UfoBigTag. Это managed query, но может быть Burst-совместимым если использовать только IComponentData.
+**Решение:** Система без BurstCompile (как EcsCollisionHandlerSystem и EcsGunSystem). Количество entity в Asteroids невелико (десятки), производительность не проблема.
+
+### PlayerRocketTag vs PlayerBulletTag
+**Решение: отдельный RocketTag + PlayerRocketTag.** Позволяет дифференцировать поведение в CollisionHandler. В будущем ракеты могут иметь другие правила (например, не уничтожаться при попадании в малый астероид). В CollisionHandler добавить `IsPlayerProjectile()` helper, объединяющий PlayerBulletTag и PlayerRocketTag.
+
+### Тороидальный wrap для ракеты
+**Решение: используем существующий EcsMoveSystem.** MoveData на ракете + EcsMoveSystem = автоматический wrap. Наведение не учитывает wrap (anti-feature выше), но ракета физически проходит через край экрана и корректно наводится на цель в "прямом" пространстве.
+
+### Хранение цели в компоненте
+**Решение: Entity targetEntity в RocketHomingData.** Каждый кадр проверяем: если target == Entity.Null или имеет DeadTag -- ищем новую цель. Это дешевле полного поиска каждый кадр и позволяет переключение цели.
 
 ## Sources
 
-- [Unity 6.3 LTS Release Notes](https://docs.unity3d.com/6000.3/Documentation/Manual/WhatsNewUnity63.html)
-- [Unity 6.3 LTS Blog Post](https://unity.com/blog/unity-6-3-lts-is-now-available)
-- [URP Upgrade from Built-in](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/upgrading-from-birp.html)
-- [URP 2D Sprite Preparation](https://docs.unity3d.com/6000.1/Documentation/Manual/urp/PrepShader.html)
-- [Entities 1.4 Baker Documentation](https://docs.unity3d.com/Packages/com.unity.entities@1.4/manual/ecs-workflow-example-authoring-baking.html)
-- [Entities Graphics Manual](https://docs.unity3d.com/6000.2/Documentation/Manual/com.unity.entities.graphics.html)
-- [ECS Development Status March 2025](https://discussions.unity.com/t/ecs-development-status-milestones-march-2025/1615810)
-- [TextMeshPro in Unity 6 Discussion](https://discussions.unity.com/t/textmesh-pro-in-unity-6/1580163)
-- [Render Pipeline Feature Comparison](https://docs.unity3d.com/6000.3/Documentation/Manual/render-pipelines-feature-comparison.html)
-- [DOTS 2D Physics Discussion](https://discussions.unity.com/t/any-2d-physics-solutions-with-dots/1654080)
-- [Input System Migration Guide](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.18/manual/Migration.html)
+- [Asteroids Deluxe -- Wikipedia](https://en.wikipedia.org/wiki/Asteroids_Deluxe) -- homing missiles как враг в оригинальном сиквеле
+- [How to Create Homing Missiles in Unity -- GameDeveloper](https://www.gamedeveloper.com/business/how-to-create-homing-missiles-in-game-with-unity) -- target acquisition, turn rate балансировка
+- [2D Homing Missile Algorithm -- GitHub yoyoberenguer](https://github.com/yoyoberenguer/Homing-missile) -- visual cone, speed balancing, orbit trap issue
+- [Unity Proportional Navigation Collection -- GitHub](https://github.com/Woreira/Unity-Proportional-Navigation-Collection) -- PN guidance (отвергнуто как избыточное для аркады)
+- [Homing Missile Phaser 3 -- Ourcade](https://blog.ourcade.co/posts/2020/make-homing-missile-seek-target-arcade-physics-phaser-3/) -- bounding box rotation issues
+- [GDevelop Homing Projectile docs](https://wiki.gdevelop.io/gdevelop5/extensions/homing-projectile/) -- turn rate, max speed, lifetime parameters
+- Анализ кодовой базы: `EcsGunSystem.cs`, `EcsLaserSystem.cs`, `EcsCollisionHandlerSystem.cs`, `EntityFactory.cs` -- паттерны для расширения
