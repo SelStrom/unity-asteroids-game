@@ -12,10 +12,24 @@ namespace SelStrom.Asteroids
     public class RocketVisual : AbstractWidgetView<RocketViewModel>, IEntityView
     {
         [SerializeField] private Collider2D _collider = default;
+        [SerializeField] private ParticleSystem _trailEffect = default;
 
         protected override void OnConnected()
         {
             _collider.enabled = true;
+            if (_trailEffect != null)
+            {
+                _trailEffect.Clear();
+                _trailEffect.Play();
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (_trailEffect != null)
+            {
+                _trailEffect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            }
         }
 
         private void OnCollisionEnter2D(Collision2D col)

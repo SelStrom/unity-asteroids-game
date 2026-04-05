@@ -232,6 +232,10 @@ namespace SelStrom.Asteroids
                 {
                     _game.PlayEffect(_configs.VfxBlowPrefab, position);
                 }
+                else if (entityType == EntityType.Rocket)
+                {
+                    _game.PlayEffect(_configs.VfxBlowPrefab, position);
+                }
             }
 
             _catalog.ReleaseByGameObject(go);
