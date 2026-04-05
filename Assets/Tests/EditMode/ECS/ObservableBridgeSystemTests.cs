@@ -250,5 +250,98 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             Assert.IsNull(shipViewModel.Sprite.Value,
                 "ShipViewModel.Sprite should remain null when sprites not configured");
         }
+
+        [Test]
+        public void PushesRocketData_ToHudData()
+        {
+            var hudData = new HudData();
+            _system.SetHudData(hudData);
+            _system.SetRocketMaxAmmo(3);
+
+            var entity = CreateFullShipEntity(
+                position: float2.zero,
+                speed: 0f,
+                direction: float2.zero,
+                rotation: new float2(1f, 0f),
+                thrustActive: false,
+                laserCurrentShoots: 3,
+                laserMaxShoots: 3,
+                reloadRemaining: 0f);
+            m_Manager.SetComponentData(entity, new RocketAmmoData
+            {
+                CurrentAmmo = 2,
+                MaxAmmo = 3,
+                ReloadRemaining = 4.0f,
+                ReloadDurationSec = 5.0f
+            });
+
+            _system.Update();
+
+            Assert.AreEqual("Rockets: 2", hudData.RocketAmmoCount.Value);
+            Assert.IsTrue(hudData.IsRocketReloadTimeVisible.Value,
+                "IsRocketReloadTimeVisible should be true when ammo < maxAmmo");
+        }
+
+        [Test]
+        public void PushesRocketReloadVisibility_HiddenWhenFull()
+        {
+            var hudData = new HudData();
+            _system.SetHudData(hudData);
+            _system.SetRocketMaxAmmo(3);
+
+            var entity = CreateFullShipEntity(
+                position: float2.zero,
+                speed: 0f,
+                direction: float2.zero,
+                rotation: new float2(1f, 0f),
+                thrustActive: false,
+                laserCurrentShoots: 3,
+                laserMaxShoots: 3,
+                reloadRemaining: 0f);
+            m_Manager.SetComponentData(entity, new RocketAmmoData
+            {
+                CurrentAmmo = 3,
+                MaxAmmo = 3,
+                ReloadRemaining = 0f,
+                ReloadDurationSec = 5.0f
+            });
+
+            _system.Update();
+
+            Assert.IsFalse(hudData.IsRocketReloadTimeVisible.Value,
+                "IsRocketReloadTimeVisible should be false when ammo == maxAmmo");
+        }
+
+        [Test]
+        public void PushesRocketReloadTime_ToHudData()
+        {
+            var hudData = new HudData();
+            _system.SetHudData(hudData);
+            _system.SetRocketMaxAmmo(3);
+
+            var entity = CreateFullShipEntity(
+                position: float2.zero,
+                speed: 0f,
+                direction: float2.zero,
+                rotation: new float2(1f, 0f),
+                thrustActive: false,
+                laserCurrentShoots: 3,
+                laserMaxShoots: 3,
+                reloadRemaining: 0f);
+            m_Manager.SetComponentData(entity, new RocketAmmoData
+            {
+                CurrentAmmo = 1,
+                MaxAmmo = 3,
+                ReloadRemaining = 4.7f,
+                ReloadDurationSec = 5.0f
+            });
+
+            _system.Update();
+
+            Assert.IsTrue(hudData.RocketReloadTime.Value.Contains("Reload rocket:"),
+                "RocketReloadTime should contain 'Reload rocket:'");
+            Assert.IsTrue(hudData.RocketReloadTime.Value.Contains("sec"),
+                "RocketReloadTime should contain 'sec'");
+        }
     }
 }
