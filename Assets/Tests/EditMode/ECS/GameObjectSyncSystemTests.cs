@@ -175,5 +175,109 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             Assert.AreEqual(20f, go.transform.position.y, 0.001f);
             Assert.AreEqual(-5f, go.transform.position.z, 0.001f);
         }
+
+        [Test]
+        public void SyncsPositionAndRotationFromDirection_ForRocketEntity()
+        {
+            var go = CreateTestGameObject();
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new RocketTag());
+            m_Manager.AddComponentData(entity, new MoveData
+            {
+                Position = new float2(5f, 3f),
+                Direction = new float2(0f, 1f)
+            });
+            m_Manager.AddComponentObject(entity, new GameObjectRef
+            {
+                Transform = go.transform,
+                GameObject = go
+            });
+
+            _system.Update();
+
+            Assert.AreEqual(5f, go.transform.position.x, 0.001f);
+            Assert.AreEqual(3f, go.transform.position.y, 0.001f);
+            Assert.AreEqual(90f, go.transform.eulerAngles.z, 0.1f);
+        }
+
+        [Test]
+        public void RocketEntity_DoesNotAffectPositionOnlyBranch()
+        {
+            var goRocket = CreateTestGameObject("rocket");
+            var goBullet = CreateTestGameObject("bullet");
+
+            var rocketEntity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(rocketEntity, new RocketTag());
+            m_Manager.AddComponentData(rocketEntity, new MoveData
+            {
+                Position = new float2(1f, 2f),
+                Direction = new float2(0f, 1f)
+            });
+            m_Manager.AddComponentObject(rocketEntity, new GameObjectRef
+            {
+                Transform = goRocket.transform,
+                GameObject = goRocket
+            });
+
+            var bulletEntity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(bulletEntity, new MoveData
+            {
+                Position = new float2(3f, 4f)
+            });
+            m_Manager.AddComponentObject(bulletEntity, new GameObjectRef
+            {
+                Transform = goBullet.transform,
+                GameObject = goBullet
+            });
+
+            _system.Update();
+
+            Assert.AreEqual(Quaternion.identity, goBullet.transform.rotation);
+            Assert.AreEqual(90f, goRocket.transform.eulerAngles.z, 0.1f);
+        }
+
+        [Test]
+        public void RocketRotation_ZeroDegrees_ForRightDirection()
+        {
+            var go = CreateTestGameObject();
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new RocketTag());
+            m_Manager.AddComponentData(entity, new MoveData
+            {
+                Position = new float2(0f, 0f),
+                Direction = new float2(1f, 0f)
+            });
+            m_Manager.AddComponentObject(entity, new GameObjectRef
+            {
+                Transform = go.transform,
+                GameObject = go
+            });
+
+            _system.Update();
+
+            Assert.AreEqual(0f, go.transform.eulerAngles.z, 0.1f);
+        }
+
+        [Test]
+        public void RocketRotation_180Degrees_ForLeftDirection()
+        {
+            var go = CreateTestGameObject();
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new RocketTag());
+            m_Manager.AddComponentData(entity, new MoveData
+            {
+                Position = new float2(0f, 0f),
+                Direction = new float2(-1f, 0f)
+            });
+            m_Manager.AddComponentObject(entity, new GameObjectRef
+            {
+                Transform = go.transform,
+                GameObject = go
+            });
+
+            _system.Update();
+
+            Assert.AreEqual(180f, go.transform.eulerAngles.z, 0.1f);
+        }
     }
 }
