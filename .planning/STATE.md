@@ -4,14 +4,14 @@ milestone: v1.2.0
 milestone_name: Самонаводящиеся ракеты
 status: executing
 stopped_at: Phase 12 context gathered (assumptions mode)
-last_updated: "2026-04-05T20:29:34.698Z"
-last_activity: 2026-04-05 -- Phase 12 planning complete
+last_updated: "2026-04-05T20:43:12.432Z"
+last_activity: 2026-04-05
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 4
-  percent: 57
+  completed_plans: 7
+  percent: 100
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** Играбельная классическая механика Asteroids с онлайн-лидербордом -- на современном стеке Unity с ECS-ядром
-**Current focus:** Phase 11 — Collision & Scoring
+**Current focus:** Phase 12 — Bridge & Lifecycle
 
 ## Current Position
 
-Phase: 12
+Phase: 13
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-04-05 -- Phase 12 planning complete
+Status: Executing Phase 12
+Last activity: 2026-04-05
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -36,7 +36,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity (v1.2.0):**
 
-- Total plans completed: 4
+- Total plans completed: 7
 - Average duration: -
 - Total execution time: 0 hours
 
@@ -46,6 +46,7 @@ Progress: [░░░░░░░░░░] 0%
 |-------|-------|-------|----------|
 | 10 | 3 | - | - |
 | 11 | 1 | - | - |
+| 12 | 3 | - | - |
 
 *Updated after each plan completion*
 
