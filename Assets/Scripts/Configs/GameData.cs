@@ -57,6 +57,15 @@ namespace SelStrom.Asteroids.Configs
         [Space]
         public ShipData Ship;
 
+        [Serializable]
+        public struct RocketData
+        {
+            public GameObject Prefab;
+        }
+
+        [Space]
+        public RocketData Rocket;
+
         [Space]
         [Header("Leaderboard")]
         public string LeaderboardId = "asteroids_highscores";

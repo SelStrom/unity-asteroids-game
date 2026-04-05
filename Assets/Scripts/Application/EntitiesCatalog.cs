@@ -17,7 +17,8 @@ namespace SelStrom.Asteroids
         Asteroid,
         Bullet,
         UfoBig,
-        Ufo
+        Ufo,
+        Rocket
     }
 
     public class EntitiesCatalog
@@ -266,6 +267,39 @@ namespace SelStrom.Asteroids
             };
 
             AddToCatalog(view.gameObject, entity, EntityType.Ufo, bindings);
+        }
+
+        public void CreateRocket(Vector2 position, Vector2 direction)
+        {
+            var viewModel = new RocketViewModel();
+            var bindings = new EventBindingContext();
+            bindings.InvokeAll();
+
+            var view = _viewFactory.Get<RocketVisual>(_configs.Rocket.Prefab);
+            view.Connect(viewModel);
+
+            // TODO Phase 14: вынести speed, lifeTime, turnRateDegPerSec в RocketData конфиг
+            var entity = EntityFactory.CreateRocket(
+                _entityManager,
+                new float2(position.x, position.y),
+                speed: 8f,
+                new float2(direction.x, direction.y),
+                lifeTime: 5f,
+                turnRateDegPerSec: 180f
+            );
+            _entityManager.AddComponentObject(entity, new GameObjectRef
+            {
+                Transform = view.transform,
+                GameObject = view.gameObject
+            });
+            _collisionBridge.RegisterMapping(view.gameObject, entity);
+
+            viewModel.OnCollision.Value = col =>
+            {
+                _collisionBridge.ReportCollision(view.gameObject, col.gameObject);
+            };
+
+            AddToCatalog(view.gameObject, entity, EntityType.Rocket, bindings);
         }
 
         private void AddToCatalog(GameObject go, Entity entity, EntityType type, EventBindingContext bindings)
