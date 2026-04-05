@@ -91,11 +91,10 @@ Plans:
   1. Скорость, turn rate, боезапас, время перезарядки, время жизни и очки задаются в ScriptableObject без магических чисел в коде
   2. За ракетой тянется инверсионный след (ParticleSystem), корректно очищающийся при переиспользовании из пула
   3. При попадании ракеты воспроизводится взрыв VFX (переиспользование существующего эффекта)
-**Plans**: 3 plans
+**Plans**: 2 plans
 Plans:
-- [ ] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
-- [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
-- [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
+- [ ] 14-01-PLAN.md -- ScriptableObject конфигурация, ScoreValue, trail код, VFX взрыв
+- [ ] 14-02-PLAN.md -- MCP: Rocket префаб с ParticleSystem trail, GameData.asset значения
 
 ### Phase 15: HUD
 **Goal**: Игрок видит информацию о ракетах в HUD
@@ -123,5 +122,5 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | 11. Collision & Scoring | 1/1 | Complete    | 2026-04-05 |
 | 12. Bridge & Lifecycle | 3/3 | Complete    | 2026-04-05 |
 | 13. Input & Game Integration | 2/2 | Complete    | 2026-04-05 |
-| 14. Config & Visual Polish | 0/TBD | Not started | - |
+| 14. Config & Visual Polish | 0/2 | Not started | - |
 | 15. HUD | 0/TBD | Not started | - |
