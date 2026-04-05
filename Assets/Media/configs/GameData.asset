@@ -38,3 +38,6 @@ MonoBehaviour:
     ThrustUnitsPerSecond: 6
     MaxSpeed: 15
     Gun: {fileID: 11400000, guid: 1e3368dd22db04940aafee344312e81f, type: 2}
+  Rocket:
+    Prefab: {fileID: 5925242302660939081, guid: d8253c055425d4045bb2fd3f149afd4d, type: 3}
+  LeaderboardId: asteroids_highscores
