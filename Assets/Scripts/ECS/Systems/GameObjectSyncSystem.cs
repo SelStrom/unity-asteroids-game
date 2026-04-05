@@ -21,13 +21,28 @@ namespace SelStrom.Asteroids.ECS
                 goRef.Transform.rotation = Quaternion.Euler(0f, 0f, angle);
             }
 
-            // Entities с MoveData + GameObjectRef, без RotateData (астероиды, пули)
+            // Entities с MoveData + GameObjectRef, без RotateData и без RocketTag (астероиды, пули)
             foreach (var (move, goRef) in
                      SystemAPI.Query<RefRO<MoveData>, GameObjectRef>()
+                         .WithNone<RotateData>()
+                         .WithNone<RocketTag>())
+            {
+                var pos = move.ValueRO.Position;
+                goRef.Transform.position = new Vector3(pos.x, pos.y, goRef.Transform.position.z);
+            }
+
+            // Entities с MoveData + RocketTag + GameObjectRef, без RotateData (ракеты)
+            foreach (var (move, goRef) in
+                     SystemAPI.Query<RefRO<MoveData>, GameObjectRef>()
+                         .WithAll<RocketTag>()
                          .WithNone<RotateData>())
             {
                 var pos = move.ValueRO.Position;
                 goRef.Transform.position = new Vector3(pos.x, pos.y, goRef.Transform.position.z);
+
+                var dir = move.ValueRO.Direction;
+                var angle = math.atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                goRef.Transform.rotation = Quaternion.Euler(0f, 0f, angle);
             }
         }
     }
