@@ -2,9 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Самонаводящиеся ракеты
-status: active
-last_updated: "2026-04-05"
-last_activity: 2026-04-05
+status: planning
+stopped_at: Phase 10 context gathered (auto mode)
+last_updated: "2026-04-05T19:19:58.917Z"
+last_activity: 2026-04-05 -- Roadmap created for v1.2.0
 progress:
   total_phases: 6
   completed_phases: 0
@@ -34,6 +35,7 @@ Progress: [░░░░░░░░░░] 0%
 ## Performance Metrics
 
 **Velocity (v1.2.0):**
+
 - Total plans completed: 0
 - Average duration: -
 - Total execution time: 0 hours
@@ -66,6 +68,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-05
-Stopped at: Roadmap created, ready to plan Phase 10
-Resume file: None
+Last session: 2026-04-05T19:19:58.878Z
+Stopped at: Phase 10 context gathered (auto mode)
+Resume file: .planning/phases/10-ecs-core/10-CONTEXT.md
