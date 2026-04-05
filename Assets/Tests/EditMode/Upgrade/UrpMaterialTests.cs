@@ -70,6 +70,26 @@ namespace SelStrom.Asteroids.Tests.EditMode
         }
 
         /// <summary>
+        /// rocket.prefab Trail ParticleSystemRenderer должен использовать URP материал.
+        /// Регрессия: Default-Particle (Built-in RP) невидим в URP.
+        /// </summary>
+        [Test]
+        public void RocketPrefabTrailUsesUrpMaterial()
+        {
+            var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
+                "Assets/Media/prefabs/rocket.prefab");
+            Assert.IsNotNull(prefab, "rocket.prefab должен существовать");
+            var trail = prefab.transform.Find("Trail");
+            Assert.IsNotNull(trail, "rocket.prefab должен иметь дочерний объект Trail");
+            var particleRenderer = trail.GetComponent<ParticleSystemRenderer>();
+            Assert.IsNotNull(particleRenderer, "Trail должен иметь ParticleSystemRenderer");
+            Assert.IsNotNull(particleRenderer.sharedMaterial,
+                "ParticleSystemRenderer должен иметь материал");
+            Assert.IsTrue(particleRenderer.sharedMaterial.shader.name.Contains("Particles"),
+                $"Trail ParticleSystem должен использовать URP Particles шейдер, текущий: {particleRenderer.sharedMaterial.shader.name}");
+        }
+
+        /// <summary>
         /// vfx_blow.prefab ParticleSystem stopAction должен быть Callback (для возврата в пул).
         /// </summary>
         [Test]
