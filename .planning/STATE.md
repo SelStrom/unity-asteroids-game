@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Самонаводящиеся ракеты
 status: executing
-stopped_at: Phase 11 context gathered (auto mode)
-last_updated: "2026-04-05T20:08:29.985Z"
+stopped_at: Phase 12 context gathered (assumptions mode)
+last_updated: "2026-04-05T20:15:34.711Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 6
@@ -69,6 +69,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-05T19:53:34.884Z
-Stopped at: Phase 11 context gathered (auto mode)
-Resume file: .planning/phases/11-collision-scoring/11-CONTEXT.md
+Last session: 2026-04-05T20:15:34.670Z
+Stopped at: Phase 12 context gathered (assumptions mode)
+Resume file: .planning/phases/12-bridge-lifecycle/12-CONTEXT.md
