@@ -66,9 +66,9 @@ Plans:
   4. Интеграционные тесты подтверждают полный lifecycle: спавн -> наведение -> коллизия -> уничтожение
 **Plans**: 3 plans
 Plans:
-- [x] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
-- [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
-- [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
+- [ ] 12-01-PLAN.md -- GameObjectSyncSystem третья ветка для RocketTag + RocketShootEvent
+- [ ] 12-02-PLAN.md -- RocketVisual, CreateRocket, ShootEventProcessorSystem, RocketData
+- [ ] 12-03-PLAN.md -- Интеграционные тесты lifecycle ракеты
 
 ### Phase 13: Input & Game Integration
 **Goal**: Игрок управляет запуском ракет -- нажатие R запускает ракету в игровом мире
@@ -122,7 +122,7 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15
 |-------|----------------|--------|-----------|
 | 10. ECS Core | 3/3 | Complete    | 2026-04-05 |
 | 11. Collision & Scoring | 1/1 | Complete    | 2026-04-05 |
-| 12. Bridge & Lifecycle | 0/TBD | Not started | - |
+| 12. Bridge & Lifecycle | 0/3 | Not started | - |
 | 13. Input & Game Integration | 0/TBD | Not started | - |
 | 14. Config & Visual Polish | 0/TBD | Not started | - |
 | 15. HUD | 0/TBD | Not started | - |
