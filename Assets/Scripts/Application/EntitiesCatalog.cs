@@ -105,7 +105,9 @@ namespace SelStrom.Asteroids
                 _configs.Ship.Gun.MaxShoots,
                 _configs.Ship.Gun.ReloadDurationSec,
                 _configs.Laser.LaserMaxShoots,
-                _configs.Laser.LaserUpdateDurationSec
+                _configs.Laser.LaserUpdateDurationSec,
+                rocketMaxAmmo: 3,
+                rocketReloadSec: 5f
             );
             _entityManager.AddComponentObject(entity, new GameObjectRef
             {

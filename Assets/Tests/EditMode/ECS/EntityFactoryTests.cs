@@ -19,7 +19,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 gunMaxShoots: 3,
                 gunReloadSec: 1.5f,
                 laserMaxShoots: 2,
-                laserReloadSec: 5f
+                laserReloadSec: 5f,
+                rocketMaxAmmo: 3,
+                rocketReloadSec: 5f
             );
 
             Assert.IsTrue(m_Manager.HasComponent<ShipTag>(entity));
@@ -28,6 +30,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             Assert.IsTrue(m_Manager.HasComponent<ThrustData>(entity));
             Assert.IsTrue(m_Manager.HasComponent<GunData>(entity));
             Assert.IsTrue(m_Manager.HasComponent<LaserData>(entity));
+            Assert.IsTrue(m_Manager.HasComponent<RocketAmmoData>(entity));
         }
 
         [Test]
@@ -42,7 +45,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 gunMaxShoots: 5,
                 gunReloadSec: 2f,
                 laserMaxShoots: 3,
-                laserReloadSec: 6f
+                laserReloadSec: 6f,
+                rocketMaxAmmo: 3,
+                rocketReloadSec: 5f
             );
 
             var move = m_Manager.GetComponentData<MoveData>(entity);
@@ -65,7 +70,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 gunMaxShoots: 0,
                 gunReloadSec: 0f,
                 laserMaxShoots: 0,
-                laserReloadSec: 0f
+                laserReloadSec: 0f,
+                rocketMaxAmmo: 0,
+                rocketReloadSec: 0f
             );
 
             Assert.IsFalse(m_Manager.HasComponent<ScoreValue>(entity));
@@ -207,6 +214,61 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
 
             var scoreValue = m_Manager.GetComponentData<ScoreValue>(entity);
             Assert.AreEqual(500, scoreValue.Score);
+        }
+        [Test]
+        public void CreateRocket_CreatesEntityWithAllComponents()
+        {
+            var entity = EntityFactory.CreateRocket(
+                m_Manager,
+                position: new float2(1f, 2f),
+                speed: 15f,
+                direction: new float2(0f, 1f),
+                lifeTime: 5f,
+                turnRateDegPerSec: 180f
+            );
+
+            Assert.IsTrue(m_Manager.HasComponent<RocketTag>(entity));
+            Assert.IsTrue(m_Manager.HasComponent<MoveData>(entity));
+            Assert.IsTrue(m_Manager.HasComponent<LifeTimeData>(entity));
+            Assert.IsTrue(m_Manager.HasComponent<RocketTargetData>(entity));
+
+            var move = m_Manager.GetComponentData<MoveData>(entity);
+            Assert.AreEqual(new float2(1f, 2f), move.Position);
+            Assert.AreEqual(15f, move.Speed);
+            Assert.AreEqual(new float2(0f, 1f), move.Direction);
+
+            var lifeTimeData = m_Manager.GetComponentData<LifeTimeData>(entity);
+            Assert.AreEqual(5f, lifeTimeData.TimeRemaining);
+
+            var targetData = m_Manager.GetComponentData<RocketTargetData>(entity);
+            Assert.AreEqual(Entity.Null, targetData.Target);
+            Assert.AreEqual(180f, targetData.TurnRateDegPerSec);
+        }
+
+        [Test]
+        public void CreateShip_HasRocketAmmoData()
+        {
+            var entity = EntityFactory.CreateShip(
+                m_Manager,
+                position: default,
+                moveSpeed: 5f,
+                thrustAcceleration: 10f,
+                thrustMaxSpeed: 15f,
+                gunMaxShoots: 3,
+                gunReloadSec: 1.5f,
+                laserMaxShoots: 2,
+                laserReloadSec: 5f,
+                rocketMaxAmmo: 4,
+                rocketReloadSec: 8f
+            );
+
+            Assert.IsTrue(m_Manager.HasComponent<RocketAmmoData>(entity));
+
+            var ammo = m_Manager.GetComponentData<RocketAmmoData>(entity);
+            Assert.AreEqual(4, ammo.MaxAmmo);
+            Assert.AreEqual(4, ammo.CurrentAmmo);
+            Assert.AreEqual(8f, ammo.ReloadDurationSec);
+            Assert.AreEqual(8f, ammo.ReloadRemaining);
         }
     }
 }

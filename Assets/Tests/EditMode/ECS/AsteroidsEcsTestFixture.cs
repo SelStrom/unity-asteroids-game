@@ -28,7 +28,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             World = null;
         }
 
-        protected Entity CreateShipEntity(float2 position = default, float speed = 0f)
+        protected Entity CreateShipEntity(
+            float2 position = default, float speed = 0f,
+            int rocketMaxAmmo = 3, float rocketReloadSec = 5f)
         {
             var entity = m_Manager.CreateEntity();
             m_Manager.AddComponentData(entity, new ShipTag());
@@ -41,6 +43,13 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             m_Manager.AddComponentData(entity, new ThrustData());
             m_Manager.AddComponentData(entity, new GunData());
             m_Manager.AddComponentData(entity, new LaserData());
+            m_Manager.AddComponentData(entity, new RocketAmmoData
+            {
+                MaxAmmo = rocketMaxAmmo,
+                ReloadDurationSec = rocketReloadSec,
+                CurrentAmmo = rocketMaxAmmo,
+                ReloadRemaining = rocketReloadSec
+            });
             return entity;
         }
 
@@ -129,6 +138,30 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             m_Manager.AddComponentData(entity, new ScoreValue
             {
                 Score = score
+            });
+            return entity;
+        }
+
+        protected Entity CreateRocketEntity(
+            float2 position, float speed, float2 direction, float lifeTime,
+            float turnRateDegPerSec = 180f)
+        {
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new RocketTag());
+            m_Manager.AddComponentData(entity, new MoveData
+            {
+                Position = position,
+                Speed = speed,
+                Direction = direction
+            });
+            m_Manager.AddComponentData(entity, new LifeTimeData
+            {
+                TimeRemaining = lifeTime
+            });
+            m_Manager.AddComponentData(entity, new RocketTargetData
+            {
+                Target = Entity.Null,
+                TurnRateDegPerSec = turnRateDegPerSec
             });
             return entity;
         }
