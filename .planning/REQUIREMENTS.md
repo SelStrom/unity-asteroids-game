@@ -35,14 +35,14 @@ Requirements for milestone v1.2.0: Самонаводящиеся ракеты. 
 
 ### HUD
 
-- [ ] **HUD-01**: HUD отображает количество доступных ракет
-- [ ] **HUD-02**: HUD отображает таймер перезарядки ракет
+- [x] **HUD-01**: HUD отображает количество доступных ракет
+- [x] **HUD-02**: HUD отображает таймер перезарядки ракет
 
 ### Testing
 
 - [ ] **TEST-01**: Юнит-тесты на ECS-компоненты и системы ракет (EditMode)
 - [ ] **TEST-02**: Интеграционные тесты на lifecycle ракеты (спавн -> наведение -> коллизия -> уничтожение)
-- [ ] **TEST-03**: MCP-верификация визуала и геймплея в Unity Editor
+- [x] **TEST-03**: MCP-верификация визуала и геймплея в Unity Editor
 
 ## v2 Requirements
 
@@ -83,11 +83,11 @@ Deferred to future releases.
 | VIS-03 | Phase 12 | Pending |
 | VIS-04 | Phase 14 | Pending |
 | CONF-01 | Phase 14 | Pending |
-| HUD-01 | Phase 15 | Pending |
-| HUD-02 | Phase 15 | Pending |
+| HUD-01 | Phase 15 | Complete |
+| HUD-02 | Phase 15 | Complete |
 | TEST-01 | Phase 10 | Pending |
 | TEST-02 | Phase 12 | Pending |
-| TEST-03 | Phase 15 | Pending |
+| TEST-03 | Phase 15 | Complete |
 
 **Coverage:**
 - v1.2 requirements: 19 total

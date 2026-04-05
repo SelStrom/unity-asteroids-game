@@ -23,7 +23,7 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
 - [x] **Phase 12: Bridge & Lifecycle** - Связь ECS с GameObject, спавн визуала, синхронизация позиции и вращения (completed 2026-04-05)
 - [x] **Phase 13: Input & Game Integration** - Запуск ракеты по кнопке R, интеграция в игровой цикл (completed 2026-04-05)
 - [x] **Phase 14: Config & Visual Polish** - ScriptableObject конфигурация, инверсионный след, взрыв VFX (completed 2026-04-05)
-- [ ] **Phase 15: HUD** - Отображение боезапаса и таймера перезарядки ракет
+- [x] **Phase 15: HUD** - Отображение боезапаса и таймера перезарядки ракет (completed 2026-04-05)
 
 ## Phase Details
 
@@ -106,8 +106,8 @@ Plans:
   3. MCP-верификация подтверждает корректный визуал и геймплей в Unity Editor
 **Plans**: 2 plans
 Plans:
-- [ ] 15-01-PLAN.md -- HudData/HudVisual/ObservableBridgeSystem/GameScreen код + тесты
-- [ ] 15-02-PLAN.md -- MCP: TMP_Text объекты в сцене + PlayMode верификация
+- [x] 15-01-PLAN.md -- HudData/HudVisual/ObservableBridgeSystem/GameScreen код + тесты
+- [x] 15-02-PLAN.md -- MCP: TMP_Text объекты в сцене + PlayMode верификация
 **UI hint**: yes
 
 ## Progress
@@ -122,4 +122,4 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | 12. Bridge & Lifecycle | 3/3 | Complete    | 2026-04-05 |
 | 13. Input & Game Integration | 2/2 | Complete    | 2026-04-05 |
 | 14. Config & Visual Polish | 2/2 | Complete    | 2026-04-05 |
-| 15. HUD | 0/2 | Not started | - |
+| 15. HUD | 2/2 | Complete   | 2026-04-05 |

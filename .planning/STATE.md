@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2.0
 milestone_name: Самонаводящиеся ракеты
 status: executing
-stopped_at: Phase 15 context gathered (auto mode)
-last_updated: "2026-04-05T22:40:27.035Z"
-last_activity: 2026-04-05 -- Phase 15 planning complete
+stopped_at: Completed 15-02-PLAN.md
+last_updated: "2026-04-05T22:52:12.905Z"
+last_activity: 2026-04-05
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 13
-  completed_plans: 11
-  percent: 85
+  completed_plans: 13
+  percent: 100
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** Играбельная классическая механика Asteroids с онлайн-лидербордом -- на современном стеке Unity с ECS-ядром
-**Current focus:** Phase 14 — Config & Visual Polish
+**Current focus:** Phase 15 — HUD
 
 ## Current Position
 
-Phase: 15
-Plan: Not started
+Phase: 15 (HUD) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-04-05 -- Phase 15 planning complete
+Last activity: 2026-04-05
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -51,6 +51,7 @@ Progress: [░░░░░░░░░░] 0%
 | 14 | 2 | - | - |
 
 *Updated after each plan completion*
+| Phase 15 P02 | 166 | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,7 @@ Recent decisions affecting current work:
 - [Research]: SystemBase без BurstCompile для homing (managed EntityQuery)
 - [Research]: Тороидальное наведение отвергнуто, только тороидальное движение через MoveSystem
 - [Research]: DeadTag проверка (.WithNone<DeadTag>()) обязательна в homing query
+- [Phase 15]: Rocket HUD: gui_text.prefab instances at Y=-160,-192 with 32px spacing
 
 ### Blockers/Concerns
 
@@ -72,6 +74,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-05T22:18:17.837Z
-Stopped at: Phase 15 context gathered (auto mode)
-Resume file: .planning/phases/15-hud/15-CONTEXT.md
+Last session: 2026-04-05T22:52:12.866Z
+Stopped at: Completed 15-02-PLAN.md
+Resume file: None
