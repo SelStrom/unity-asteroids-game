@@ -120,6 +120,9 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Score=50 в GameData.asset для RocketData (вместо 0)
   2. Rocket префаб имеет корректно настроенный trail ParticleSystem
+**Plans**: 1 plans
+Plans:
+- [ ] 16-01-PLAN.md -- Исправление Score=50, запуск Editor-скрипта для trail
 
 ### Phase 17: Documentation & Verification Closure
 **Goal**: Все requirements отмечены как выполненные, визуал верифицирован в PlayMode
@@ -144,5 +147,5 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17
 | 13. Input & Game Integration | 2/2 | Complete    | 2026-04-05 |
 | 14. Config & Visual Polish | 2/2 | Complete    | 2026-04-05 |
 | 15. HUD | 2/2 | Complete    | 2026-04-05 |
-| 16. Asset & Config Fix | 0/0 | Pending    | -- |
+| 16. Asset & Config Fix | 0/1 | Pending    | -- |
 | 17. Docs & Verification Closure | 0/0 | Pending    | -- |
