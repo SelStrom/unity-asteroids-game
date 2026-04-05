@@ -1,35 +1,33 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1.0
-milestone_name: Техническая миграция
-status: complete
-last_updated: "2026-04-04"
-last_activity: 2026-04-04
+milestone: v1.2.0
+milestone_name: Самонаводящиеся ракеты
+status: active
+last_updated: "2026-04-05"
+last_activity: 2026-04-05
 progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 28
-  completed_plans: 28
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-04)
+See: .planning/PROJECT.md (updated 2026-04-05)
 
-**Core value:** Играбельная классическая механика Asteroids с ECS-ядром — на современном стеке Unity
-**Current focus:** Milestone v1.1.0 complete. Planning next milestone.
+**Core value:** Играбельная классическая механика Asteroids с онлайн-лидербордом — на современном стеке Unity с ECS-ядром
+**Current focus:** Milestone v1.2.0 — Самонаводящиеся ракеты
 
 ## Current Position
 
-Phase: All complete
-Plan: All complete
-Status: Milestone v1.1.0 shipped
-Last activity: 2026-04-04
-
-Progress: [██████████] 100%
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-05 — Milestone v1.2.0 started
 
 ## Performance Metrics
 

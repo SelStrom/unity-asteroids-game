@@ -23,16 +23,21 @@
 
 ### Active
 
-(Определяются при создании следующего milestone через `/gsd:new-milestone`)
+- [ ] Самонаводящиеся ракеты: запуск по кнопке R, полёт по дуге к ближайшей цели
+- [ ] Коллизия ракеты с астероидами и UFO (включая случайные столкновения по пути)
+- [ ] Респавн ракет по таймеру, количество и время из конфигов
+- [ ] Визуал ракеты: уменьшенный спрайт корабля + инверсионный след (частицы)
+- [ ] HUD: отображение доступных ракет и таймера респавна
+- [ ] Интеграция в ECS-архитектуру (RocketSystem, RocketComponent, etc.)
+- [ ] TDD-покрытие: юнит-тесты, интеграционные тесты, MCP-верификация
 
 ### Out of Scope
 
 - Полный DOTS (без GameObjects) — Entities Graphics не поддерживает SpriteRenderer и WebGL
 - DOTS Physics 2D — пакет не существует в production-ready виде
-- 2D Lighting — новый функционал, не часть миграции 1:1
-- Исправление существующих багов — миграция 1:1, баги в отдельном milestone
+- 2D Lighting — новый функционал, не часть текущего scope
 - Мобильные платформы — будущие планы, текущий scope: Editor + Windows + WebGL
-- Новые игровые механики — только миграция существующего функционала
+- Множественные типы ракет — один тип ракеты для v1.2
 
 ## Context
 
@@ -42,11 +47,24 @@
 - **Кодовая база:** ~4700 LOC scripts, ~4350 LOC tests, 142 теста
 - **Платформы:** Editor, WebGL, WindowsStandalone64
 
+## Current Milestone: v1.2.0 Самонаводящиеся ракеты
+
+**Goal:** Добавить систему самонаводящихся ракет с полным TDD-покрытием, вписанную в ECS + визуал архитектуру.
+
+**Target features:**
+- Запуск ракеты по кнопке R, полёт по дуге к ближайшей цели (астероид/UFO)
+- Коллизия ракеты с любым врагом по пути
+- Респавн ракет по таймеру, количество и время из конфигов
+- Визуал: уменьшенный спрайт корабля + инверсионный след (частицы)
+- HUD: доступные ракеты и таймер респавна
+- Полная ECS-интеграция по аналогии с Bullet/Laser
+- TDD: юнит, интеграционные тесты, MCP-верификация
+
 ## Constraints
 
-- **Функциональная эквивалентность:** Геймплей 1:1 после каждого изменения
 - **Гибридный DOTS:** Entities для логики, GameObjects для UI/визуала/физики
 - **Обратная совместимость shtl-mvvm:** Фикс работает начиная с Unity 2022.3
+- **TDD-парадигма:** Весь новый функционал покрыт тестами, human validation только в исключительных случаях
 
 ## Key Decisions
 
@@ -65,5 +83,22 @@
 
 - **v1.1.0** — Техническая миграция (2026-04-04): Unity 6.3 + URP + гибридный DOTS. [Details](MILESTONES.md)
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
-*Last updated: 2026-04-04 after v1.1.0 milestone*
+*Last updated: 2026-04-05 after v1.2.0 milestone start*
