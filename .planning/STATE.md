@@ -4,14 +4,14 @@ milestone: v1.2.0
 milestone_name: Самонаводящиеся ракеты
 status: executing
 stopped_at: Phase 12 context gathered (assumptions mode)
-last_updated: "2026-04-05T20:15:34.711Z"
-last_activity: 2026-04-05
+last_updated: "2026-04-05T20:29:34.698Z"
+last_activity: 2026-04-05 -- Phase 12 planning complete
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 4
+  total_plans: 7
   completed_plans: 4
-  percent: 100
+  percent: 57
 ---
 
 # Project State
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-04-05)
 
 Phase: 12
 Plan: Not started
-Status: Executing Phase 11
-Last activity: 2026-04-05
+Status: Ready to execute
+Last activity: 2026-04-05 -- Phase 12 planning complete
 
 Progress: [░░░░░░░░░░] 0%
 
