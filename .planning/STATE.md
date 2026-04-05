@@ -6,7 +6,7 @@ status: active
 last_updated: "2026-04-05"
 last_activity: 2026-04-05
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -19,55 +19,53 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-04-05)
 
-**Core value:** Играбельная классическая механика Asteroids с онлайн-лидербордом — на современном стеке Unity с ECS-ядром
-**Current focus:** Milestone v1.2.0 — Самонаводящиеся ракеты
+**Core value:** Играбельная классическая механика Asteroids с онлайн-лидербордом -- на современном стеке Unity с ECS-ядром
+**Current focus:** Phase 10: ECS Core -- данные и логика ракет
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-05 — Milestone v1.2.0 started
+Phase: 10 (1 of 6 in v1.2.0) -- ECS Core
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-04-05 -- Roadmap created for v1.2.0
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
-**Plan execution log (v1.1.0):**
+**Velocity (v1.2.0):**
+- Total plans completed: 0
+- Average duration: -
+- Total execution time: 0 hours
 
-| Phase Plan | Duration | Tasks | Files |
-|------------|----------|-------|-------|
-| Phase 01 P01 | 2min | 3 tasks | 2 files |
-| Phase 01 P02 | 1min | 3 tasks | 3 files |
-| Phase 01 P03 | 1min | 3 tasks | 2 files |
-| Phase 02 P01 | 2min | 2 tasks | 73 files |
-| Phase 02 P02 | 2min | 3 tasks | 4 files |
-| Phase 02 P03 | 1min | 2 tasks | 6 files |
-| Phase 03 P01 | 7min | 2 tasks | 21 files |
-| Phase 03 P02 | 1min | 2 tasks | 0 files |
-| Phase 04 P02 | 4min | 2 tasks | 10 files |
-| Phase 05 P02 | 4min | 2 tasks | 9 files |
-| Phase 05 P04 | 1min | 1 tasks | 2 files |
-| Phase 05 P05 | 2min | 1 tasks | 4 files |
-| Phase 06 P01 | 2min | 2 tasks | 2 files |
-| Phase 06 P02 | 4min | 2 tasks | 6 files |
-| Phase 06 P03 | 3min | 2 tasks | 57 files |
-| Phase 06 P04 | 7min | 2 tasks | 3 files |
-| Phase 07 P01 | 2min | 2 tasks | 3 files |
-| Phase 09 P01 | 2min | 2 tasks | 10 files |
-| Phase 09 P02 | 1min | 2 tasks | 6 files |
-| Phase 09 P03 | 1min | 1 tasks | 3 files |
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| - | - | - | - |
+
+*Updated after each plan completion*
 
 ## Accumulated Context
 
 ### Decisions
 
-All decisions archived in PROJECT.md Key Decisions table.
+Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
+
+- [Research]: Seek с ограниченным turn rate (180-270 grad/sec), НЕ proportional navigation
+- [Research]: SystemBase без BurstCompile для homing (managed EntityQuery)
+- [Research]: Тороидальное наведение отвергнуто, только тороидальное движение через MoveSystem
+- [Research]: DeadTag проверка (.WithNone<DeadTag>()) обязательна в homing query
 
 ### Blockers/Concerns
 
-None — milestone complete.
+- Physics Layer "Rocket": решить -- отдельный layer или переиспользовать PlayerBullet (Phase 11)
+- Ракета + вражеская пуля: ракета неуязвима или уничтожается? (Phase 11)
+- Trail: ParticleSystem vs TrailRenderer (Phase 14)
 
 ## Session Continuity
 
-Last session: 2026-04-04
-Stopped at: Milestone v1.1.0 completion
+Last session: 2026-04-05
+Stopped at: Roadmap created, ready to plan Phase 10
 Resume file: None

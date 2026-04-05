@@ -1,7 +1,7 @@
 # Requirements: Asteroids
 
 **Defined:** 2026-04-05
-**Core Value:** Играбельная классическая механика Asteroids с онлайн-лидербордом — на современном стеке Unity с ECS-ядром
+**Core Value:** Играбельная классическая механика Asteroids с онлайн-лидербордом -- на современном стеке Unity с ECS-ядром
 
 ## v1.2 Requirements
 
@@ -41,7 +41,7 @@ Requirements for milestone v1.2.0: Самонаводящиеся ракеты. 
 ### Testing
 
 - [ ] **TEST-01**: Юнит-тесты на ECS-компоненты и системы ракет (EditMode)
-- [ ] **TEST-02**: Интеграционные тесты на lifecycle ракеты (спавн → наведение → коллизия → уничтожение)
+- [ ] **TEST-02**: Интеграционные тесты на lifecycle ракеты (спавн -> наведение -> коллизия -> уничтожение)
 - [ ] **TEST-03**: MCP-верификация визуала и геймплея в Unity Editor
 
 ## v2 Requirements
@@ -58,7 +58,7 @@ Deferred to future releases.
 
 | Feature | Reason |
 |---------|--------|
-| Управляемая игроком ракета (player-guided missile) | Ломает flow аркадного геймплея — игрок перестаёт управлять кораблём |
+| Управляемая игроком ракета (player-guided missile) | Ломает flow аркадного геймплея -- игрок перестаёт управлять кораблём |
 | Proportional Navigation / предиктивное прицеливание | Избыточная сложность для аркады; простой seek достаточен |
 | Тороидальное наведение (shortest path через wrap) | Непропорциональная сложность: 9 фантомных позиций для edge case |
 | Множественные типы ракет | Один тип для v1.2, разнообразие в будущих milestone |
@@ -69,31 +69,31 @@ Deferred to future releases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ROCK-01 | — | Pending |
-| ROCK-02 | — | Pending |
-| ROCK-03 | — | Pending |
-| ROCK-04 | — | Pending |
-| ROCK-05 | — | Pending |
-| ROCK-06 | — | Pending |
-| COLL-01 | — | Pending |
-| COLL-02 | — | Pending |
-| COLL-03 | — | Pending |
-| VIS-01 | — | Pending |
-| VIS-02 | — | Pending |
-| VIS-03 | — | Pending |
-| VIS-04 | — | Pending |
-| CONF-01 | — | Pending |
-| HUD-01 | — | Pending |
-| HUD-02 | — | Pending |
-| TEST-01 | — | Pending |
-| TEST-02 | — | Pending |
-| TEST-03 | — | Pending |
+| ROCK-01 | Phase 13 | Pending |
+| ROCK-02 | Phase 10 | Pending |
+| ROCK-03 | Phase 10 | Pending |
+| ROCK-04 | Phase 10 | Pending |
+| ROCK-05 | Phase 10 | Pending |
+| ROCK-06 | Phase 10 | Pending |
+| COLL-01 | Phase 11 | Pending |
+| COLL-02 | Phase 11 | Pending |
+| COLL-03 | Phase 11 | Pending |
+| VIS-01 | Phase 12 | Pending |
+| VIS-02 | Phase 14 | Pending |
+| VIS-03 | Phase 12 | Pending |
+| VIS-04 | Phase 14 | Pending |
+| CONF-01 | Phase 14 | Pending |
+| HUD-01 | Phase 15 | Pending |
+| HUD-02 | Phase 15 | Pending |
+| TEST-01 | Phase 10 | Pending |
+| TEST-02 | Phase 12 | Pending |
+| TEST-03 | Phase 15 | Pending |
 
 **Coverage:**
 - v1.2 requirements: 19 total
-- Mapped to phases: 0
-- Unmapped: 19 ⚠️
+- Mapped to phases: 19
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-05*
-*Last updated: 2026-04-05 after initial definition*
+*Last updated: 2026-04-05 after roadmap creation*
