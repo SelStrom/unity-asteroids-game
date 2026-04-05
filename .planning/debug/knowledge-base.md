@@ -20,3 +20,11 @@ Resolved debug sessions. Used by `gsd-debugger` to surface known-pattern hypothe
 - **Files changed:** Assets/Scripts/View/HudVisual.cs, Assets/Tests/EditMode/Upgrade/HudSerializeFieldTests.cs
 ---
 
+## rocket-trail-missing --- Trail ракеты невидим из-за Built-in RP материала и непривязанного SerializeField
+- **Date:** 2026-04-06
+- **Error patterns:** trail, ParticleSystem, invisible, Default-Particle, Built-in RP, URP, material, SerializeField, _trailEffect, null, rocket, prefab
+- **Root cause:** Два дефекта: (1) _trailEffect SerializeField не был назначен в prefab — Play() никогда не вызывался. (2) ParticleSystemRenderer использовал встроенный Default-Particle материал (fileID: 10301, Built-in RP), который не рендерится в URP-проекте.
+- **Fix:** (1) Привязана ссылка _trailEffect к ParticleSystem дочернего Trail в prefab. (2) Заменён материал ParticleSystemRenderer с Default-Particle на Particle-URP (guid: 4be2522842094e02ab4a0c9dd5e68203). Добавлены регрессионные тесты.
+- **Files changed:** Assets/Media/prefabs/rocket.prefab, Assets/Tests/EditMode/Upgrade/RocketPrefabSerializeFieldTests.cs, Assets/Tests/EditMode/Upgrade/UrpMaterialTests.cs
+---
+
