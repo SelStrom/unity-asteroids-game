@@ -18,7 +18,7 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
 
 **Milestone Goal:** Добавить систему самонаводящихся ракет с полным TDD-покрытием, вписанную в ECS + визуал архитектуру.
 
-- [ ] **Phase 10: ECS Core -- данные и логика ракет** - ECS-компоненты, системы наведения, боезапаса и перезарядки
+- [x] **Phase 10: ECS Core -- данные и логика ракет** - ECS-компоненты, системы наведения, боезапаса и перезарядки (completed 2026-04-05)
 - [ ] **Phase 11: Collision & Scoring** - Коллизия ракеты с врагами, начисление очков, уничтожение ракеты
 - [ ] **Phase 12: Bridge & Lifecycle** - Связь ECS с GameObject, спавн визуала, синхронизация позиции и вращения
 - [ ] **Phase 13: Input & Game Integration** - Запуск ракеты по кнопке R, интеграция в игровой цикл
@@ -39,9 +39,9 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
   5. Все ECS-компоненты и системы покрыты EditMode юнит-тестами
 **Plans**: 3 plans
 Plans:
-- [ ] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
-- [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
-- [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
+- [x] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
+- [x] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
+- [x] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
 
 ### Phase 11: Collision & Scoring
 **Goal**: Ракета взаимодействует с игровым миром -- уничтожает врагов и уничтожается сама
@@ -53,7 +53,7 @@ Plans:
   3. Ракета уничтожается при любом столкновении с врагом (включая случайные по пути к цели)
 **Plans**: 3 plans
 Plans:
-- [ ] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
+- [x] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
 - [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
 - [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
 
@@ -68,7 +68,7 @@ Plans:
   4. Интеграционные тесты подтверждают полный lifecycle: спавн -> наведение -> коллизия -> уничтожение
 **Plans**: 3 plans
 Plans:
-- [ ] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
+- [x] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
 - [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
 - [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
 
@@ -82,7 +82,7 @@ Plans:
   3. При рестарте игры все активные ракеты уничтожаются и боезапас сбрасывается
 **Plans**: 3 plans
 Plans:
-- [ ] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
+- [x] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
 - [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
 - [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
 
@@ -122,7 +122,7 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 10. ECS Core | 0/TBD | Not started | - |
+| 10. ECS Core | 3/3 | Complete    | 2026-04-05 |
 | 11. Collision & Scoring | 0/TBD | Not started | - |
 | 12. Bridge & Lifecycle | 0/TBD | Not started | - |
 | 13. Input & Game Integration | 0/TBD | Not started | - |
