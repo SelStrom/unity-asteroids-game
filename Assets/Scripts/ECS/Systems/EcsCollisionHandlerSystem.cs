@@ -72,6 +72,23 @@ namespace SelStrom.Asteroids.ECS
                 return;
             }
 
+            // Rocket + Enemy (Asteroid/Ufo/UfoBig)
+            if (IsRocket(ref em, entityA) && IsEnemy(ref em, entityB))
+            {
+                MarkDead(ref em, entityA);
+                MarkDead(ref em, entityB);
+                AddScore(ref em, entityB, ref scoreData);
+                return;
+            }
+
+            if (IsRocket(ref em, entityB) && IsEnemy(ref em, entityA))
+            {
+                MarkDead(ref em, entityB);
+                MarkDead(ref em, entityA);
+                AddScore(ref em, entityA, ref scoreData);
+                return;
+            }
+
             // EnemyBullet + Ship
             if (IsEnemyBullet(ref em, entityA) && IsShip(ref em, entityB))
             {
@@ -124,6 +141,11 @@ namespace SelStrom.Asteroids.ECS
         private bool IsEnemyBullet(ref EntityManager em, Entity entity)
         {
             return em.HasComponent<EnemyBulletTag>(entity);
+        }
+
+        private bool IsRocket(ref EntityManager em, Entity entity)
+        {
+            return em.HasComponent<RocketTag>(entity);
         }
 
         private bool IsShip(ref EntityManager em, Entity entity)
