@@ -18,13 +18,13 @@ Requirements for milestone v1.2.0: Самонаводящиеся ракеты. 
 
 ### Collision & Scoring
 
-- [ ] **COLL-01**: Ракета уничтожает астероиды при столкновении и начисляет очки
-- [ ] **COLL-02**: Ракета уничтожает UFO при столкновении и начисляет очки
-- [ ] **COLL-03**: Ракета уничтожается при столкновении с любым врагом (включая случайные по пути)
+- [x] **COLL-01**: Ракета уничтожает астероиды при столкновении и начисляет очки
+- [x] **COLL-02**: Ракета уничтожает UFO при столкновении и начисляет очки
+- [x] **COLL-03**: Ракета уничтожается при столкновении с любым врагом (включая случайные по пути)
 
 ### Visual
 
-- [ ] **VIS-01**: Ракета отображается как уменьшенный спрайт корабля
+- [x] **VIS-01**: Ракета отображается как уменьшенный спрайт корабля
 - [ ] **VIS-02**: Ракета имеет инверсионный след (ParticleSystem)
 - [ ] **VIS-03**: Спрайт ракеты вращается по направлению полёта
 - [ ] **VIS-04**: Взрыв при попадании ракеты (переиспользование существующего VFX)
@@ -41,7 +41,7 @@ Requirements for milestone v1.2.0: Самонаводящиеся ракеты. 
 ### Testing
 
 - [ ] **TEST-01**: Юнит-тесты на ECS-компоненты и системы ракет (EditMode)
-- [ ] **TEST-02**: Интеграционные тесты на lifecycle ракеты (спавн -> наведение -> коллизия -> уничтожение)
+- [x] **TEST-02**: Интеграционные тесты на lifecycle ракеты (спавн -> наведение -> коллизия -> уничтожение)
 - [x] **TEST-03**: MCP-верификация визуала и геймплея в Unity Editor
 
 ## v2 Requirements
@@ -75,22 +75,24 @@ Deferred to future releases.
 | ROCK-04 | Phase 10 | Pending |
 | ROCK-05 | Phase 10 | Pending |
 | ROCK-06 | Phase 10 | Pending |
-| COLL-01 | Phase 11 | Pending |
-| COLL-02 | Phase 11 | Pending |
-| COLL-03 | Phase 11 | Pending |
-| VIS-01 | Phase 12 | Pending |
+| COLL-01 | Phase 11 | Complete |
+| COLL-02 | Phase 11 | Complete |
+| COLL-03 | Phase 11 | Complete |
+| VIS-01 | Phase 12 | Complete |
 | VIS-02 | Phase 14 | Pending |
 | VIS-03 | Phase 12 | Pending |
 | VIS-04 | Phase 14 | Pending |
-| CONF-01 | Phase 14 | Pending |
+| CONF-01 | Phase 16 | Pending |
 | HUD-01 | Phase 15 | Complete |
 | HUD-02 | Phase 15 | Complete |
 | TEST-01 | Phase 10 | Pending |
-| TEST-02 | Phase 12 | Pending |
+| TEST-02 | Phase 12 | Complete |
 | TEST-03 | Phase 15 | Complete |
 
 **Coverage:**
 - v1.2 requirements: 19 total
+- Satisfied: 9 (COLL-01..03, VIS-01, HUD-01..02, TEST-02..03, — checkboxed)
+- Pending: 10 (gap closure in Phase 16-17)
 - Mapped to phases: 19
 - Unmapped: 0
 

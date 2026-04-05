@@ -24,6 +24,8 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
 - [x] **Phase 13: Input & Game Integration** - Запуск ракеты по кнопке R, интеграция в игровой цикл (completed 2026-04-05)
 - [x] **Phase 14: Config & Visual Polish** - ScriptableObject конфигурация, инверсионный след, взрыв VFX (completed 2026-04-05)
 - [x] **Phase 15: HUD** - Отображение боезапаса и таймера перезарядки ракет (completed 2026-04-05)
+- [ ] **Phase 16: Asset & Config Fix** - Исправление Score=0 в ассете, верификация trail на префабе
+- [ ] **Phase 17: Documentation & Verification Closure** - SUMMARY frontmatter, REQUIREMENTS чекбоксы, PlayMode верификация
 
 ## Phase Details
 
@@ -110,10 +112,29 @@ Plans:
 - [x] 15-02-PLAN.md -- MCP: TMP_Text объекты в сцене + PlayMode верификация
 **UI hint**: yes
 
+### Phase 16: Asset & Config Fix
+**Goal**: Все параметры ракеты корректно заданы в ScriptableObject ассете, trail настроен на префабе
+**Depends on**: Phase 14
+**Requirements**: CONF-01
+**Gap Closure:** Closes gaps from audit
+**Success Criteria** (what must be TRUE):
+  1. Score=50 в GameData.asset для RocketData (вместо 0)
+  2. Rocket префаб имеет корректно настроенный trail ParticleSystem
+
+### Phase 17: Documentation & Verification Closure
+**Goal**: Все requirements отмечены как выполненные, визуал верифицирован в PlayMode
+**Depends on**: Phase 16
+**Requirements**: ROCK-01, ROCK-02, ROCK-03, ROCK-04, ROCK-05, ROCK-06, VIS-02, VIS-03, VIS-04, TEST-01, TEST-03
+**Gap Closure:** Closes gaps from audit
+**Success Criteria** (what must be TRUE):
+  1. SUMMARY frontmatter всех фаз содержит корректный `requirements_completed`
+  2. REQUIREMENTS.md — все satisfied requirements отмечены `[x]`
+  3. PlayMode верификация подтверждает: trail за ракетой, взрыв VFX при попадании
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15
+Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -123,3 +144,5 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | 13. Input & Game Integration | 2/2 | Complete    | 2026-04-05 |
 | 14. Config & Visual Polish | 2/2 | Complete    | 2026-04-05 |
 | 15. HUD | 2/2 | Complete    | 2026-04-05 |
+| 16. Asset & Config Fix | 0/0 | Pending    | -- |
+| 17. Docs & Verification Closure | 0/0 | Pending    | -- |
