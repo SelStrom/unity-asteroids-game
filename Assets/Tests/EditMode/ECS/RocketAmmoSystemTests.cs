@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Unity.Core;
 using Unity.Entities;
+using Unity.Mathematics;
 using SelStrom.Asteroids.ECS;
 
 namespace SelStrom.Asteroids.Tests.EditMode.ECS
@@ -14,6 +15,14 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         {
             base.SetUp();
             _systemHandle = World.CreateSystem<EcsRocketAmmoSystem>();
+        }
+
+        private Entity _singletonEntity;
+
+        private void CreateRocketEventSingleton()
+        {
+            _singletonEntity = m_Manager.CreateEntity();
+            m_Manager.AddBuffer<RocketShootEvent>(_singletonEntity);
         }
 
         private void RunSystem(float deltaTime = 1.0f)
@@ -129,6 +138,130 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             var ammoB = m_Manager.GetComponentData<RocketAmmoData>(entityB);
             Assert.AreEqual(2, ammoB.CurrentAmmo);
             Assert.AreEqual(2.0f, ammoB.ReloadRemaining, 0.001f);
+        }
+
+        [Test]
+        public void Shoot_WithAmmo_CreatesRocketShootEvent()
+        {
+            CreateRocketEventSingleton();
+
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new RocketAmmoData
+            {
+                MaxAmmo = 3,
+                ReloadDurationSec = 5.0f,
+                CurrentAmmo = 2,
+                ReloadRemaining = 5.0f,
+                Shooting = true,
+                Direction = new float2(0, 1),
+                ShootPosition = new float2(1, 2)
+            });
+
+            RunSystem();
+
+            var ammo = m_Manager.GetComponentData<RocketAmmoData>(entity);
+            Assert.AreEqual(1, ammo.CurrentAmmo);
+
+            var buffer = m_Manager.GetBuffer<RocketShootEvent>(_singletonEntity);
+            Assert.AreEqual(1, buffer.Length);
+            Assert.AreEqual(entity, buffer[0].ShooterEntity);
+            Assert.AreEqual(new float2(1, 2), buffer[0].Position);
+            Assert.AreEqual(new float2(0, 1), buffer[0].Direction);
+        }
+
+        [Test]
+        public void Shoot_WithoutAmmo_NoEvent()
+        {
+            CreateRocketEventSingleton();
+
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new RocketAmmoData
+            {
+                MaxAmmo = 3,
+                ReloadDurationSec = 5.0f,
+                CurrentAmmo = 0,
+                ReloadRemaining = 5.0f,
+                Shooting = true,
+                Direction = new float2(0, 1),
+                ShootPosition = new float2(1, 2)
+            });
+
+            RunSystem();
+
+            var ammo = m_Manager.GetComponentData<RocketAmmoData>(entity);
+            Assert.AreEqual(0, ammo.CurrentAmmo);
+
+            var buffer = m_Manager.GetBuffer<RocketShootEvent>(_singletonEntity);
+            Assert.AreEqual(0, buffer.Length);
+        }
+
+        [Test]
+        public void Shoot_ResetsShootingFlag_Unconditionally()
+        {
+            CreateRocketEventSingleton();
+
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new RocketAmmoData
+            {
+                MaxAmmo = 3,
+                ReloadDurationSec = 5.0f,
+                CurrentAmmo = 0,
+                ReloadRemaining = 5.0f,
+                Shooting = true,
+                Direction = new float2(0, 1),
+                ShootPosition = new float2(1, 2)
+            });
+
+            RunSystem();
+
+            var ammo = m_Manager.GetComponentData<RocketAmmoData>(entity);
+            Assert.IsFalse(ammo.Shooting);
+        }
+
+        [Test]
+        public void Shoot_WithAmmo_ResetsShootingFlag()
+        {
+            CreateRocketEventSingleton();
+
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new RocketAmmoData
+            {
+                MaxAmmo = 3,
+                ReloadDurationSec = 5.0f,
+                CurrentAmmo = 2,
+                ReloadRemaining = 5.0f,
+                Shooting = true,
+                Direction = new float2(0, 1),
+                ShootPosition = new float2(1, 2)
+            });
+
+            RunSystem();
+
+            var ammo = m_Manager.GetComponentData<RocketAmmoData>(entity);
+            Assert.IsFalse(ammo.Shooting);
+        }
+
+        [Test]
+        public void Reload_StillWorks_WithShootingFields()
+        {
+            CreateRocketEventSingleton();
+
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new RocketAmmoData
+            {
+                MaxAmmo = 3,
+                ReloadDurationSec = 1.0f,
+                CurrentAmmo = 1,
+                ReloadRemaining = 0.1f,
+                Shooting = false,
+                Direction = new float2(1, 0),
+                ShootPosition = new float2(0, 0)
+            });
+
+            RunSystem();
+
+            var ammo = m_Manager.GetComponentData<RocketAmmoData>(entity);
+            Assert.AreEqual(2, ammo.CurrentAmmo);
         }
     }
 }
