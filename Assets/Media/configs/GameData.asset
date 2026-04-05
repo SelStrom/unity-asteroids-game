@@ -40,4 +40,10 @@ MonoBehaviour:
     Gun: {fileID: 11400000, guid: 1e3368dd22db04940aafee344312e81f, type: 2}
   Rocket:
     Prefab: {fileID: 5925242302660939081, guid: d8253c055425d4045bb2fd3f149afd4d, type: 3}
+    Speed: 8
+    LifeTimeSec: 5
+    TurnRateDegPerSec: 180
+    MaxAmmo: 3
+    ReloadDurationSec: 5
+    Score: 50
   LeaderboardId: asteroids_highscores
