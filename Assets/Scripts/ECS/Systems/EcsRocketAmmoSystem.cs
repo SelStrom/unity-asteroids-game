@@ -15,6 +15,20 @@ namespace SelStrom.Asteroids.ECS
 
         public void OnUpdate(ref SystemState state)
         {
+            var deltaTime = SystemAPI.Time.DeltaTime;
+
+            foreach (var ammo in SystemAPI.Query<RefRW<RocketAmmoData>>())
+            {
+                if (ammo.ValueRO.CurrentAmmo < ammo.ValueRO.MaxAmmo)
+                {
+                    ammo.ValueRW.ReloadRemaining -= deltaTime;
+                    if (ammo.ValueRO.ReloadRemaining <= 0)
+                    {
+                        ammo.ValueRW.ReloadRemaining = ammo.ValueRO.ReloadDurationSec;
+                        ammo.ValueRW.CurrentAmmo += 1;
+                    }
+                }
+            }
         }
     }
 }
