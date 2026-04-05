@@ -224,7 +224,8 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 speed: 15f,
                 direction: new float2(0f, 1f),
                 lifeTime: 5f,
-                turnRateDegPerSec: 180f
+                turnRateDegPerSec: 180f,
+                score: 0
             );
 
             Assert.IsTrue(m_Manager.HasComponent<RocketTag>(entity));

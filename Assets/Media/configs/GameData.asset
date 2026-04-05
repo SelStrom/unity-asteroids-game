@@ -45,5 +45,5 @@ MonoBehaviour:
     TurnRateDegPerSec: 180
     MaxAmmo: 3
     ReloadDurationSec: 5
-    Score: 50
+    Score: 0
   LeaderboardId: asteroids_highscores
