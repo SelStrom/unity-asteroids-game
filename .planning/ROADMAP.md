@@ -22,7 +22,7 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
 - [x] **Phase 11: Collision & Scoring** - Коллизия ракеты с врагами, начисление очков, уничтожение ракеты (completed 2026-04-05)
 - [x] **Phase 12: Bridge & Lifecycle** - Связь ECS с GameObject, спавн визуала, синхронизация позиции и вращения (completed 2026-04-05)
 - [x] **Phase 13: Input & Game Integration** - Запуск ракеты по кнопке R, интеграция в игровой цикл (completed 2026-04-05)
-- [ ] **Phase 14: Config & Visual Polish** - ScriptableObject конфигурация, инверсионный след, взрыв VFX
+- [x] **Phase 14: Config & Visual Polish** - ScriptableObject конфигурация, инверсионный след, взрыв VFX (completed 2026-04-05)
 - [ ] **Phase 15: HUD** - Отображение боезапаса и таймера перезарядки ракет
 
 ## Phase Details
@@ -93,8 +93,8 @@ Plans:
   3. При попадании ракеты воспроизводится взрыв VFX (переиспользование существующего эффекта)
 **Plans**: 2 plans
 Plans:
-- [ ] 14-01-PLAN.md -- ScriptableObject конфигурация, ScoreValue, trail код, VFX взрыв
-- [ ] 14-02-PLAN.md -- MCP: Rocket префаб с ParticleSystem trail, GameData.asset значения
+- [x] 14-01-PLAN.md -- ScriptableObject конфигурация, ScoreValue, trail код, VFX взрыв
+- [x] 14-02-PLAN.md -- MCP: Rocket префаб с ParticleSystem trail, GameData.asset значения
 
 ### Phase 15: HUD
 **Goal**: Игрок видит информацию о ракетах в HUD
@@ -122,5 +122,5 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | 11. Collision & Scoring | 1/1 | Complete    | 2026-04-05 |
 | 12. Bridge & Lifecycle | 3/3 | Complete    | 2026-04-05 |
 | 13. Input & Game Integration | 2/2 | Complete    | 2026-04-05 |
-| 14. Config & Visual Polish | 0/2 | Not started | - |
+| 14. Config & Visual Polish | 2/2 | Complete    | 2026-04-05 |
 | 15. HUD | 0/TBD | Not started | - |
