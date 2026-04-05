@@ -61,6 +61,15 @@ namespace SelStrom.Asteroids.Configs
         public struct RocketData
         {
             public GameObject Prefab;
+            [Space]
+            public float Speed;
+            public float LifeTimeSec;
+            public float TurnRateDegPerSec;
+            [Space]
+            public int MaxAmmo;
+            public float ReloadDurationSec;
+            [Space]
+            public int Score;
         }
 
         [Space]

@@ -107,8 +107,8 @@ namespace SelStrom.Asteroids
                 _configs.Ship.Gun.ReloadDurationSec,
                 _configs.Laser.LaserMaxShoots,
                 _configs.Laser.LaserUpdateDurationSec,
-                rocketMaxAmmo: 3,
-                rocketReloadSec: 5f
+                rocketMaxAmmo: _configs.Rocket.MaxAmmo,
+                rocketReloadSec: _configs.Rocket.ReloadDurationSec
             );
             _entityManager.AddComponentObject(entity, new GameObjectRef
             {
@@ -278,14 +278,14 @@ namespace SelStrom.Asteroids
             var view = _viewFactory.Get<RocketVisual>(_configs.Rocket.Prefab);
             view.Connect(viewModel);
 
-            // TODO Phase 14: вынести speed, lifeTime, turnRateDegPerSec в RocketData конфиг
             var entity = EntityFactory.CreateRocket(
                 _entityManager,
                 new float2(position.x, position.y),
-                speed: 8f,
+                _configs.Rocket.Speed,
                 new float2(direction.x, direction.y),
-                lifeTime: 5f,
-                turnRateDegPerSec: 180f
+                _configs.Rocket.LifeTimeSec,
+                _configs.Rocket.TurnRateDegPerSec,
+                _configs.Rocket.Score
             );
             _entityManager.AddComponentObject(entity, new GameObjectRef
             {

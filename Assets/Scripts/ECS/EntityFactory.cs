@@ -157,7 +157,8 @@ namespace SelStrom.Asteroids.ECS
             float speed,
             float2 direction,
             float lifeTime,
-            float turnRateDegPerSec)
+            float turnRateDegPerSec,
+            int score)
         {
             var entity = em.CreateEntity();
             em.AddComponentData(entity, new RocketTag());
@@ -175,6 +176,10 @@ namespace SelStrom.Asteroids.ECS
             {
                 Target = Entity.Null,
                 TurnRateDegPerSec = turnRateDegPerSec
+            });
+            em.AddComponentData(entity, new ScoreValue
+            {
+                Score = score
             });
             return entity;
         }
