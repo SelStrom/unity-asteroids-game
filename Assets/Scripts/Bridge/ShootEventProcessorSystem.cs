@@ -43,6 +43,7 @@ namespace SelStrom.Asteroids
 
             ProcessGunEvents();
             ProcessLaserEvents();
+            ProcessRocketEvents();
         }
 
         private readonly List<GunShootEvent> _pendingGunEvents = new();
@@ -75,6 +76,8 @@ namespace SelStrom.Asteroids
                 _catalog.CreateBullet(_configs.Bullet, prefab, position, direction);
             }
         }
+
+        private readonly List<RocketShootEvent> _pendingRocketEvents = new();
 
         private readonly List<LaserShootEvent> _pendingLaserEvents = new();
 
@@ -143,6 +146,34 @@ namespace SelStrom.Asteroids
                         }
                     }
                 }
+            }
+        }
+
+        private void ProcessRocketEvents()
+        {
+            _pendingRocketEvents.Clear();
+
+            foreach (var buffer in SystemAPI.Query<DynamicBuffer<RocketShootEvent>>())
+            {
+                if (buffer.Length == 0)
+                {
+                    continue;
+                }
+
+                for (int i = 0; i < buffer.Length; i++)
+                {
+                    _pendingRocketEvents.Add(buffer[i]);
+                }
+
+                buffer.Clear();
+            }
+
+            for (int i = 0; i < _pendingRocketEvents.Count; i++)
+            {
+                var evt = _pendingRocketEvents[i];
+                var position = new Vector2(evt.Position.x, evt.Position.y);
+                var direction = new Vector2(evt.Direction.x, evt.Direction.y);
+                _catalog.CreateRocket(position, direction);
             }
         }
     }
