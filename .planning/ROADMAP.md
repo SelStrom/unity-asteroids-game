@@ -37,7 +37,11 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
   3. Ракета самоуничтожается по истечении времени жизни (LifeTimeData)
   4. Боезапас на Ship entity уменьшается при запуске и восстанавливается инкрементально по таймеру
   5. Все ECS-компоненты и системы покрыты EditMode юнит-тестами
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
+- [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
+- [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
 
 ### Phase 11: Collision & Scoring
 **Goal**: Ракета взаимодействует с игровым миром -- уничтожает врагов и уничтожается сама
@@ -47,7 +51,11 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
   1. Ракета уничтожает астероид при столкновении и начисляет очки (дробление работает)
   2. Ракета уничтожает UFO при столкновении и начисляет очки
   3. Ракета уничтожается при любом столкновении с врагом (включая случайные по пути к цели)
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
+- [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
+- [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
 
 ### Phase 12: Bridge & Lifecycle
 **Goal**: Ракета видима на экране -- ECS-данные синхронизируются с GameObject визуалом
@@ -58,7 +66,11 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
   2. Спрайт ракеты вращается по направлению полёта (синхронизация MoveData.Direction -> Transform.rotation)
   3. Позиция GameObject синхронизируется с ECS MoveData.Position каждый кадр
   4. Интеграционные тесты подтверждают полный lifecycle: спавн -> наведение -> коллизия -> уничтожение
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
+- [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
+- [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
 
 ### Phase 13: Input & Game Integration
 **Goal**: Игрок управляет запуском ракет -- нажатие R запускает ракету в игровом мире
@@ -68,7 +80,11 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
   1. Нажатие R во время игры запускает ракету из позиции корабля в направлении его rotation
   2. Ракета не запускается при пустом боезапасе
   3. При рестарте игры все активные ракеты уничтожаются и боезапас сбрасывается
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
+- [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
+- [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
 
 ### Phase 14: Config & Visual Polish
 **Goal**: Все параметры ракеты настраиваемы через ScriptableObject, визуал завершен
@@ -78,7 +94,11 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
   1. Скорость, turn rate, боезапас, время перезарядки, время жизни и очки задаются в ScriptableObject без магических чисел в коде
   2. За ракетой тянется инверсионный след (ParticleSystem), корректно очищающийся при переиспользовании из пула
   3. При попадании ракеты воспроизводится взрыв VFX (переиспользование существующего эффекта)
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
+- [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
+- [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
 
 ### Phase 15: HUD
 **Goal**: Игрок видит информацию о ракетах в HUD
@@ -88,7 +108,11 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
   1. HUD отображает текущее количество доступных ракет (обновляется при запуске и перезарядке)
   2. HUD отображает таймер перезарядки ракет (прогресс до следующей ракеты)
   3. MCP-верификация подтверждает корректный визуал и геймплей в Unity Editor
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
+- [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
+- [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
 **UI hint**: yes
 
 ## Progress
