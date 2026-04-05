@@ -104,11 +104,10 @@ Plans:
   1. HUD отображает текущее количество доступных ракет (обновляется при запуске и перезарядке)
   2. HUD отображает таймер перезарядки ракет (прогресс до следующей ракеты)
   3. MCP-верификация подтверждает корректный визуал и геймплей в Unity Editor
-**Plans**: 3 plans
+**Plans**: 2 plans
 Plans:
-- [ ] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
-- [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
-- [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
+- [ ] 15-01-PLAN.md -- HudData/HudVisual/ObservableBridgeSystem/GameScreen код + тесты
+- [ ] 15-02-PLAN.md -- MCP: TMP_Text объекты в сцене + PlayMode верификация
 **UI hint**: yes
 
 ## Progress
@@ -123,4 +122,4 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | 12. Bridge & Lifecycle | 3/3 | Complete    | 2026-04-05 |
 | 13. Input & Game Integration | 2/2 | Complete    | 2026-04-05 |
 | 14. Config & Visual Polish | 2/2 | Complete    | 2026-04-05 |
-| 15. HUD | 0/TBD | Not started | - |
+| 15. HUD | 0/2 | Not started | - |
