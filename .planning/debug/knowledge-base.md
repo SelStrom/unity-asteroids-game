@@ -12,3 +12,11 @@ Resolved debug sessions. Used by `gsd-debugger` to surface known-pattern hypothe
 - **Files changed:** Assets/Scripts/View/AsteroidVisual.cs, Assets/Scripts/View/UfoVisual.cs, Assets/Scripts/Application/EntitiesCatalog.cs, Assets/Tests/EditMode/ECS/ObservableBridgeSystemTests.cs, Assets/Tests/EditMode/ECS/EcsBridgeRegressionTests.cs
 ---
 
+## hudvisual-nullref-onconnected --- NullReferenceException в HudVisual.OnConnected() для rocket SerializeField
+- **Date:** 2026-04-06
+- **Error patterns:** NullReferenceException, HudVisual, OnConnected, SerializeField, null, _rocketReloadTime, _rocketAmmoCount, YAML, PrefabInstance, deserialization
+- **Root cause:** SerializeField _rocketReloadTime и _rocketAmmoCount = null в runtime, потому что PrefabInstance были добавлены вручную через YAML-редактирование сцены и Unity Editor не подхватил изменения без пересохранения. Строка 40 обращалась к .gameObject без null-check.
+- **Fix:** Null-guard в HudVisual.OnConnected() с Debug.LogWarning для rocket SerializeField. Регрессионный тест HudSerializeFieldTests. Пересохранение сцены в Unity Editor.
+- **Files changed:** Assets/Scripts/View/HudVisual.cs, Assets/Tests/EditMode/Upgrade/HudSerializeFieldTests.cs
+---
+
