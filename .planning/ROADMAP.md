@@ -51,11 +51,9 @@ Plans:
   1. Ракета уничтожает астероид при столкновении и начисляет очки (дробление работает)
   2. Ракета уничтожает UFO при столкновении и начисляет очки
   3. Ракета уничтожается при любом столкновении с врагом (включая случайные по пути к цели)
-**Plans**: 3 plans
+**Plans**: 1 plans
 Plans:
-- [x] 10-01-PLAN.md -- ECS-компоненты ракеты + EntityFactory
-- [ ] 10-02-PLAN.md -- TDD: EcsRocketGuidanceSystem (наведение)
-- [ ] 10-03-PLAN.md -- TDD: EcsRocketAmmoSystem (перезарядка)
+- [ ] 11-01-PLAN.md -- TDD: Коллизия ракеты с врагами (DeadTag + Score)
 
 ### Phase 12: Bridge & Lifecycle
 **Goal**: Ракета видима на экране -- ECS-данные синхронизируются с GameObject визуалом
@@ -123,7 +121,7 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 10. ECS Core | 3/3 | Complete    | 2026-04-05 |
-| 11. Collision & Scoring | 0/TBD | Not started | - |
+| 11. Collision & Scoring | 0/1 | Not started | - |
 | 12. Bridge & Lifecycle | 0/TBD | Not started | - |
 | 13. Input & Game Integration | 0/TBD | Not started | - |
 | 14. Config & Visual Polish | 0/TBD | Not started | - |
