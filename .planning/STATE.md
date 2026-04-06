@@ -4,14 +4,14 @@ milestone: v1.2.0
 milestone_name: Самонаводящиеся ракеты
 status: executing
 stopped_at: Completed 15-02-PLAN.md
-last_updated: "2026-04-06T00:01:21.085Z"
+last_updated: "2026-04-06T00:26:15.421Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 8
   completed_phases: 7
-  total_plans: 14
+  total_plans: 16
   completed_plans: 14
-  percent: 100
+  percent: 88
 ---
 
 # Project State
