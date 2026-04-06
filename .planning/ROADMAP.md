@@ -133,6 +133,10 @@ Plans:
   1. SUMMARY frontmatter всех фаз содержит корректный `requirements_completed`
   2. REQUIREMENTS.md — все satisfied requirements отмечены `[x]`
   3. PlayMode верификация подтверждает: trail за ракетой, взрыв VFX при попадании
+**Plans**: 2 plans
+Plans:
+- [ ] 17-01-PLAN.md -- SUMMARY frontmatter + REQUIREMENTS.md чекбоксы (doc gaps)
+- [ ] 17-02-PLAN.md -- PlayMode верификация VIS-02/VIS-04 + финальные чекбоксы
 
 ## Progress
 
@@ -148,4 +152,4 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17
 | 14. Config & Visual Polish | 2/2 | Complete    | 2026-04-05 |
 | 15. HUD | 2/2 | Complete    | 2026-04-05 |
 | 16. Asset & Config Fix | 1/1 | Complete    | 2026-04-06 |
-| 17. Docs & Verification Closure | 0/0 | Pending    | -- |
+| 17. Docs & Verification Closure | 0/2 | Planned    | -- |
