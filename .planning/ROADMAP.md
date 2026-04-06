@@ -24,7 +24,7 @@ See [milestones/v1.1.0-ROADMAP.md](milestones/v1.1.0-ROADMAP.md) for details.
 - [x] **Phase 13: Input & Game Integration** - Запуск ракеты по кнопке R, интеграция в игровой цикл (completed 2026-04-05)
 - [x] **Phase 14: Config & Visual Polish** - ScriptableObject конфигурация, инверсионный след, взрыв VFX (completed 2026-04-05)
 - [x] **Phase 15: HUD** - Отображение боезапаса и таймера перезарядки ракет (completed 2026-04-05)
-- [ ] **Phase 16: Asset & Config Fix** - Исправление Score=0 в ассете, верификация trail на префабе
+- [x] **Phase 16: Asset & Config Fix** - Исправление Score=0 в ассете, верификация trail на префабе (completed 2026-04-05)
 - [ ] **Phase 17: Documentation & Verification Closure** - SUMMARY frontmatter, REQUIREMENTS чекбоксы, PlayMode верификация
 
 ## Phase Details
@@ -122,7 +122,7 @@ Plans:
   2. Rocket префаб имеет корректно настроенный trail ParticleSystem
 **Plans**: 1 plans
 Plans:
-- [ ] 16-01-PLAN.md -- Исправление Score=50, запуск Editor-скрипта для trail
+- [x] 16-01-PLAN.md -- Исправление Score=50, запуск Editor-скрипта для trail
 
 ### Phase 17: Documentation & Verification Closure
 **Goal**: Все requirements отмечены как выполненные, визуал верифицирован в PlayMode
@@ -147,5 +147,5 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17
 | 13. Input & Game Integration | 2/2 | Complete    | 2026-04-05 |
 | 14. Config & Visual Polish | 2/2 | Complete    | 2026-04-05 |
 | 15. HUD | 2/2 | Complete    | 2026-04-05 |
-| 16. Asset & Config Fix | 0/1 | Pending    | -- |
+| 16. Asset & Config Fix | 1/1 | Complete    | 2026-04-06 |
 | 17. Docs & Verification Closure | 0/0 | Pending    | -- |

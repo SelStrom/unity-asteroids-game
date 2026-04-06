@@ -4,13 +4,13 @@ milestone: v1.2.0
 milestone_name: Самонаводящиеся ракеты
 status: executing
 stopped_at: Completed 15-02-PLAN.md
-last_updated: "2026-04-05T22:55:03.250Z"
-last_activity: 2026-04-05
+last_updated: "2026-04-06T00:01:21.085Z"
+last_activity: 2026-04-06
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 13
-  completed_plans: 13
+  total_phases: 8
+  completed_phases: 7
+  total_plans: 14
+  completed_plans: 14
   percent: 100
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** Играбельная классическая механика Asteroids с онлайн-лидербордом -- на современном стеке Unity с ECS-ядром
-**Current focus:** Phase 15 — HUD
+**Current focus:** Phase 16 — Asset & Config Fix
 
 ## Current Position
 
-Phase: 15
+Phase: 17
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-04-05
+Status: Executing Phase 16
+Last activity: 2026-04-06
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -36,7 +36,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity (v1.2.0):**
 
-- Total plans completed: 13
+- Total plans completed: 14
 - Average duration: -
 - Total execution time: 0 hours
 
@@ -50,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 | 13 | 2 | - | - |
 | 14 | 2 | - | - |
 | 15 | 2 | - | - |
+| 16 | 1 | - | - |
 
 *Updated after each plan completion*
 | Phase 15 P02 | 166 | 2 tasks | 1 files |
