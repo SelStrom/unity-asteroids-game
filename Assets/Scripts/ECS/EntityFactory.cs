@@ -14,7 +14,9 @@ namespace SelStrom.Asteroids.ECS
             int gunMaxShoots,
             float gunReloadSec,
             int laserMaxShoots,
-            float laserReloadSec)
+            float laserReloadSec,
+            int missileMaxShoots,
+            float missileReloadSec)
         {
             var entity = em.CreateEntity();
             em.AddComponentData(entity, new ShipTag());
@@ -48,6 +50,13 @@ namespace SelStrom.Asteroids.ECS
                 UpdateDurationSec = laserReloadSec,
                 CurrentShoots = laserMaxShoots,
                 ReloadRemaining = laserReloadSec
+            });
+            em.AddComponentData(entity, new MissileData
+            {
+                MaxShoots = missileMaxShoots,
+                ReloadDurationSec = missileReloadSec,
+                CurrentShoots = missileMaxShoots,
+                ReloadRemaining = missileReloadSec
             });
             return entity;
         }
@@ -138,6 +147,34 @@ namespace SelStrom.Asteroids.ECS
             em.AddComponentData(entity, new ScoreValue
             {
                 Score = score
+            });
+            return entity;
+        }
+
+        public static Entity CreateMissile(
+            EntityManager em,
+            float2 position,
+            float speed,
+            float2 direction,
+            float lifeTime,
+            float turnSpeed)
+        {
+            var entity = em.CreateEntity();
+            em.AddComponentData(entity, new MissileTag());
+            em.AddComponentData(entity, new PlayerMissileTag());
+            em.AddComponentData(entity, new MoveData
+            {
+                Position = position,
+                Speed = speed,
+                Direction = direction
+            });
+            em.AddComponentData(entity, new LifeTimeData
+            {
+                TimeRemaining = lifeTime
+            });
+            em.AddComponentData(entity, new HomingData
+            {
+                TurnSpeed = turnSpeed
             });
             return entity;
         }

@@ -17,7 +17,8 @@ namespace SelStrom.Asteroids
         Asteroid,
         Bullet,
         UfoBig,
-        Ufo
+        Ufo,
+        Missile
     }
 
     public class EntitiesCatalog
@@ -105,7 +106,9 @@ namespace SelStrom.Asteroids
                 _configs.Ship.Gun.MaxShoots,
                 _configs.Ship.Gun.ReloadDurationSec,
                 _configs.Laser.LaserMaxShoots,
-                _configs.Laser.LaserUpdateDurationSec
+                _configs.Laser.LaserUpdateDurationSec,
+                _configs.Missile.MaxShoots,
+                _configs.Missile.ReloadDurationSec
             );
             _entityManager.AddComponentObject(entity, new GameObjectRef
             {
@@ -197,6 +200,38 @@ namespace SelStrom.Asteroids
             };
 
             AddToCatalog(view.gameObject, entity, EntityType.Asteroid, bindings);
+        }
+
+        public void CreateMissile(GameData.MissileData data, Vector2 position, Vector2 direction)
+        {
+            var viewModel = new MissileViewModel();
+            var bindings = new EventBindingContext();
+            bindings.InvokeAll();
+
+            var view = _viewFactory.Get<MissileVisual>(data.Prefab);
+            view.Connect(viewModel);
+
+            var entity = EntityFactory.CreateMissile(
+                _entityManager,
+                new float2(position.x, position.y),
+                data.Speed,
+                new float2(direction.x, direction.y),
+                data.LifeTimeSeconds,
+                data.TurnSpeed
+            );
+            _entityManager.AddComponentObject(entity, new GameObjectRef
+            {
+                Transform = view.transform,
+                GameObject = view.gameObject
+            });
+            _collisionBridge.RegisterMapping(view.gameObject, entity);
+
+            viewModel.OnCollision.Value = col =>
+            {
+                _collisionBridge.ReportCollision(view.gameObject, col.gameObject);
+            };
+
+            AddToCatalog(view.gameObject, entity, EntityType.Missile, bindings);
         }
 
         public void CreateBigUfo(Vector2 position, Vector2 direction)

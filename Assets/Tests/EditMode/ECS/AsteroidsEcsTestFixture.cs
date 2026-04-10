@@ -41,6 +41,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             m_Manager.AddComponentData(entity, new ThrustData());
             m_Manager.AddComponentData(entity, new GunData());
             m_Manager.AddComponentData(entity, new LaserData());
+            m_Manager.AddComponentData(entity, new MissileData());
             return entity;
         }
 
@@ -192,6 +193,36 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         {
             var entity = m_Manager.CreateEntity();
             m_Manager.AddBuffer<LaserShootEvent>(entity);
+            return entity;
+        }
+
+        protected Entity CreateMissileShootEventSingleton()
+        {
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddBuffer<MissileShootEvent>(entity);
+            return entity;
+        }
+
+        protected Entity CreateMissileEntity(
+            float2 position, float speed, float2 direction, float lifeTime, float turnSpeed)
+        {
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new MissileTag());
+            m_Manager.AddComponentData(entity, new PlayerMissileTag());
+            m_Manager.AddComponentData(entity, new MoveData
+            {
+                Position = position,
+                Speed = speed,
+                Direction = direction
+            });
+            m_Manager.AddComponentData(entity, new LifeTimeData
+            {
+                TimeRemaining = lifeTime
+            });
+            m_Manager.AddComponentData(entity, new HomingData
+            {
+                TurnSpeed = turnSpeed
+            });
             return entity;
         }
     }

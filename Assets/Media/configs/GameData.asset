@@ -31,6 +31,13 @@ MonoBehaviour:
     BeamEffectLifetimeSec: 0.5
     LaserUpdateDurationSec: 10
     LaserMaxShoots: 3
+  Missile:
+    Prefab: {fileID: 1537236028993845023, guid: fcb9a2b09278340249351a20182d25a3, type: 3}
+    Speed: 8
+    LifeTimeSeconds: 5
+    TurnSpeed: 180
+    MaxShoots: 1
+    ReloadDurationSec: 10
   Ship:
     Prefab: {fileID: 6148587323414874153, guid: 8b56a71807aefd442a40819e7f16e6cd, type: 3}
     MainSprite: {fileID: 2092087282, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}
@@ -38,3 +45,4 @@ MonoBehaviour:
     ThrustUnitsPerSecond: 6
     MaxSpeed: 15
     Gun: {fileID: 11400000, guid: 1e3368dd22db04940aafee344312e81f, type: 2}
+  LeaderboardId: asteroids_highscores
