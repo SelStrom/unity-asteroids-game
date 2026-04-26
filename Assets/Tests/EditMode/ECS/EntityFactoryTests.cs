@@ -19,7 +19,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 gunMaxShoots: 3,
                 gunReloadSec: 1.5f,
                 laserMaxShoots: 2,
-                laserReloadSec: 5f
+                laserReloadSec: 5f,
+                rocketMaxCount: 1,
+                rocketRespawnSec: 4f
             );
 
             Assert.IsTrue(m_Manager.HasComponent<ShipTag>(entity));
@@ -28,6 +30,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             Assert.IsTrue(m_Manager.HasComponent<ThrustData>(entity));
             Assert.IsTrue(m_Manager.HasComponent<GunData>(entity));
             Assert.IsTrue(m_Manager.HasComponent<LaserData>(entity));
+            Assert.IsTrue(m_Manager.HasComponent<RocketLauncherData>(entity));
         }
 
         [Test]
@@ -42,7 +45,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 gunMaxShoots: 5,
                 gunReloadSec: 2f,
                 laserMaxShoots: 3,
-                laserReloadSec: 6f
+                laserReloadSec: 6f,
+                rocketMaxCount: 2,
+                rocketRespawnSec: 8f
             );
 
             var move = m_Manager.GetComponentData<MoveData>(entity);
@@ -51,6 +56,13 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
 
             var rotate = m_Manager.GetComponentData<RotateData>(entity);
             Assert.AreEqual(new float2(1f, 0f), rotate.Rotation);
+
+            var launcher = m_Manager.GetComponentData<RocketLauncherData>(entity);
+            Assert.AreEqual(2, launcher.MaxRockets);
+            Assert.AreEqual(8f, launcher.RespawnDurationSec);
+            Assert.AreEqual(2, launcher.CurrentRockets);
+            Assert.AreEqual(8f, launcher.RespawnRemaining);
+            Assert.IsFalse(launcher.Launching);
         }
 
         [Test]
@@ -65,10 +77,44 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 gunMaxShoots: 0,
                 gunReloadSec: 0f,
                 laserMaxShoots: 0,
-                laserReloadSec: 0f
+                laserReloadSec: 0f,
+                rocketMaxCount: 0,
+                rocketRespawnSec: 0f
             );
 
             Assert.IsFalse(m_Manager.HasComponent<ScoreValue>(entity));
+        }
+
+        [Test]
+        public void CreateRocket_HasAllRequiredComponents_AndCorrectValues()
+        {
+            var target = m_Manager.CreateEntity();
+            var entity = EntityFactory.CreateRocket(
+                m_Manager,
+                position: new float2(2f, 3f),
+                speed: 12f,
+                direction: new float2(0f, 1f),
+                turnRateRadPerSec: 2.5f,
+                lifeTime: 6f,
+                target: target
+            );
+
+            Assert.IsTrue(m_Manager.HasComponent<RocketTag>(entity));
+            Assert.IsTrue(m_Manager.HasComponent<MoveData>(entity));
+            Assert.IsTrue(m_Manager.HasComponent<RocketHomingData>(entity));
+            Assert.IsTrue(m_Manager.HasComponent<LifeTimeData>(entity));
+
+            var move = m_Manager.GetComponentData<MoveData>(entity);
+            Assert.AreEqual(new float2(2f, 3f), move.Position);
+            Assert.AreEqual(12f, move.Speed);
+            Assert.AreEqual(new float2(0f, 1f), move.Direction);
+
+            var homing = m_Manager.GetComponentData<RocketHomingData>(entity);
+            Assert.AreEqual(2.5f, homing.TurnRateRadPerSec);
+            Assert.AreEqual(target, homing.TargetEntity);
+
+            var life = m_Manager.GetComponentData<LifeTimeData>(entity);
+            Assert.AreEqual(6f, life.TimeRemaining);
         }
 
         [Test]

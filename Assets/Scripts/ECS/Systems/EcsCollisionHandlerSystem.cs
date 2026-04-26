@@ -55,8 +55,8 @@ namespace SelStrom.Asteroids.ECS
         private void ProcessCollision(
             ref EntityManager em, Entity entityA, Entity entityB, ref ScoreData scoreData)
         {
-            // PlayerBullet + Enemy (Asteroid/Ufo/UfoBig)
-            if (IsPlayerBullet(ref em, entityA) && IsEnemy(ref em, entityB))
+            // PlayerProjectile (Bullet или Rocket) + Enemy (Asteroid/Ufo/UfoBig)
+            if (IsPlayerProjectile(ref em, entityA) && IsEnemy(ref em, entityB))
             {
                 MarkDead(ref em, entityA);
                 MarkDead(ref em, entityB);
@@ -64,7 +64,7 @@ namespace SelStrom.Asteroids.ECS
                 return;
             }
 
-            if (IsPlayerBullet(ref em, entityB) && IsEnemy(ref em, entityA))
+            if (IsPlayerProjectile(ref em, entityB) && IsEnemy(ref em, entityA))
             {
                 MarkDead(ref em, entityB);
                 MarkDead(ref em, entityA);
@@ -119,6 +119,12 @@ namespace SelStrom.Asteroids.ECS
         private bool IsPlayerBullet(ref EntityManager em, Entity entity)
         {
             return em.HasComponent<PlayerBulletTag>(entity);
+        }
+
+        private bool IsPlayerProjectile(ref EntityManager em, Entity entity)
+        {
+            return em.HasComponent<PlayerBulletTag>(entity)
+                   || em.HasComponent<RocketTag>(entity);
         }
 
         private bool IsEnemyBullet(ref EntityManager em, Entity entity)

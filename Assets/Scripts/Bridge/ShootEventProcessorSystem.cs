@@ -43,6 +43,7 @@ namespace SelStrom.Asteroids
 
             ProcessGunEvents();
             ProcessLaserEvents();
+            ProcessRocketEvents();
         }
 
         private readonly List<GunShootEvent> _pendingGunEvents = new();
@@ -144,6 +145,61 @@ namespace SelStrom.Asteroids
                     }
                 }
             }
+        }
+
+        private readonly List<RocketLaunchEvent> _pendingRocketEvents = new();
+
+        private void ProcessRocketEvents()
+        {
+            _pendingRocketEvents.Clear();
+
+            foreach (var buffer in SystemAPI.Query<DynamicBuffer<RocketLaunchEvent>>())
+            {
+                if (buffer.Length == 0)
+                {
+                    continue;
+                }
+
+                for (int i = 0; i < buffer.Length; i++)
+                {
+                    _pendingRocketEvents.Add(buffer[i]);
+                }
+
+                buffer.Clear();
+            }
+
+            for (int i = 0; i < _pendingRocketEvents.Count; i++)
+            {
+                var evt = _pendingRocketEvents[i];
+                var position = new Vector2(evt.Position.x, evt.Position.y);
+                var direction = new Vector2(evt.Direction.x, evt.Direction.y);
+
+                var target = FindNearestEnemyEntity(evt.Position);
+                _catalog.CreateRocket(position, direction, target);
+            }
+        }
+
+        private Entity FindNearestEnemyEntity(float2 origin)
+        {
+            var bestEntity = Entity.Null;
+            var bestSqr = float.MaxValue;
+
+            foreach (var (move, entity) in
+                     SystemAPI.Query<RefRO<MoveData>>()
+                         .WithAny<AsteroidTag, UfoTag, UfoBigTag>()
+                         .WithNone<DeadTag>()
+                         .WithEntityAccess())
+            {
+                var diff = move.ValueRO.Position - origin;
+                var sqr = math.lengthsq(diff);
+                if (sqr < bestSqr)
+                {
+                    bestSqr = sqr;
+                    bestEntity = entity;
+                }
+            }
+
+            return bestEntity;
         }
     }
 }

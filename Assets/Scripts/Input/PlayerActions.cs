@@ -131,6 +131,15 @@ namespace SelStrom.Asteroids
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""Rocket"",
+                    ""type"": ""Button"",
+                    ""id"": ""ad9c3b1f-7b2c-4f3d-9a1f-a0c6e2c4a811"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Back"",
                     ""type"": ""Button"",
                     ""id"": ""5213a6ea-fd10-4689-ad70-330834d038da"",
@@ -218,6 +227,17 @@ namespace SelStrom.Asteroids
                 },
                 {
                     ""name"": """",
+                    ""id"": ""f2b1d9c3-4e6a-47b2-90d1-a1c7e3d5a922"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rocket"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""d03f3862-619e-4581-97a3-acc45a07cafb"",
                     ""path"": ""<Keyboard>/escape"",
                     ""interactions"": """",
@@ -249,6 +269,7 @@ namespace SelStrom.Asteroids
             m_PlayerControls_Rotate = m_PlayerControls.FindAction("Rotate", throwIfNotFound: true);
             m_PlayerControls_Accelerate = m_PlayerControls.FindAction("Accelerate", throwIfNotFound: true);
             m_PlayerControls_Laser = m_PlayerControls.FindAction("Laser", throwIfNotFound: true);
+            m_PlayerControls_Rocket = m_PlayerControls.FindAction("Rocket", throwIfNotFound: true);
             m_PlayerControls_Back = m_PlayerControls.FindAction("Back", throwIfNotFound: true);
             m_PlayerControls_Restart = m_PlayerControls.FindAction("Restart", throwIfNotFound: true);
         }
@@ -335,6 +356,7 @@ namespace SelStrom.Asteroids
         private readonly InputAction m_PlayerControls_Rotate;
         private readonly InputAction m_PlayerControls_Accelerate;
         private readonly InputAction m_PlayerControls_Laser;
+        private readonly InputAction m_PlayerControls_Rocket;
         private readonly InputAction m_PlayerControls_Back;
         private readonly InputAction m_PlayerControls_Restart;
         /// <summary>
@@ -364,6 +386,10 @@ namespace SelStrom.Asteroids
             /// Provides access to the underlying input action "PlayerControls/Laser".
             /// </summary>
             public InputAction @Laser => m_Wrapper.m_PlayerControls_Laser;
+            /// <summary>
+            /// Provides access to the underlying input action "PlayerControls/Rocket".
+            /// </summary>
+            public InputAction @Rocket => m_Wrapper.m_PlayerControls_Rocket;
             /// <summary>
             /// Provides access to the underlying input action "PlayerControls/Back".
             /// </summary>
@@ -410,6 +436,9 @@ namespace SelStrom.Asteroids
                 @Laser.started += instance.OnLaser;
                 @Laser.performed += instance.OnLaser;
                 @Laser.canceled += instance.OnLaser;
+                @Rocket.started += instance.OnRocket;
+                @Rocket.performed += instance.OnRocket;
+                @Rocket.canceled += instance.OnRocket;
                 @Back.started += instance.OnBack;
                 @Back.performed += instance.OnBack;
                 @Back.canceled += instance.OnBack;
@@ -439,6 +468,9 @@ namespace SelStrom.Asteroids
                 @Laser.started -= instance.OnLaser;
                 @Laser.performed -= instance.OnLaser;
                 @Laser.canceled -= instance.OnLaser;
+                @Rocket.started -= instance.OnRocket;
+                @Rocket.performed -= instance.OnRocket;
+                @Rocket.canceled -= instance.OnRocket;
                 @Back.started -= instance.OnBack;
                 @Back.performed -= instance.OnBack;
                 @Back.canceled -= instance.OnBack;
@@ -513,6 +545,13 @@ namespace SelStrom.Asteroids
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnLaser(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Rocket" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnRocket(InputAction.CallbackContext context);
             /// <summary>
             /// Method invoked when associated input action "Back" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>

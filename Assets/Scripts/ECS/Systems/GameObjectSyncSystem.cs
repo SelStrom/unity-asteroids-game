@@ -24,10 +24,27 @@ namespace SelStrom.Asteroids.ECS
             // Entities с MoveData + GameObjectRef, без RotateData (астероиды, пули)
             foreach (var (move, goRef) in
                      SystemAPI.Query<RefRO<MoveData>, GameObjectRef>()
-                         .WithNone<RotateData>())
+                         .WithNone<RotateData>()
+                         .WithNone<RocketTag>())
             {
                 var pos = move.ValueRO.Position;
                 goRef.Transform.position = new Vector3(pos.x, pos.y, goRef.Transform.position.z);
+            }
+
+            // Ракеты: position + rotation выводится из направления движения (homing missile)
+            foreach (var (move, goRef) in
+                     SystemAPI.Query<RefRO<MoveData>, GameObjectRef>()
+                         .WithAll<RocketTag>())
+            {
+                var pos = move.ValueRO.Position;
+                goRef.Transform.position = new Vector3(pos.x, pos.y, goRef.Transform.position.z);
+
+                var dir = move.ValueRO.Direction;
+                if (math.lengthsq(dir) > 0f)
+                {
+                    var angle = math.atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                    goRef.Transform.rotation = Quaternion.Euler(0f, 0f, angle);
+                }
             }
         }
     }
