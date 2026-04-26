@@ -17,7 +17,8 @@ namespace SelStrom.Asteroids
         Asteroid,
         Bullet,
         UfoBig,
-        Ufo
+        Ufo,
+        Missile
     }
 
     public class EntitiesCatalog
@@ -153,6 +154,44 @@ namespace SelStrom.Asteroids
             };
 
             AddToCatalog(view.gameObject, entity, EntityType.Bullet, bindings);
+        }
+
+        public void CreateMissile(GameData.MissileData data, Vector2 position, Vector2 direction)
+        {
+            var viewModel = new MissileViewModel();
+            var bindings = new EventBindingContext();
+            bindings.InvokeAll();
+
+            var view = _viewFactory.Get<MissileVisual>(data.Prefab);
+            view.Connect(viewModel);
+
+            // Ракету визуально ориентируем по направлению полёта.
+            var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            view.transform.position = new Vector3(position.x, position.y, view.transform.position.z);
+            view.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+            var entity = EntityFactory.CreateMissile(
+                _entityManager,
+                new float2(position.x, position.y),
+                data.Speed,
+                new float2(direction.x, direction.y),
+                data.LifeTimeSeconds,
+                math.radians(data.TurnRateDegPerSec),
+                data.TargetAcquisitionRange
+            );
+            _entityManager.AddComponentObject(entity, new GameObjectRef
+            {
+                Transform = view.transform,
+                GameObject = view.gameObject
+            });
+            _collisionBridge.RegisterMapping(view.gameObject, entity);
+
+            viewModel.OnCollision.Value = (col) =>
+            {
+                _collisionBridge.ReportCollision(view.gameObject, col.gameObject);
+            };
+
+            AddToCatalog(view.gameObject, entity, EntityType.Missile, bindings);
         }
 
         public void CreateAsteroid(int size, Vector2 position, float speed)

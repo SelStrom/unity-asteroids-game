@@ -185,6 +185,72 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         }
 
         [Test]
+        public void CreateMissile_HasCorrectComponents()
+        {
+            var entity = EntityFactory.CreateMissile(
+                m_Manager,
+                position: new float2(1f, 2f),
+                speed: 8f,
+                direction: new float2(1f, 0f),
+                lifeTime: 3f,
+                turnRateRadPerSec: math.PI,
+                acquisitionRange: 25f
+            );
+
+            Assert.IsTrue(m_Manager.HasComponent<MissileTag>(entity));
+            Assert.IsTrue(m_Manager.HasComponent<PlayerBulletTag>(entity),
+                "Ракета должна получать PlayerBulletTag для общей логики коллизий с врагами");
+            Assert.IsTrue(m_Manager.HasComponent<MoveData>(entity));
+            Assert.IsTrue(m_Manager.HasComponent<HomingData>(entity));
+            Assert.IsTrue(m_Manager.HasComponent<RotateData>(entity),
+                "RotateData нужен GameObjectSyncSystem для поворота спрайта по направлению полёта");
+            Assert.IsTrue(m_Manager.HasComponent<LifeTimeData>(entity));
+        }
+
+        [Test]
+        public void CreateMissile_HasCorrectInitialValues()
+        {
+            var entity = EntityFactory.CreateMissile(
+                m_Manager,
+                position: new float2(7f, -3f),
+                speed: 12f,
+                direction: new float2(0f, 1f),
+                lifeTime: 4f,
+                turnRateRadPerSec: 2.5f,
+                acquisitionRange: 30f
+            );
+
+            var move = m_Manager.GetComponentData<MoveData>(entity);
+            Assert.AreEqual(new float2(7f, -3f), move.Position);
+            Assert.AreEqual(new float2(0f, 1f), move.Direction);
+            Assert.AreEqual(12f, move.Speed);
+
+            var homing = m_Manager.GetComponentData<HomingData>(entity);
+            Assert.AreEqual(Entity.Null, homing.TargetEntity);
+            Assert.AreEqual(2.5f, homing.TurnRateRadPerSec);
+            Assert.AreEqual(30f, homing.TargetAcquisitionRange);
+
+            var life = m_Manager.GetComponentData<LifeTimeData>(entity);
+            Assert.AreEqual(4f, life.TimeRemaining);
+        }
+
+        [Test]
+        public void CreateMissile_DoesNotHaveScoreValue()
+        {
+            var entity = EntityFactory.CreateMissile(
+                m_Manager,
+                position: default,
+                speed: 0f,
+                direction: default,
+                lifeTime: 0f,
+                turnRateRadPerSec: 0f,
+                acquisitionRange: 0f
+            );
+
+            Assert.IsFalse(m_Manager.HasComponent<ScoreValue>(entity));
+        }
+
+        [Test]
         public void CreateUfo_HasCorrectComponents()
         {
             var entity = EntityFactory.CreateUfo(

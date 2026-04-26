@@ -194,5 +194,12 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             m_Manager.AddBuffer<LaserShootEvent>(entity);
             return entity;
         }
+
+        protected Entity CreateMissileSpawnEventSingleton()
+        {
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddBuffer<MissileSpawnEvent>(entity);
+            return entity;
+        }
     }
 }

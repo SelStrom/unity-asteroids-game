@@ -45,6 +45,9 @@ namespace SelStrom.Asteroids
             _playerInput.OnRotateAction += OnRotateAction;
             _playerInput.OnTrustAction += OnTrust;
             _playerInput.OnLaserAction += OnLaser;
+            _playerInput.OnRocketAction += OnRocket;
+
+            EnsureMissileComponentOnShip();
 
             _actionScheduler.ScheduleAction(SpawnNewEnemy, _configs.SpawnNewEnemyDurationSec);
 
@@ -63,6 +66,7 @@ namespace SelStrom.Asteroids
             _playerInput.OnRotateAction -= OnRotateAction;
             _playerInput.OnTrustAction -= OnTrust;
             _playerInput.OnLaserAction -= OnLaser;
+            _playerInput.OnRocketAction -= OnRocket;
 
             _gameScreen.ToggleState(GameScreen.State.EndGame);
         }
@@ -119,6 +123,18 @@ namespace SelStrom.Asteroids
                 for (int i = 0; i < entities.Length; i++)
                 {
                     _entityManager.GetBuffer<LaserShootEvent>(entities[i]).Clear();
+                }
+
+                entities.Dispose();
+            }
+
+            var missileQuery = _entityManager.CreateEntityQuery(typeof(MissileSpawnEvent));
+            if (missileQuery.CalculateEntityCount() > 0)
+            {
+                var entities = missileQuery.ToEntityArray(Unity.Collections.Allocator.Temp);
+                for (int i = 0; i < entities.Length; i++)
+                {
+                    _entityManager.GetBuffer<MissileSpawnEvent>(entities[i]).Clear();
                 }
 
                 entities.Dispose();
@@ -271,6 +287,53 @@ namespace SelStrom.Asteroids
                 laserData.Direction = rotateData.Rotation;
                 laserData.ShootPosition = moveData.Position;
                 _entityManager.SetComponentData(entity, laserData);
+            }
+        }
+
+        private void OnRocket()
+        {
+            if (TryGetShipEntity(out var entity))
+            {
+                if (!_entityManager.HasComponent<MissileData>(entity))
+                {
+                    return;
+                }
+
+                var missileData = _entityManager.GetComponentData<MissileData>(entity);
+                var rotateData = _entityManager.GetComponentData<RotateData>(entity);
+                var moveData = _entityManager.GetComponentData<MoveData>(entity);
+
+                missileData.Shooting = true;
+                missileData.Direction = rotateData.Rotation;
+                missileData.ShootPosition = moveData.Position;
+                _entityManager.SetComponentData(entity, missileData);
+            }
+        }
+
+        private void EnsureMissileComponentOnShip()
+        {
+            if (!TryGetShipEntity(out var entity))
+            {
+                return;
+            }
+
+            var cfg = _configs.Missile;
+            var missile = new MissileData
+            {
+                MaxShoots = cfg.MaxMissiles,
+                RespawnDurationSec = cfg.RespawnDurationSec,
+                CurrentShoots = cfg.MaxMissiles,
+                RespawnRemaining = cfg.RespawnDurationSec,
+                Shooting = false
+            };
+
+            if (_entityManager.HasComponent<MissileData>(entity))
+            {
+                _entityManager.SetComponentData(entity, missile);
+            }
+            else
+            {
+                _entityManager.AddComponentData(entity, missile);
             }
         }
     }

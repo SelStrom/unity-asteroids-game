@@ -13,6 +13,7 @@ namespace SelStrom.Asteroids
         private HudData _hudData;
         private ShipViewModel _shipViewModel;
         private int _laserMaxShoots;
+        private int _missileMaxShoots;
         private Sprite _mainSprite;
         private Sprite _thrustSprite;
 
@@ -31,6 +32,11 @@ namespace SelStrom.Asteroids
         public void SetLaserMaxShoots(int maxShoots)
         {
             _laserMaxShoots = maxShoots;
+        }
+
+        public void SetMissileMaxShoots(int maxShoots)
+        {
+            _missileMaxShoots = maxShoots;
         }
 
         public void ClearReferences()
@@ -80,6 +86,19 @@ namespace SelStrom.Asteroids
                         _shipViewModel.Sprite.Value =
                             thrust.ValueRO.IsActive ? _thrustSprite : _mainSprite;
                     }
+                }
+            }
+
+            if (_hudData != null)
+            {
+                foreach (var missile in
+                         SystemAPI.Query<RefRO<MissileData>>().WithAll<ShipTag>())
+                {
+                    var shoots = missile.ValueRO.CurrentShoots;
+                    _hudData.MissileShootCount.Value = $"Missiles: {shoots.ToString()}";
+                    _hudData.MissileReloadTime.Value =
+                        $"Reload missile: {TimeSpan.FromSeconds((int)missile.ValueRO.RespawnRemaining):%s} sec";
+                    _hudData.IsMissileReloadTimeVisible.Value = shoots < _missileMaxShoots;
                 }
             }
         }

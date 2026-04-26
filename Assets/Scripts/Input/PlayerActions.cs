@@ -147,6 +147,15 @@ namespace SelStrom.Asteroids
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Rocket"",
+                    ""type"": ""Button"",
+                    ""id"": ""5b1f4d6c-2c1d-4e1a-aa4c-7c0a55d3f0a1"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -237,6 +246,17 @@ namespace SelStrom.Asteroids
                     ""action"": ""Restart"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0f7cf11e-7a3e-4d9b-bb1a-1d35cf99a402"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rocket"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -251,6 +271,7 @@ namespace SelStrom.Asteroids
             m_PlayerControls_Laser = m_PlayerControls.FindAction("Laser", throwIfNotFound: true);
             m_PlayerControls_Back = m_PlayerControls.FindAction("Back", throwIfNotFound: true);
             m_PlayerControls_Restart = m_PlayerControls.FindAction("Restart", throwIfNotFound: true);
+            m_PlayerControls_Rocket = m_PlayerControls.FindAction("Rocket", throwIfNotFound: true);
         }
 
         ~@PlayerActions()
@@ -337,6 +358,7 @@ namespace SelStrom.Asteroids
         private readonly InputAction m_PlayerControls_Laser;
         private readonly InputAction m_PlayerControls_Back;
         private readonly InputAction m_PlayerControls_Restart;
+        private readonly InputAction m_PlayerControls_Rocket;
         /// <summary>
         /// Provides access to input actions defined in input action map "PlayerControls".
         /// </summary>
@@ -372,6 +394,10 @@ namespace SelStrom.Asteroids
             /// Provides access to the underlying input action "PlayerControls/Restart".
             /// </summary>
             public InputAction @Restart => m_Wrapper.m_PlayerControls_Restart;
+            /// <summary>
+            /// Provides access to the underlying input action "PlayerControls/Rocket".
+            /// </summary>
+            public InputAction @Rocket => m_Wrapper.m_PlayerControls_Rocket;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -416,6 +442,9 @@ namespace SelStrom.Asteroids
                 @Restart.started += instance.OnRestart;
                 @Restart.performed += instance.OnRestart;
                 @Restart.canceled += instance.OnRestart;
+                @Rocket.started += instance.OnRocket;
+                @Rocket.performed += instance.OnRocket;
+                @Rocket.canceled += instance.OnRocket;
             }
 
             /// <summary>
@@ -445,6 +474,9 @@ namespace SelStrom.Asteroids
                 @Restart.started -= instance.OnRestart;
                 @Restart.performed -= instance.OnRestart;
                 @Restart.canceled -= instance.OnRestart;
+                @Rocket.started -= instance.OnRocket;
+                @Rocket.performed -= instance.OnRocket;
+                @Rocket.canceled -= instance.OnRocket;
             }
 
             /// <summary>
@@ -527,6 +559,13 @@ namespace SelStrom.Asteroids
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnRestart(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Rocket" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnRocket(InputAction.CallbackContext context);
         }
     }
 }

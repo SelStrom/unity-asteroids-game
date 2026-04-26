@@ -22,6 +22,7 @@ namespace SelStrom.Asteroids
         private TitleScreen _titleScreen;
         private CollisionBridge _collisionBridge;
         private EntityManager _entityManager;
+        private ObservableBridgeSystem _bridgeSystem;
 
         public void Connect(IApplicationComponent appComponent, GameData configs,
             Transform poolContainer, Transform gameContainer, GameScreen gameScreen, TitleScreen titleScreen)
@@ -70,6 +71,7 @@ namespace SelStrom.Asteroids
             }
 
             var bridgeSystem = world.GetExistingSystemManaged<ObservableBridgeSystem>();
+            _bridgeSystem = bridgeSystem;
             if (bridgeSystem != null)
             {
                 bridgeSystem.SetShipViewModel(
@@ -167,6 +169,19 @@ namespace SelStrom.Asteroids
                 _entityManager.GetBuffer<LaserShootEvent>(existingEntity).Clear();
             }
 
+            // MissileSpawnEvent buffer singleton
+            var missileQuery = _entityManager.CreateEntityQuery(typeof(MissileSpawnEvent));
+            if (missileQuery.CalculateEntityCount() == 0)
+            {
+                var missileEventEntity = _entityManager.CreateEntity();
+                _entityManager.AddBuffer<MissileSpawnEvent>(missileEventEntity);
+            }
+            else
+            {
+                var existingEntity = missileQuery.GetSingletonEntity();
+                _entityManager.GetBuffer<MissileSpawnEvent>(existingEntity).Clear();
+            }
+
             // ShipPositionData singleton
             var shipPosQuery = _entityManager.CreateEntityQuery(typeof(ShipPositionData));
             if (shipPosQuery.CalculateEntityCount() == 0)
@@ -237,6 +252,12 @@ namespace SelStrom.Asteroids
         private void OnUpdate(float deltaTime)
         {
             _actionScheduler.Update(deltaTime);
+            // PresentationSystemGroup в Unity 6 Hybrid не всегда тикает ObservableBridgeSystem
+            // в обычном PlayerLoop. Гарантируем апдейт HUD-биндингов вручную каждый кадр.
+            if (_bridgeSystem != null && _bridgeSystem.World != null && _bridgeSystem.World.IsCreated)
+            {
+                _bridgeSystem.Update();
+            }
         }
 
         private void OnBack()

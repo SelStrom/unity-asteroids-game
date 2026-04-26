@@ -110,6 +110,44 @@ namespace SelStrom.Asteroids.ECS
             return entity;
         }
 
+        public static Entity CreateMissile(
+            EntityManager em,
+            float2 position,
+            float speed,
+            float2 direction,
+            float lifeTime,
+            float turnRateRadPerSec,
+            float acquisitionRange)
+        {
+            var entity = em.CreateEntity();
+            em.AddComponentData(entity, new MissileTag());
+            em.AddComponentData(entity, new PlayerBulletTag());
+            em.AddComponentData(entity, new MoveData
+            {
+                Position = position,
+                Speed = speed,
+                Direction = direction
+            });
+            em.AddComponentData(entity, new HomingData
+            {
+                TargetEntity = Entity.Null,
+                TurnRateRadPerSec = turnRateRadPerSec,
+                TargetAcquisitionRange = acquisitionRange
+            });
+            // RotateData нужен, чтобы GameObjectSyncSystem повернул visual ракеты
+            // в сторону полёта. Rotation = Direction (визуально и логически совпадают).
+            em.AddComponentData(entity, new RotateData
+            {
+                Rotation = direction,
+                TargetDirection = 0f
+            });
+            em.AddComponentData(entity, new LifeTimeData
+            {
+                TimeRemaining = lifeTime
+            });
+            return entity;
+        }
+
         public static Entity CreateUfoBig(
             EntityManager em,
             float2 position,
