@@ -118,7 +118,8 @@ namespace SelStrom.Asteroids.ECS
 
         private bool IsPlayerBullet(ref EntityManager em, Entity entity)
         {
-            return em.HasComponent<PlayerBulletTag>(entity);
+            return em.HasComponent<PlayerBulletTag>(entity)
+                   || em.HasComponent<RocketTag>(entity);
         }
 
         private bool IsEnemyBullet(ref EntityManager em, Entity entity)

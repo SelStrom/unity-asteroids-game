@@ -13,6 +13,7 @@ namespace SelStrom.Asteroids
         private HudData _hudData;
         private ShipViewModel _shipViewModel;
         private int _laserMaxShoots;
+        private int _rocketMaxShoots;
         private Sprite _mainSprite;
         private Sprite _thrustSprite;
 
@@ -33,6 +34,11 @@ namespace SelStrom.Asteroids
             _laserMaxShoots = maxShoots;
         }
 
+        public void SetRocketMaxShoots(int maxShoots)
+        {
+            _rocketMaxShoots = maxShoots;
+        }
+
         public void ClearReferences()
         {
             _hudData = null;
@@ -48,8 +54,8 @@ namespace SelStrom.Asteroids
                 return;
             }
 
-            foreach (var (move, rotate, thrust, laser) in
-                     SystemAPI.Query<RefRO<MoveData>, RefRO<RotateData>, RefRO<ThrustData>, RefRO<LaserData>>()
+            foreach (var (move, rotate, thrust, laser, rocket) in
+                     SystemAPI.Query<RefRO<MoveData>, RefRO<RotateData>, RefRO<ThrustData>, RefRO<LaserData>, RefRO<RocketData>>()
                          .WithAll<ShipTag>())
             {
                 if (_hudData != null)
@@ -71,6 +77,12 @@ namespace SelStrom.Asteroids
                     _hudData.LaserReloadTime.Value =
                         $"Reload laser: {TimeSpan.FromSeconds((int)laser.ValueRO.ReloadRemaining):%s} sec";
                     _hudData.IsLaserReloadTimeVisible.Value = shoots < _laserMaxShoots;
+
+                    var rocketShoots = rocket.ValueRO.CurrentShoots;
+                    _hudData.RocketShootCount.Value = $"Rockets: {rocketShoots.ToString()}";
+                    _hudData.RocketReloadTime.Value =
+                        $"Reload rocket: {TimeSpan.FromSeconds((int)rocket.ValueRO.ReloadRemaining):%s} sec";
+                    _hudData.IsRocketReloadTimeVisible.Value = rocketShoots < _rocketMaxShoots;
                 }
 
                 if (_shipViewModel != null)

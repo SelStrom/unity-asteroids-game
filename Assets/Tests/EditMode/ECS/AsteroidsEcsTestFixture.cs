@@ -181,6 +181,13 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             );
         }
 
+        protected Entity CreateRocketShootEventSingleton()
+        {
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddBuffer<RocketShootEvent>(entity);
+            return entity;
+        }
+
         protected Entity CreateGunShootEventSingleton()
         {
             var entity = m_Manager.CreateEntity();

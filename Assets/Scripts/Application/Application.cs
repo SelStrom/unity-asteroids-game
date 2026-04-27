@@ -167,6 +167,19 @@ namespace SelStrom.Asteroids
                 _entityManager.GetBuffer<LaserShootEvent>(existingEntity).Clear();
             }
 
+            // RocketShootEvent buffer singleton
+            var rocketQuery = _entityManager.CreateEntityQuery(typeof(RocketShootEvent));
+            if (rocketQuery.CalculateEntityCount() == 0)
+            {
+                var rocketEventEntity = _entityManager.CreateEntity();
+                _entityManager.AddBuffer<RocketShootEvent>(rocketEventEntity);
+            }
+            else
+            {
+                var existingEntity = rocketQuery.GetSingletonEntity();
+                _entityManager.GetBuffer<RocketShootEvent>(existingEntity).Clear();
+            }
+
             // ShipPositionData singleton
             var shipPosQuery = _entityManager.CreateEntityQuery(typeof(ShipPositionData));
             if (shipPosQuery.CalculateEntityCount() == 0)
@@ -216,6 +229,10 @@ namespace SelStrom.Asteroids
                     _game.StopGame();
                 }
                 else if (entityType == EntityType.UfoBig || entityType == EntityType.Ufo)
+                {
+                    _game.PlayEffect(_configs.VfxBlowPrefab, position);
+                }
+                else if (entityType == EntityType.Rocket)
                 {
                     _game.PlayEffect(_configs.VfxBlowPrefab, position);
                 }

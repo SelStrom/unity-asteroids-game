@@ -64,6 +64,7 @@ namespace SelStrom.Asteroids
             {
                 bridge.SetHudData(_hudData);
                 bridge.SetLaserMaxShoots(_configs.Laser.LaserMaxShoots);
+                bridge.SetRocketMaxShoots(_configs.Rocket.MaxShoots);
             }
         }
 

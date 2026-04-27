@@ -50,6 +50,13 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 MaxShoots = laserMaxShoots,
                 ReloadRemaining = reloadRemaining
             });
+            m_Manager.AddComponentData(entity, new RocketData
+            {
+                MaxShoots = 1,
+                ReloadDurationSec = 5f,
+                CurrentShoots = 1,
+                ReloadRemaining = 5f
+            });
             return entity;
         }
 
