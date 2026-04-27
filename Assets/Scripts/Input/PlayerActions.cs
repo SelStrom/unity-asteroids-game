@@ -147,6 +147,15 @@ namespace SelStrom.Asteroids
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Missile"",
+                    ""type"": ""Button"",
+                    ""id"": ""11111111-1111-4111-9111-111111111111"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -237,6 +246,17 @@ namespace SelStrom.Asteroids
                     ""action"": ""Restart"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""22222222-2222-4222-9222-222222222222"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Missile"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -251,6 +271,7 @@ namespace SelStrom.Asteroids
             m_PlayerControls_Laser = m_PlayerControls.FindAction("Laser", throwIfNotFound: true);
             m_PlayerControls_Back = m_PlayerControls.FindAction("Back", throwIfNotFound: true);
             m_PlayerControls_Restart = m_PlayerControls.FindAction("Restart", throwIfNotFound: true);
+            m_PlayerControls_Missile = m_PlayerControls.FindAction("Missile", throwIfNotFound: true);
         }
 
         ~@PlayerActions()
@@ -337,6 +358,7 @@ namespace SelStrom.Asteroids
         private readonly InputAction m_PlayerControls_Laser;
         private readonly InputAction m_PlayerControls_Back;
         private readonly InputAction m_PlayerControls_Restart;
+        private readonly InputAction m_PlayerControls_Missile;
         /// <summary>
         /// Provides access to input actions defined in input action map "PlayerControls".
         /// </summary>
@@ -372,6 +394,10 @@ namespace SelStrom.Asteroids
             /// Provides access to the underlying input action "PlayerControls/Restart".
             /// </summary>
             public InputAction @Restart => m_Wrapper.m_PlayerControls_Restart;
+            /// <summary>
+            /// Provides access to the underlying input action "PlayerControls/Missile".
+            /// </summary>
+            public InputAction @Missile => m_Wrapper.m_PlayerControls_Missile;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -416,6 +442,9 @@ namespace SelStrom.Asteroids
                 @Restart.started += instance.OnRestart;
                 @Restart.performed += instance.OnRestart;
                 @Restart.canceled += instance.OnRestart;
+                @Missile.started += instance.OnMissile;
+                @Missile.performed += instance.OnMissile;
+                @Missile.canceled += instance.OnMissile;
             }
 
             /// <summary>
@@ -445,6 +474,9 @@ namespace SelStrom.Asteroids
                 @Restart.started -= instance.OnRestart;
                 @Restart.performed -= instance.OnRestart;
                 @Restart.canceled -= instance.OnRestart;
+                @Missile.started -= instance.OnMissile;
+                @Missile.performed -= instance.OnMissile;
+                @Missile.canceled -= instance.OnMissile;
             }
 
             /// <summary>
@@ -527,6 +559,13 @@ namespace SelStrom.Asteroids
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnRestart(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Missile" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnMissile(InputAction.CallbackContext context);
         }
     }
 }

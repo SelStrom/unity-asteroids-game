@@ -14,7 +14,9 @@ namespace SelStrom.Asteroids.ECS
             int gunMaxShoots,
             float gunReloadSec,
             int laserMaxShoots,
-            float laserReloadSec)
+            float laserReloadSec,
+            int missileMaxShoots,
+            float missileReloadSec)
         {
             var entity = em.CreateEntity();
             em.AddComponentData(entity, new ShipTag());
@@ -48,6 +50,48 @@ namespace SelStrom.Asteroids.ECS
                 UpdateDurationSec = laserReloadSec,
                 CurrentShoots = laserMaxShoots,
                 ReloadRemaining = laserReloadSec
+            });
+            em.AddComponentData(entity, new MissileLauncherData
+            {
+                MaxShoots = missileMaxShoots,
+                ReloadDurationSec = missileReloadSec,
+                CurrentShoots = missileMaxShoots,
+                ReloadRemaining = missileReloadSec
+            });
+            return entity;
+        }
+
+        public static Entity CreateMissile(
+            EntityManager em,
+            float2 position,
+            float2 direction,
+            float speed,
+            float lifeTime,
+            float turnRateRadPerSec,
+            float seekRange)
+        {
+            var entity = em.CreateEntity();
+            em.AddComponentData(entity, new MissileTag());
+            em.AddComponentData(entity, new PlayerMissileTag());
+            em.AddComponentData(entity, new MoveData
+            {
+                Position = position,
+                Speed = speed,
+                Direction = direction
+            });
+            em.AddComponentData(entity, new RotateData
+            {
+                Rotation = direction,
+                TargetDirection = 0f
+            });
+            em.AddComponentData(entity, new HomingMissileData
+            {
+                TurnRateRadPerSec = turnRateRadPerSec,
+                SeekRange = seekRange
+            });
+            em.AddComponentData(entity, new LifeTimeData
+            {
+                TimeRemaining = lifeTime
             });
             return entity;
         }

@@ -31,6 +31,14 @@ MonoBehaviour:
     BeamEffectLifetimeSec: 0.5
     LaserUpdateDurationSec: 10
     LaserMaxShoots: 3
+  Missile:
+    Prefab: {fileID: 6655467841412858905, guid: c1c5a17e2d3f4a5b8c6d7e8f90123459, type: 3}
+    LifeTimeSeconds: 5
+    Speed: 8
+    TurnRateDegPerSec: 180
+    SeekRange: 25
+    MaxShoots: 1
+    ReloadDurationSec: 10
   Ship:
     Prefab: {fileID: 6148587323414874153, guid: 8b56a71807aefd442a40819e7f16e6cd, type: 3}
     MainSprite: {fileID: 2092087282, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}

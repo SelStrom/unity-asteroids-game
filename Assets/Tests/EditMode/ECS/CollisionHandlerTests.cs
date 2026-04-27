@@ -187,6 +187,59 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 "Ufo should get DeadTag when Ufo is entityA");
         }
 
+        private Entity CreateMissileEntity(float2 position)
+        {
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new MissileTag());
+            m_Manager.AddComponentData(entity, new PlayerMissileTag());
+            m_Manager.AddComponentData(entity, new MoveData
+            {
+                Position = position,
+                Speed = 8f,
+                Direction = new float2(1f, 0f)
+            });
+            m_Manager.AddComponentData(entity, new HomingMissileData());
+            m_Manager.AddComponentData(entity, new LifeTimeData { TimeRemaining = 5f });
+            return entity;
+        }
+
+        [Test]
+        public void PlayerMissileHitsAsteroid_BothDeadAndScoreIncreased()
+        {
+            var missile = CreateMissileEntity(float2.zero);
+            var asteroid = CreateAsteroidEntity(
+                new float2(5f, 0f), 0f, new float2(-1f, 0f), 3, score: 100);
+
+            AddCollisionEvent(missile, asteroid);
+            RunSystem();
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(missile),
+                "Player missile should get DeadTag on hit");
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(asteroid),
+                "Asteroid should get DeadTag on missile hit");
+
+            var scoreData = m_Manager.GetComponentData<ScoreData>(_scoreEntity);
+            Assert.AreEqual(100, scoreData.Value,
+                "Score should increase by asteroid ScoreValue on missile hit");
+        }
+
+        [Test]
+        public void PlayerMissileHitsUfo_ScoreIncreased_ReversedOrder()
+        {
+            var missile = CreateMissileEntity(float2.zero);
+            var ufo = CreateUfoEntity(
+                new float2(5f, 0f), 0f, new float2(-1f, 0f), score: 500);
+
+            AddCollisionEvent(ufo, missile);
+            RunSystem();
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(missile));
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(ufo));
+
+            var scoreData = m_Manager.GetComponentData<ScoreData>(_scoreEntity);
+            Assert.AreEqual(500, scoreData.Value);
+        }
+
         [Test]
         public void NoCollisionEvents_NothingHappens()
         {

@@ -72,6 +72,23 @@ namespace SelStrom.Asteroids.ECS
                 return;
             }
 
+            // PlayerMissile + Enemy (Asteroid/Ufo/UfoBig) — любая встреча на пути засчитывается
+            if (IsPlayerMissile(ref em, entityA) && IsEnemy(ref em, entityB))
+            {
+                MarkDead(ref em, entityA);
+                MarkDead(ref em, entityB);
+                AddScore(ref em, entityB, ref scoreData);
+                return;
+            }
+
+            if (IsPlayerMissile(ref em, entityB) && IsEnemy(ref em, entityA))
+            {
+                MarkDead(ref em, entityB);
+                MarkDead(ref em, entityA);
+                AddScore(ref em, entityA, ref scoreData);
+                return;
+            }
+
             // EnemyBullet + Ship
             if (IsEnemyBullet(ref em, entityA) && IsShip(ref em, entityB))
             {
@@ -124,6 +141,11 @@ namespace SelStrom.Asteroids.ECS
         private bool IsEnemyBullet(ref EntityManager em, Entity entity)
         {
             return em.HasComponent<EnemyBulletTag>(entity);
+        }
+
+        private bool IsPlayerMissile(ref EntityManager em, Entity entity)
+        {
+            return em.HasComponent<PlayerMissileTag>(entity);
         }
 
         private bool IsShip(ref EntityManager em, Entity entity)

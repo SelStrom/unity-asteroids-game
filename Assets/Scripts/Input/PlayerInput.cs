@@ -13,6 +13,7 @@ namespace SelStrom.Asteroids
         public event Action<float> OnRotateAction;
         public event Action<bool> OnTrustAction;
         public event Action OnLaserAction;
+        public event Action OnMissileAction;
         public event Action OnBackAction;
         public event Action OnRestartAction;
 
@@ -28,6 +29,7 @@ namespace SelStrom.Asteroids
             _playerControls.Accelerate.performed += OnAccelerate;
             _playerControls.Accelerate.canceled += OnAccelerate;
             _playerControls.Laser.performed += OnLaser;
+            _playerControls.Missile.performed += OnMissile;
             _playerControls.Back.performed += OnBack;
             _playerControls.Restart.performed += OnRestart;
         }
@@ -54,6 +56,12 @@ namespace SelStrom.Asteroids
         private void OnLaser(InputAction.CallbackContext _)
         {
             OnLaserAction?.Invoke();
+        }
+
+        [PublicAPI]
+        private void OnMissile(InputAction.CallbackContext _)
+        {
+            OnMissileAction?.Invoke();
         }
         
         [PublicAPI]

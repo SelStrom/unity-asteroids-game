@@ -17,7 +17,8 @@ namespace SelStrom.Asteroids
         Asteroid,
         Bullet,
         UfoBig,
-        Ufo
+        Ufo,
+        Missile
     }
 
     public class EntitiesCatalog
@@ -105,7 +106,9 @@ namespace SelStrom.Asteroids
                 _configs.Ship.Gun.MaxShoots,
                 _configs.Ship.Gun.ReloadDurationSec,
                 _configs.Laser.LaserMaxShoots,
-                _configs.Laser.LaserUpdateDurationSec
+                _configs.Laser.LaserUpdateDurationSec,
+                _configs.Missile.MaxShoots,
+                _configs.Missile.ReloadDurationSec
             );
             _entityManager.AddComponentObject(entity, new GameObjectRef
             {
@@ -153,6 +156,40 @@ namespace SelStrom.Asteroids
             };
 
             AddToCatalog(view.gameObject, entity, EntityType.Bullet, bindings);
+        }
+
+        public void CreateMissile(GameData.MissileData data, Vector2 position, Vector2 direction)
+        {
+            var viewModel = new MissileViewModel();
+            var bindings = new EventBindingContext();
+            bindings.InvokeAll();
+
+            var view = _viewFactory.Get<MissileVisual>(data.Prefab);
+            view.Connect(viewModel);
+
+            var dir = direction.sqrMagnitude > 0f ? direction.normalized : Vector2.right;
+            var entity = EntityFactory.CreateMissile(
+                _entityManager,
+                new float2(position.x, position.y),
+                new float2(dir.x, dir.y),
+                data.Speed,
+                data.LifeTimeSeconds,
+                math.radians(data.TurnRateDegPerSec),
+                data.SeekRange
+            );
+            _entityManager.AddComponentObject(entity, new GameObjectRef
+            {
+                Transform = view.transform,
+                GameObject = view.gameObject
+            });
+            _collisionBridge.RegisterMapping(view.gameObject, entity);
+
+            viewModel.OnCollision.Value = col =>
+            {
+                _collisionBridge.ReportCollision(view.gameObject, col.gameObject);
+            };
+
+            AddToCatalog(view.gameObject, entity, EntityType.Missile, bindings);
         }
 
         public void CreateAsteroid(int size, Vector2 position, float speed)
