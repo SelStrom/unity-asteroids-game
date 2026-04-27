@@ -2,7 +2,7 @@ using Unity.Entities;
 
 namespace SelStrom.Asteroids.ECS
 {
-    [UpdateAfter(typeof(EcsLaserSystem))]
+    [UpdateBefore(typeof(EcsHomingSystem))]
     public partial struct EcsRocketSystem : ISystem
     {
         public void OnCreate(ref SystemState state)
