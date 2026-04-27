@@ -1,10 +1,10 @@
-# Сравнительный отчёт: GSD vs Pure Claude vs Superpowers vs Pure Opus 4.7 vs Pure Opus 4.7+Plan vs Pure Opus 4.7+Plan xhigh vs Superpowers + Opus 4.7 high
+# Сравнительный отчёт: GSD vs Pure Claude vs Superpowers vs Pure Opus 4.7 vs Pure Opus 4.7+Plan vs Pure Opus 4.7+Plan xhigh vs Superpowers + Opus 4.7 high vs Pure Opus 4.6 high
 
 Промпт.
 
-Есть 7 веток, в которых реализовывалась одна и та же фича (homing rockets) с одним и тем же промптом. В трёх ветках использовалась модель **Claude Opus 4.6**: `feature/rockets-pure-claude` — чистый Claude, `feature/rockets` — фреймворк GSD, `feature/rockets-superpowers` — плагин Superpowers (subagent-driven). В трёх ветках использовалась модель **Claude Opus 4.7 (1M context)** без фреймворка: `feature/rockets-pure-opus47` (xhigh reasoning), `feature/rockets-pure-opus47-high-plan` (high reasoning + явный план-перед-кодом) и `feature/rockets-pure-opus47-xhigh-plan` (**xhigh reasoning + явный план-перед-кодом**, та же конфигурация что у `-high-plan`, но с увеличенным effort и независимой сессией). Седьмая ветка `feature/rockets-superpowers-opus47-high` (далее **SP+4.7+H**) сочетает **плагин Superpowers (brainstorming-skill в основной сессии, без subagent-pipeline) с Opus 4.7 при `high` reasoning** — это попытка совместить дисциплину brainstorming-skill (clarifying questions → design → spec) с улучшенной моделью без xhigh-overhead. Цель — сравнить решения по качеству, целостности, расширяемости + замерить вклад апгрейда модели, плана-перед-кодом, подъёма effort до xhigh и интеграции Superpowers brainstorming с 4.7.
+Есть 8 веток, в которых реализовывалась одна и та же фича (homing rockets) с одним и тем же промптом. В трёх ветках использовалась модель **Claude Opus 4.6**: `feature/rockets-pure-claude` — чистый Claude, `feature/rockets` — фреймворк GSD, `feature/rockets-superpowers` — плагин Superpowers (subagent-driven). В трёх ветках использовалась модель **Claude Opus 4.7 (1M context)** без фреймворка: `feature/rockets-pure-opus47` (xhigh reasoning), `feature/rockets-pure-opus47-high-plan` (high reasoning + явный план-перед-кодом) и `feature/rockets-pure-opus47-xhigh-plan` (**xhigh reasoning + явный план-перед-кодом**, та же конфигурация что у `-high-plan`, но с увеличенным effort и независимой сессией). Седьмая ветка `feature/rockets-superpowers-opus47-high` (далее **SP+4.7+H**) сочетает **плагин Superpowers (brainstorming-skill в основной сессии, без subagent-pipeline) с Opus 4.7 при `high` reasoning**. Восьмая ветка `feature/rockets-opus46-high` (далее **Pure 4.6+H**) — **Claude Opus 4.6 с `high` reasoning + Superpowers plugin (TDD-skill) + Unity MCP** — попытка достичь уровня 4.7-веток на старой модели с помощью инструментов и runtime-feedback. Цель — сравнить решения по качеству, целостности, расширяемости + замерить вклад апгрейда модели, плана-перед-кодом, подъёма effort до xhigh, интеграции Superpowers brainstorming с 4.7, и эффективность 4.6+MCP без 4.7.
 
-Седьмая ветка детально описана в §10. В §1-9 она присутствует **только в финальном вердикте §8** и в новом §10, чтобы не перегружать существующие 6-way таблицы. Прямые сопоставления вынесены в §10 (vs Superpowers 4.6, vs Pure 4.7+Plan, vs Pure 4.7+P xhigh).
+Седьмая ветка детально описана в §10, восьмая — в §11. В §1-9 они присутствуют **только в финальном вердикте §8** и в соответствующих секциях, чтобы не перегружать существующие 6-way таблицы.
 
 ## Контекст
 
@@ -272,19 +272,21 @@ Tradeoff: Pure 4.7+Plan агрессивнее (ракета всегда «го
 
 ## 8. Итоговая оценка
 
-| Критерий | GSD | Pure 4.6 | Superpowers | Pure 4.7 | Pure 4.7+Plan | Pure 4.7+P xhigh | Лидер |
-|---|---|---|---|---|---|---|---|
-| Скорость | ~5 часов | ~50 мин | ~2 часа | ~2.5 часа | **~2 часа** | ~3-4 часа | **Pure 4.6** |
-| Качество кода | Высокое | Хорошее | Хорошее + intercept | Хорошее + RotateData sync + Range config + URP material | **Хорошее + 2D rotation matrix + RotateData sync + agreggated RocketData** | **Хорошее + 2D rotation matrix + разделённый Launcher/Homing + IsPlayerProjectile DRY** | Pure 4.7+P xhigh ≈ Pure 4.7+Plan ≈ Pure 4.7 ≈ Superpowers |
-| Тестовое покрытие | 31 | 23 | 22 | 25 + DFS regress | **25 + RotateData regress** | **28 (без DFS regress, без RotateData regress — на cycle и rotation тестов нет)** | **GSD** (количество и lifecycle); Pure 4.7+P xhigh (количество без регрессов) |
-| Архитектура | SRP, кэш цели, Editor tooling | Простота, tag split | Intercept, toroidal | Range config, RotateData sync, BridgeUpdate workaround | Aggregated RocketData, прагматичный tag split, built-in trail material | **Разделённый Launcher/Homing/Event/Tag, IsPlayerProjectile хелпер, поиск цели в managed Bridge, last-known direction** | **Superpowers** (полнота алгоритма) / **Pure 4.7+P xhigh** (модульность) |
-| Документация | Полная трассируемость | Минимум | Spec+Plan | Таблицы + анализ роли MCP | Компактно по разделам + раздел «невыполнено» | **287 строк: 10 разделов + токены + MCP-таблица + чеклист CLAUDE.md** | GSD (полнота) ≈ Pure 4.7+P xhigh (детализация и self-audit) |
-| Баги (количество fix-итераций) | 6 | 3 | 8 | 5 | **2** | **1 (sort-cycle) + 1 known issue** | **Pure 4.7+P xhigh** (по числу production-блокеров) ≈ **Pure 4.7+Plan** (по полностью починенным) |
-| Уникальные ECS-API ошибки | 0 | 0 | 4 | 0 | **0** | **0** | Все кроме Superpowers |
-| Overhead | Высокий | Нулевой | Умеренный | Нулевой (структурно) | **Нулевой** | **Нулевой** | Pure 4.6 ≈ Pure 4.7 ≈ Pure 4.7+Plan ≈ Pure 4.7+P xhigh |
-| Регрессионные тесты на каждый баг | Частично | Нет | Нет | Да (3/5 покрыты, 2/5 митигация) | **Да (2/2 покрыты)** | **Нет (0/1 — sort-cycle без регресс-теста)** | Pure 4.7+Plan |
-| Прозрачность процесса | Низкая | Низкая | Средняя | Высокая (DECISIONS.md) | Высокая | **Самая высокая (токены + $$ + явный MCP-таблица + чеклист CLAUDE.md)** | **Pure 4.7+P xhigh** |
-| Honest scope (известные TODO в продукте) | Implicit | Implicit | Implicit | Implicit | Явный, без артефактов в коде | **Явный, с известным runtime-артефактом, оставленным умышленно** | **Pure 4.7+P xhigh** (по полноте признания) |
+| Критерий | GSD | Pure 4.6 | Superpowers | Pure 4.7 | Pure 4.7+Plan | Pure 4.7+P xhigh | **Pure 4.6+H** | Лидер |
+|---|---|---|---|---|---|---|---|---|
+| Скорость | ~5 часов | ~50 мин | ~2 часа | ~2.5 часа | **~2 часа** | ~3-4 часа | **~1.5-2 часа** | **Pure 4.6** |
+| Качество кода | Высокое | Хорошее | Хорошее + intercept | Хорошее + RotateData sync + Range config + URP material | **Хорошее + 2D rotation matrix + RotateData sync + agreggated RocketData** | **Хорошее + 2D rotation matrix + разделённый Launcher/Homing + IsPlayerProjectile DRY** | **Хорошее + generic HomingData + минимальный collision diff + rotation через SyncSystem** | Pure 4.7+P xhigh ≈ Pure 4.7+Plan ≈ Pure 4.7 ≈ Superpowers |
+| Тестовое покрытие | 31 | 23 | 22 | 25 + DFS regress | **25 + RotateData regress** | **28 (без DFS regress, без RotateData regress — на cycle и rotation тестов нет)** | **18 (без регрессов на баги)** | **GSD** (количество и lifecycle); Pure 4.7+P xhigh (количество без регрессов) |
+| Архитектура | SRP, кэш цели, Editor tooling | Простота, tag split | Intercept, toroidal | Range config, RotateData sync, BridgeUpdate workaround | Aggregated RocketData, прагматичный tag split, built-in trail material | **Разделённый Launcher/Homing/Event/Tag, IsPlayerProjectile хелпер, поиск цели в managed Bridge, last-known direction** | **Минимальная: generic HomingData, rotation в presentation, 1-строка collision, aggregated RocketData** | **Superpowers** (полнота алгоритма) / **Pure 4.7+P xhigh** (модульность) / **Pure 4.6+H** (минимализм) |
+| Документация | Полная трассируемость | Минимум | Spec+Plan | Таблицы + анализ роли MCP | Компактно по разделам + раздел «невыполнено» | **287 строк: 10 разделов + токены + MCP-таблица + чеклист CLAUDE.md** | **105 строк: 9 решений + Token est + Test coverage** | GSD (полнота) ≈ Pure 4.7+P xhigh (детализация) |
+| Баги (количество fix-итераций) | 6 | 3 | 8 | 5 | **2** | **1 (sort-cycle) + 1 known issue** | **3** (sort-cycle + rotation + trail) | **Pure 4.7+P xhigh** (по числу production-блокеров) ≈ **Pure 4.7+Plan** (по полностью починенным) |
+| Уникальные ECS-API ошибки | 0 | 0 | 4 | 0 | **0** | **0** | **0** | Все кроме Superpowers |
+| Overhead | Высокий | Нулевой | Умеренный | Нулевой (структурно) | **Нулевой** | **Нулевой** | **Нулевой** | Pure 4.6 ≈ Pure 4.7 ≈ Pure 4.7+Plan ≈ Pure 4.7+P xhigh ≈ Pure 4.6+H |
+| Регрессионные тесты на каждый баг | Частично | Нет | Нет | Да (3/5 покрыты, 2/5 митигация) | **Да (2/2 покрыты)** | **Нет (0/1 — sort-cycle без регресс-теста)** | **Нет (0/3)** | Pure 4.7+Plan |
+| Прозрачность процесса | Низкая | Низкая | Средняя | Высокая (DECISIONS.md) | Высокая | **Самая высокая (токены + $$ + явный MCP-таблица + чеклист CLAUDE.md)** | Средняя (DECISIONS.md компактный) | **Pure 4.7+P xhigh** |
+| Honest scope (известные TODO в продукте) | Implicit | Implicit | Implicit | Implicit | Явный, без артефактов в коде | **Явный, с известным runtime-артефактом, оставленным умышленно** | Implicit (все баги починены) | **Pure 4.7+P xhigh** (по полноте признания) |
+| **Компактность кода** | Средняя | Средняя | Низкая | Средняя | Средняя | Низкая | **Высокая (95 строк homing, 1 строка collision)** | **Pure 4.6+H** |
+| **Цена/результат** | Низкая | **Высокая** | Средняя | Средняя | Средняя | Низкая | **Высокая (Opus 4.6 дешевле + результат ≈ 4.7)** | Pure 4.6 ≈ **Pure 4.6+H** |
 
 ### Общий вердикт
 
@@ -294,6 +296,7 @@ Tradeoff: Pure 4.7+Plan агрессивнее (ракета всегда «го
 - **Pure 4.7+P xhigh** — **самая модульная архитектура** и **самая прозрачная документация** из шести вариантов. Разделение `RocketLauncherData` / `RocketHomingData` / `RocketLaunchEvent` / `RocketTag` плюс `IsPlayerProjectile` хелпер дают наилучшую готовность к расширению (enemy rockets, multi-rocket arsenal). DESISIONS.md уникальна по самоанализу: токены ($$), таблица MCP-инструментов, чеклист CLAUDE.md. **Слабые места:** sort-cycle всё-таки возник (план не предотвратил), регресс-тест на него не написан, TrailRenderer-артефакт оставлен как known issue по решению пользователя. **xhigh effort не дал измеримого выигрыша по сравнению с high-plan** — ни по скорости (3-4 ч vs ~2 ч), ни по числу багов (1 vs 2 production-блокера). Зато дал **более глубокую саморефлексию** в документации.
 - **Superpowers** — лучший по физике алгоритма (intercept + toroidal), но дорого по subagent-overhead и уникальным ECS-API ошибкам.
 - **SP+4.7+H** *(см. §10)* — Superpowers brainstorming-skill в одной сессии (без subagent-driver) + Opus 4.7 high. Архитектурно — посередине между Pure 4.6 (`Missile*`, tag split) и Pure 4.7 (есть `SeekRange`). Continuous reacquire как у Superpowers 4.6, но без intercept/toroidal (модель не вышла за рамки явного промпта). Поймал sort-cycle (как и Pure 4.7+P xhigh), починил без регресс-теста. Главная аномалия — **0 коммитов**: вся работа лежит в working tree без `git add`. brainstorming-skill добавил clarifying-этап и design-spec до кода, но не смог снять «неожиданности рантайма» (purple particles, missile rotation, sort-cycle), которые ловятся только через MCP. **Не быстрее** Pure 4.7+Plan, **не модульнее** Pure 4.7+P xhigh, **не показательнее** GSD.
+- **Pure 4.6+H** *(см. §11)* — **самая компактная реализация** из 8 веток (95 строк homing, 1 строка collision, 105 строк DECISIONS.md). Opus 4.6 + high reasoning + MCP + TDD-skill. Архитектурно уникален: generic `HomingData` (1 поле), rotation через `GameObjectSyncSystem` (не через `RotateData`), dual-tag (`RocketTag` + `PlayerBulletTag`). Функционально эквивалентен всем 4.7-веткам при меньшей стоимости модели. **Лидер по цена/результат для MVP.** Слабости: 18 тестов (минимум среди 4.7-веток), 0/3 регресс-тестов на баги, нет кэширования цели, нет Range-конфига.
 - **GSD** — лучший по охвату и трассируемости, но критический overhead (55% времени на документацию).
 
 ### Что изменили план-перед-кодом, Opus 4.7 и xhigh effort
@@ -392,7 +395,7 @@ Tradeoff: Pure 4.7+Plan агрессивнее (ракета всегда «го
 | Готовность к enemy rockets | Нужен split aggregated → launcher | ✅ (уже разделено) |
 | Прозрачность стоимости | ❌ | ✅ |
 
-**Рекомендация:** для **MVP** — Pure 4.7+Plan (быстрее, регресс-тесты на каждый баг). Для **production-кода с расширением (enemy rockets, multi-rocket)** — Pure 4.7+P xhigh (модульная архитектура), **но добавить регресс-тест на sort-cycle и убрать known TrailRenderer issue**. Чтобы достичь покрытия GSD (31 тест) и алгоритма Superpowers (intercept+toroidal), нужны явные требования в промпте — модель сама не выходит за рамки задачи.
+**Рекомендация:** для **MVP с ограниченным бюджетом** — Pure 4.6+H (дешевле, результат эквивалентен, ~2ч). Для **MVP с требованием регресс-тестов** — Pure 4.7+Plan (регрессы на каждый баг). Для **production-кода с расширением (enemy rockets, multi-rocket)** — Pure 4.7+P xhigh (модульная архитектура), **но добавить регресс-тест на sort-cycle и убрать known TrailRenderer issue**. Чтобы достичь покрытия GSD (31 тест) и алгоритма Superpowers (intercept+toroidal), нужны явные требования в промпте — модель сама не выходит за рамки задачи.
 
 ### 9.3 Главные выводы
 
@@ -415,6 +418,8 @@ Tradeoff: Pure 4.7+Plan агрессивнее (ракета всегда «го
 9. **Прагматизм vs полнота — обе стратегии работают, добавляется третья: модульность.** Pure 4.7+Plan выбрал минимализм (built-in trail material, агрегированный RocketData, нет range-config). Pure 4.7 выбрал defensive engineering (URP-specific material, разделённые компоненты, range-config). Pure 4.7+P xhigh выбрал **модульность под расширение** (разделённые Launcher/Homing/Event/Tag, IsPlayerProjectile хелпер, поиск цели в managed Bridge). Все три достигли работающей фичи. Выбор зависит от долгосрочного контекста: minimal — для MVP/прототипа, defensive — для production с защитой от регрессов, modular — для production с готовностью к расширению фичи (enemy rockets, multi-rocket).
 
 10. **Архитектурный выбор влияет на pattern-cycle vulnerability.** Pure 4.7+Plan не наткнулся на sort-cycle из-за aggregated дизайна (один `[UpdateBefore]`). Pure 4.7+P xhigh столкнулся с ним из-за разделённого дизайна (несколько систем, больше графовых рёбер). Это не значит, что разделение хуже — это значит, что разделение **требует более тщательной проверки графа зависимостей**. Урок для будущих ECS-проектов: tooling для DFS-проверки графа должен быть стандартом разработки, а не реактивной защитой от уже произошедшего бага.
+
+11. **MCP — главный equalizer между моделями (подтверждено 8-й веткой).** Pure 4.6+H (Opus 4.6) достигает функционального паритета с Pure 4.7+Plan (Opus 4.7) при идентичной скорости (~2ч). Разница — в «процессной зрелости» (тесты, регрессы, документация), не в работоспособности кода. **Для MVP в знакомом codebase Opus 4.6 + MCP — cost-effective альтернати��а Opus 4.7.** Вкладывать в более дорогую модель стоит когда нужна глубина рефл��ксии (xhigh), модульность под расширение, или формальная самопроверка.
 
 ---
 
@@ -549,3 +554,188 @@ Tradeoff: Pure 4.7+Plan агрессивнее (ракета всегда «го
 | Очень простая задача с дешёвым runtime feedback | **Pure 4.6** или **Pure 4.7** — минимальный overhead, скорость > всего |
 
 **SP+4.7+H — не лидер ни в одной категории**, но единственный путь, где brainstorming-skill активно вмешивается в основной диалог. Полезность зависит от **новизны задачи**, не от модели и не от effort.
+
+---
+
+## 11. Восьмая ветка: Pure Opus 4.6 high (`feature/rockets-opus46-high`)
+
+### 11.1 Конфигурация
+
+| Параметр | Pure 4.6+H |
+|---|---|
+| Модель | **Opus 4.6**, reasoning **`high`** |
+| Фреймворк | **Superpowers TDD-skill** (без subagent-pipeline, без brainstorming-skill) |
+| MCP-проверка | Да — Unity MCP доступен с начала сессии, использован для tests-run, console-get-logs, script-execute |
+| Промпт | Идентичный (без доп. пунктов «составь план», «убедись что MCP работает» и т.п.) |
+| Дата | 2026-04-27 |
+
+**Принципиальное отличие от Pure 4.6 (`rockets-pure-claude`):** модель та же (Opus 4.6), но с `high` reasoning effort + Superpowers TDD-skill + Unity MCP. Это «дешёвая альтернатива» Opus 4.7-веткам: можно ли компенсировать разницу в модели инструментами и runtime-feedback?
+
+**Принципиальное отличие от SP+4.7+H:** нет brainstorming-skill (clarify → design → spec). Прямая реализация без формального дизайн-этапа. MCP выступает основным «стабилизатором качества».
+
+### 11.2 Метрики (vs ближайшие соседи)
+
+| Метрика | Pure 4.6 (no framework) | Pure 4.6+H | Pure 4.7+Plan | Pure 4.7+P xhigh | SP+4.7+H |
+|---|---|---|---|---|---|
+| Коммитов на фичу | 1 | **2** (1 feat + 1 fix) | 3 (1 feat + 2 fix) | 1 | 0 (!) |
+| Docs-коммитов | 0 | **0** (DECISIONS.md в feat-коммите) | 0 | 0 | 0 |
+| Fix-итераций (runtime) | 3 | **3** (sort-cycle + rotation + trail) | 2 | 1 (+1 known) | 3 |
+| Время wall clock | ~50 мин | **~1.5-2 часа** | ~2 часа | ~3-4 часа | ~2-3 часа |
+| Тесты прогнаны через MCP | Да | **Да** | Да | Да | Да |
+| Тест-сьют | n/a | **183/183 passed** | 188/188 | 194/194 | n/a |
+| Rocket-тестов | ~23 | **18** (7+7+4) | ~25 | ~28 | ~18 |
+
+**Pure 4.6+H vs Pure 4.6:** в 2-3× медленнее, но с DECISIONS.md (105 строк), TDD-подходом (18 тестов в 3 файлах), и визуально верифицированным trail. Разница — **дисциплина**, не модель.
+
+**Pure 4.6+H vs Pure 4.7+Plan:** скорость сопоставима (~2ч). Fix-итераций чуть больше (3 vs 2). Тестов меньше (18 vs 25). Но **стоимость модели ниже** — Opus 4.6 дешевле Opus 4.7.
+
+**Pure 4.6+H — единственная ветка с 2 коммитами и чётким разделением feat/fix** (кроме Pure 4.7+Plan с 3). SP+4.7+H — 0 коммитов, Pure 4.7+P xhigh — 1 (всё в одном). Atomic commits — отражение дисциплины, не модели.
+
+### 11.3 Архитектурные решения
+
+| Аспект | Pure 4.6 | Pure 4.6+H | Pure 4.7+Plan | Pure 4.7+P xhigh |
+|---|---|---|---|---|
+| Naming | `Missile*` | **`Rocket*`** (буквальное прочтение промпта) | `Rocket*` | `Rocket*` |
+| Ammo component | `MissileData` (single) | **`RocketData` (aggregated: MaxShoots, ReloadDurationSec, CurrentShoots, ReloadRemaining, Shooting, Direction, ShootPosition)** | `RocketData` (aggregated) | `RocketLauncherData` (только арсенал) |
+| Homing component | `HomingData` (TurnSpeed) | **`HomingData` (только TurnSpeed — 1 поле, generic)** | `RocketHomingData` (Target, TurnRate) | `RocketHomingData` (Target, TurnRate) |
+| Тег ракеты | `MissileTag` + `PlayerMissileTag` | **`RocketTag` + `PlayerBulletTag` (dual-tag)** | `RocketTag` (одиночный) | `RocketTag` (одиночный) |
+| Event | `MissileShootEvent` | **`RocketShootEvent` (singleton-buffer → `ShootEventProcessorSystem`)** | через `RocketData.Shooting` flag | `RocketLaunchEvent` (singleton-buffer + Bridge) |
+| Кэширование цели | Нет | **Нет (rescan каждый кадр)** | Да | Да |
+| RotateData на ракете | Нет (баг) | **Нет — rotation через `GameObjectSyncSystem` из `MoveData.Direction`** | Да (после фикса) | Да (сразу) |
+| Collision change | `IsPlayerMissile()` | **+1 строка: `|| HasComponent<RocketTag>` в `IsPlayerBullet()`** | `IsRocket()` + ветка | `IsPlayerProjectile()` хелпер |
+| Trail | Нет | **ParticleSystem-child, `Default-Particle.mat`, Play/Stop/Clear** | ParticleSystem, `Default-ParticleSystem.mat` | ParticleSystem, `Default-ParticleSystem.mat` |
+| HUD | `MissileShootCount` | **`RocketShootCount` / `RocketReloadTime` / `IsRocketReloadTimeVisible`** | `RocketShootCount` | `RocketCount` / `RocketRespawnTime` |
+| Поиск цели | в guidance (каждый кадр) | **в `EcsHomingSystem` (ISystem, каждый кадр)** | в Game.OnRocket | в managed Bridge |
+| Размер homing system | 105 строк | **95 строк** | 152 | ~120 |
+
+**Pure 4.6+H уникальное (vs все 7 веток):**
+
+1. **Generic `HomingData` — 1 поле (`TurnSpeed`).** Минимальный компонент из всех 8 веток. Нет `Target` entity ref, нет `TargetAcquisitionRange`. Компонент не привязан к `Rocket*` naming → переиспользуем для любой homing-сущности.
+
+2. **Rotation через `GameObjectSyncSystem`, без `RotateData` на ракете.** Единственная ветка, где rocket entity **не имеет `RotateData` вообще**. Вместо этого `GameObjectSyncSystem` содержит rocket-specific query (`WithAll<RocketTag>().WithNone<RotateData>()`) который вычисляет angle из `MoveData.Direction` через `atan2`. Архитектурно это чище: `RotateData` семантически означает input-driven rotation (от клавиатуры), а ракета вращается в direction of travel — это presentation-concern.
+
+3. **Самая компактная система наведения (95 строк).** Алгоритм: 3 отдельных query (Asteroid/Ufo/UfoBig с `WithNone<DeadTag>`) → nearest по `distancesq` → cross product для знака → `asin` + clamp по `TurnSpeed*dt` → 2D rotation matrix → update `MoveData.Direction`. Без кэширования цели, без `Entity target` ref, без fallback-логики. Если цели нет — `continue` (ракета летит по последнему direction, как у Pure 4.7+P xhigh, но без явного кода для этого).
+
+4. **Минимальное изменение в collision system — 1 строка.** `IsPlayerBullet()` расширен на `|| em.HasComponent<RocketTag>(entity)`. Нет отдельных if-веток для Rocket+Enemy (A/B order). Ракета трактуется как player bullet — логика collision полностью переиспользована.
+
+5. **Dual-tag: `RocketTag` + `PlayerBulletTag`.** Отличие от Pure 4.7+Plan/xhigh (только `RocketTag`): здесь ракета **явно** объявлена player bullet. `IsPlayerBullet` проверяет `PlayerBulletTag || RocketTag` — belt-and-suspenders, но `PlayerBulletTag` на entity гарантирует корректность даже если `IsPlayerBullet` будет рефакторирован.
+
+6. **Event pipeline через существующий `ShootEventProcessorSystem`.** `EcsRocketSystem` генерирует `RocketShootEvent` → managed `ShootEventProcessorSystem` читает buffer → вызывает `_catalog.CreateRocket()`. Тот же pipeline что у Gun и Laser. Поиск цели — **не** в Bridge при спавне, а в runtime (`EcsHomingSystem` каждый кадр). Tradeoff: проще при создании (не нужно искать nearest при launch), но N×M scan каждый кадр.
+
+### 11.4 Тестовое покрытие
+
+| Категория | Pure 4.6 | Pure 4.6+H | Pure 4.7+Plan | Pure 4.7+P xhigh |
+|---|---|---|---|---|
+| Launcher / Ammo | 8 | **7** (`EcsRocketSystemTests`: reload, no-exceed, shoot decrement, direction, no-ammo, reset, boundary) | 7 | 9 |
+| Guidance / Homing | 8 | **7** (`EcsHomingSystemTests`: turn toward target, nearest selection, Ufo/UfoBig targeting, no targets, speed limit, dead entity exclusion, multiple targets) | 10 | 7 |
+| Collision | 5 | **4** (`CollisionHandlerRocketTests`: kills asteroid/ufo/ufoBig with score, doesn't kill ship) | 4 | 7 |
+| Bridge / HUD | 0 | **2 (modified)** (`ObservableBridgeSystemTests` — `RocketData` добавлен в `CreateFullShipEntity`) | 2 | (existing) |
+| System ordering (cycle) | 0 | **0** (sort-cycle поправлен без регресс-теста) | 0 | 0 |
+| **Итого rocket-тестов** | **~23** | **~18** | **~25** | **~28** |
+| **Общий test suite** | n/a | **183/183 passed** | 188/188 | 194/194 |
+
+**Pure 4.6+H минусы:** 18 rocket-тестов — на уровне SP+4.7+H, ниже всех 4.7-веток. **0/3 регресс-тестов на runtime-баги** (sort-cycle, rotation, trail) — нарушение CLAUDE.md правила «при багфиксе всегда писать регрессионный тест».
+
+**Pure 4.6+H плюсы:** test suite **183/183 passed** — full green. Модифицированные `ObservableBridgeSystemTests` подтверждают что `RocketData` корректно интегрирован в Bridge pipeline.
+
+### 11.5 Баги Pure 4.6+H
+
+1. **ECS sort cycle** — `[UpdateAfter(typeof(EcsLaserSystem))]` на `EcsRocketSystem` не учитывал что `EcsHomingSystem` ставит `[UpdateAfter(typeof(EcsRocketSystem))]` + `[UpdateBefore(typeof(EcsMoveSystem))]`, создавая конфликт при сортировке графа. Поймано через `console-get-logs` (IndexOutOfRangeException в ComponentSystemSorter). Фикс: заменить `[UpdateAfter(typeof(EcsLaserSystem))]` на `[UpdateBefore(typeof(EcsHomingSystem))]` — одна строка. Регресс-теста нет.
+
+2. **Ракета не поворачивается в направлении движения** — `GameObjectSyncSystem` устанавливал rotation только для entities с `RotateData`. Rocket entity без `RotateData` попадал в query «position only» (астероиды, пули). Фикс: добавлен rocket-specific query в `GameObjectSyncSystem` с `WithAll<RocketTag>().WithNone<RotateData>()` — derives angle from `MoveData.Direction`. Добавлен `WithNone<RocketTag>` в старый position-only query. Регресс-теста нет (визуально верифицировано).
+
+3. **Trail: фиолетовые квадраты + частицы летят в случайных направлениях** — ParticleSystem в prefab имел: (a) `material = null` → magenta rendering под URP, (b) `startSpeed = 5` + `simulationSpace = Local` → частицы разлетались от ракеты. Фикс через MCP `script-execute`: `material = Default-Particle.mat`, `startSpeed = 0`, `simulationSpace = World`, shape module disabled, emission rate 40, startLifetime 0.4s, startSize 0.15, colorOverLifetime (warm→cool, alpha fade), sizeOverLifetime (1.0→0.2). Регресс-теста нет.
+
+### Сравнение по природе багов (vs соседние ветки)
+
+| Баг | Pure 4.6 | Pure 4.6+H | Pure 4.7+Plan | Pure 4.7+P xhigh | SP+4.7+H |
+|---|---|---|---|---|---|
+| Sort cycle | ✓ | **✓** | — (не возник) | ✓ | ✓ |
+| Particle/magenta | ✓ | **✓** | ✓ | — (избежан) | ✓ |
+| Rotation missing | — | **✓** (другой подход — GameObjectSyncSystem) | ✓ (RotateData) | — (сразу) | ✓ |
+| Config defaults | — | **—** (заполнены через MCP сразу) | — | — | — |
+| Trail artifact re-fire | — | **—** | — | ✓ (known issue) | — |
+
+**Pure 4.6+H поймал 3/5 общих бага — ровно как SP+4.7+H.** Ни одного уникального бага. Все 3 — стандартные «Unity ECS quirks» (sort graph, particle material, RotateData convention), ловимые через MCP runtime.
+
+**Ключевое наблюдение:** Pure 4.7+Plan избежал sort-cycle благодаря aggregated `RocketData` (один `[UpdateBefore]`). Pure 4.6+H и Pure 4.7+P xhigh столкнулись с ним потому что разделили системы (Rocket → Homing → Move). **Архитектурный выбор «разделить системы» увеличивает поверхность для sort-cycle** — это паттерн, воспроизведённый в 3 из 8 веток.
+
+### 11.6 Документация
+
+`DECISIONS.md` — **105 строк, 9 разделов:**
+1. Original Prompt (текст ТЗ)
+2. Decisions (9 решений с Rationale: ECS arch, Homing algorithm, Target selection, Rocket as PlayerBullet, Reload mechanic, Visual, HUD, Config, Input)
+3. Token Estimate (~130K)
+4. Test Coverage (таблица: 4 test-класса, 18 тестов, 183 total)
+5. Files Created (11)
+6. Files Modified (11+)
+
+**Уникальное у Pure 4.6+H:**
+- **Самый компактный DECISIONS.md из 8 веток** (105 строк vs 175-500 у других). Каждое решение — 2-3 строки (Decision + Rationale), без альтернатив, без MCP-таблиц, без чеклистов.
+- Нет раздела «что требует ручной доработки» (HUD подключен в сцене сразу через MCP).
+- Нет оценки денежной стоимости (только токены ~130K).
+- Нет чеклиста CLAUDE.md.
+
+**Pure 4.6+H vs Pure 4.7+P xhigh (287 строк):** ~2.7× короче. Отсутствуют: $$-оценка, MCP-таблица per-call, чеклист CLAUDE.md, раздел known TODO, раздел отклонённых альтернатив. Но все 9 архитектурных решений зафиксированы с rationale — достаточно для ревью.
+
+### 11.7 Ответ на гипотезу «Opus 4.6 + MCP + TDD-skill = Opus 4.7»
+
+**Гипотеза:** можно ли компенсировать разницу между 4.6 и 4.7 инструментами (MCP runtime-feedback, TDD-skill)?
+
+**Факт:** **частично да, по функционалу — полностью; по качеству процесса — нет.**
+
+| Аспект | Pure 4.6+H достигает уровня 4.7? | Комментарий |
+|---|---|---|
+| Рабочий код | **Да** | Фича работает: наведение, HUD, collision, trail — эквивалентно всем 4.7-веткам |
+| Скорость | **Да** (~2ч ≈ Pure 4.7+Plan) | MCP ловит баги быстро, 4.6 не медленнее при high effort |
+| Архитектура | **Посередине** | Компактнее (95 строк homing), но без кэша цели, без Range, без модульности Launcher/Homing |
+| Тесты | **Нет** (18 vs 25-28) | Меньше тестов, нет Component defaults, нет regression на баги |
+| Документация | **Нет** (105 vs 175-287) | Функциональна но беднее: нет self-audit, нет $$, нет MCP-таблицы |
+| Регресс-тесты на баги | **Нет** (0/3 vs 2/2 у 4.7+Plan) | Системная слабость — не компенсируется инструментами |
+| Глубина рефлексии | **Нет** | 4.7 (особенно xhigh) даёт DFS-guards, MCP self-audit, explicit alternatives |
+| Модульность под расширение | **Нет** | Aggregated RocketData — как у 4.7+Plan, но без split Launcher/Homing (как у 4.7+P xhigh) |
+
+**Вывод:** MCP устраняет разрыв по **runtime-корректности** (баги ловятся одинаково быстро вне зависимости от модели). Но **качество процесса** (тестовое покрытие, регресс-тесты, документация, модульность) — определяется моделью/effort. Opus 4.6+high даёт рабочий код, но не даёт «инженерную зрелость» Opus 4.7+plan/xhigh.
+
+### 11.8 Вердикт Pure 4.6+H
+
+**Когда выбирать:**
+- Задача **понятна** и есть готовые аналоги в codebase (Gun→Rocket — 1:1 паттерн)
+- Бюджет ограничен (Opus 4.6 дешевле)
+- Нужен быстрый **MVP** (минимальный diff, максимум переиспользования)
+- MCP доступен для runtime-feedback
+
+**Не выбирать для:**
+- Production с требованием к расширяемости (нет Launcher/Homing split)
+- Задач с жёстким требованием «регресс-тест на каждый баг» (модель не делает этого автоматически)
+- Задач, требующих глубокой саморефлексии и документации процесса
+
+### 11.9 Обновлённая рекомендация по выбору workflow (8 веток)
+
+| Сценарий | Рекомендация |
+|---|---|
+| MVP в новом codebase, задача неоднозначная | **SP+4.7+H** или **Superpowers** (subagent) — clarify-этап окупается |
+| MVP в существующем codebase, задача с готовыми аналогами | **Pure 4.6+H** (бюджет) или **Pure 4.7+Plan** (качество) — оба ~2ч |
+| Production с высокими требованиями к расширяемости | **Pure 4.7+P xhigh** — модульная архитектура Launcher/Homing |
+| Production с требованием полной трассируемости | **GSD** — единственный путь с R1-Rn → файлы → тесты |
+| Ограниченный бюджет + MCP доступен | **Pure 4.6+H** — паритет по функционалу с 4.7 при меньшей стоимости |
+| Очень простая задача, скорость > всего | **Pure 4.6** (без фреймворка) — ~50 мин |
+| Максимальное тестовое покрытие + регрессы | **Pure 4.7+Plan** — единственный 2/2 на регресс-тесты |
+
+**Pure 4.6+H — лидер по соотношению цена/результат** для MVP-сценария в знакомом codebase. Opus 4.6 дешевле, MCP компенсирует разницу в runtime-корректности, результат функционально эквивалентен 4.7-веткам. Слабость — процессная зрелость (тесты, регрессы, документация).
+
+### 11.10 Уникальные неожиданности Pure 4.6+H
+
+1. **Самая компактная реализация из 8 веток.** 95 строк homing (vs 105-203 у остальных), 1 строка в collision (vs 3-15), 105 строк DECISIONS.md (vs 175-500). Минимализм — не случайность: модель 4.6 при high effort «следует паттернам» строже, чем 4.7 (которая творит новое — split, helpers, DFS-guards).
+
+2. **Generic `HomingData` без привязки к Rocket.** Единственная ветка с переиспользуемым homing-компонентом. Если завтра нужны homing-торпеды или enemy-ракеты — `HomingData` уже готов, нужен только новый tag.
+
+3. **Rotation без RotateData — через GameObjectSyncSystem.** Архитектурно спорно (presentation layer знает о RocketTag), но семантически корректно: ракета не имеет input-driven rotation, её orientation — производная от velocity. Ни одна другая ветка не сделала этого выбора — все добавляют RotateData на rocket entity (6 из 7) или оставляют баг (1 из 7).
+
+4. **Opus 4.6 не медленнее 4.7 при наличии MCP.** ~1.5-2 часа — на уровне Pure 4.7+Plan. Это подтверждает гипотезу из §9.3: **MCP — главный equalizer между моделями**. Runtime-feedback (console-get-logs, screenshot) нивелирует разницу в «предвидении» моделей.
+
+5. **Паттерн 1:1 с Laser.** `RocketData` — aggregated, как `LaserData`. `EcsRocketSystem` — 1:1 с `EcsLaserSystem` по структуре. `ObservableBridgeSystem` — тот же query-pattern. Это не «креативная архитектура», это «инженерная дисциплина следования паттернам». Opus 4.6 при high effort делает это лучше чем Opus 4.7 (который склонен к инновациям вроде split Launcher/Homing).
+
+6. **Sort-cycle: идентичная природа бага, но другой root cause.** У Pure 4.7+P xhigh цикл был: `[UpdateAfter(EcsShipPositionUpdateSystem)]` → транзитивный `Homing → Move → ShipPosUpdate → Homing`. У Pure 4.6+H: `[UpdateAfter(EcsLaserSystem)]` на RocketSystem создавал конфликт с Homing → Move chain. Разные initial triggers, одна и та же underlying problem — **недостаточная проверка транзитивных зависимостей в ECS graph**. MCP поймал оба за минуты.
+
+7. **Dual-tag (RocketTag + PlayerBulletTag) + OR в IsPlayerBullet.** Belt-and-suspenders: `PlayerBulletTag` на entity **плюс** проверка `RocketTag` в `IsPlayerBullet()`. Это redundant (достаточно одного из двух), но даёт forward-compatibility: если позднее `PlayerBulletTag` будет убран с ракеты (для разделения collision правил), `IsPlayerBullet()` всё ещё поймает через `RocketTag`. Ни одна другая ветка не делает и tag на entity, и проверку в хелпере одновременно.
