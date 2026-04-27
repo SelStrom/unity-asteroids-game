@@ -1,8 +1,10 @@
-# Сравнительный отчёт: GSD vs Pure Claude vs Superpowers vs Pure Opus 4.7 vs Pure Opus 4.7+Plan vs Pure Opus 4.7+Plan xhigh
+# Сравнительный отчёт: GSD vs Pure Claude vs Superpowers vs Pure Opus 4.7 vs Pure Opus 4.7+Plan vs Pure Opus 4.7+Plan xhigh vs Superpowers + Opus 4.7 high
 
 Промпт.
 
-Есть 6 веток, в которых реализовывалась одна и та же фича (homing rockets) с одним и тем же промптом. В трёх ветках использовалась модель **Claude Opus 4.6**: `feature/rockets-pure-claude` — чистый Claude, `feature/rockets` — фреймворк GSD, `feature/rockets-superpowers` — плагин Superpowers (subagent-driven). В трёх ветках использовалась модель **Claude Opus 4.7 (1M context)** без фреймворка: `feature/rockets-pure-opus47` (xhigh reasoning), `feature/rockets-pure-opus47-high-plan` (high reasoning + явный план-перед-кодом) и `feature/rockets-pure-opus47-xhigh-plan` (**xhigh reasoning + явный план-перед-кодом**, та же конфигурация что у `-high-plan`, но с увеличенным effort и независимой сессией). Цель — сравнить решения по качеству, целостности, расширяемости + замерить вклад апгрейда модели, плана-перед-кодом и подъёма effort до xhigh.
+Есть 7 веток, в которых реализовывалась одна и та же фича (homing rockets) с одним и тем же промптом. В трёх ветках использовалась модель **Claude Opus 4.6**: `feature/rockets-pure-claude` — чистый Claude, `feature/rockets` — фреймворк GSD, `feature/rockets-superpowers` — плагин Superpowers (subagent-driven). В трёх ветках использовалась модель **Claude Opus 4.7 (1M context)** без фреймворка: `feature/rockets-pure-opus47` (xhigh reasoning), `feature/rockets-pure-opus47-high-plan` (high reasoning + явный план-перед-кодом) и `feature/rockets-pure-opus47-xhigh-plan` (**xhigh reasoning + явный план-перед-кодом**, та же конфигурация что у `-high-plan`, но с увеличенным effort и независимой сессией). Седьмая ветка `feature/rockets-superpowers-opus47-high` (далее **SP+4.7+H**) сочетает **плагин Superpowers (brainstorming-skill в основной сессии, без subagent-pipeline) с Opus 4.7 при `high` reasoning** — это попытка совместить дисциплину brainstorming-skill (clarifying questions → design → spec) с улучшенной моделью без xhigh-overhead. Цель — сравнить решения по качеству, целостности, расширяемости + замерить вклад апгрейда модели, плана-перед-кодом, подъёма effort до xhigh и интеграции Superpowers brainstorming с 4.7.
+
+Седьмая ветка детально описана в §10. В §1-9 она присутствует **только в финальном вердикте §8** и в новом §10, чтобы не перегружать существующие 6-way таблицы. Прямые сопоставления вынесены в §10 (vs Superpowers 4.6, vs Pure 4.7+Plan, vs Pure 4.7+P xhigh).
 
 ## Контекст
 
@@ -291,6 +293,7 @@ Tradeoff: Pure 4.7+Plan агрессивнее (ракета всегда «го
 - **Pure 4.7+Plan** — золотая середина по числу полностью починенных багов: единственная ветка, где план-перед-кодом измеримо снизил количество багов (2 vs 5 у Pure 4.7), убрал три категории runtime-проблем (cycle, config defaults, bridge schedule) и сократил DECISIONS.md в 3 раза. Использовал самые прагматичные решения: built-in trail material, отдельный `RocketTag`, агрегированный `RocketData`. **Регрессионные тесты на 100% багов.**
 - **Pure 4.7+P xhigh** — **самая модульная архитектура** и **самая прозрачная документация** из шести вариантов. Разделение `RocketLauncherData` / `RocketHomingData` / `RocketLaunchEvent` / `RocketTag` плюс `IsPlayerProjectile` хелпер дают наилучшую готовность к расширению (enemy rockets, multi-rocket arsenal). DESISIONS.md уникальна по самоанализу: токены ($$), таблица MCP-инструментов, чеклист CLAUDE.md. **Слабые места:** sort-cycle всё-таки возник (план не предотвратил), регресс-тест на него не написан, TrailRenderer-артефакт оставлен как known issue по решению пользователя. **xhigh effort не дал измеримого выигрыша по сравнению с high-plan** — ни по скорости (3-4 ч vs ~2 ч), ни по числу багов (1 vs 2 production-блокера). Зато дал **более глубокую саморефлексию** в документации.
 - **Superpowers** — лучший по физике алгоритма (intercept + toroidal), но дорого по subagent-overhead и уникальным ECS-API ошибкам.
+- **SP+4.7+H** *(см. §10)* — Superpowers brainstorming-skill в одной сессии (без subagent-driver) + Opus 4.7 high. Архитектурно — посередине между Pure 4.6 (`Missile*`, tag split) и Pure 4.7 (есть `SeekRange`). Continuous reacquire как у Superpowers 4.6, но без intercept/toroidal (модель не вышла за рамки явного промпта). Поймал sort-cycle (как и Pure 4.7+P xhigh), починил без регресс-теста. Главная аномалия — **0 коммитов**: вся работа лежит в working tree без `git add`. brainstorming-skill добавил clarifying-этап и design-spec до кода, но не смог снять «неожиданности рантайма» (purple particles, missile rotation, sort-cycle), которые ловятся только через MCP. **Не быстрее** Pure 4.7+Plan, **не модульнее** Pure 4.7+P xhigh, **не показательнее** GSD.
 - **GSD** — лучший по охвату и трассируемости, но критический overhead (55% времени на документацию).
 
 ### Что изменили план-перед-кодом, Opus 4.7 и xhigh effort
@@ -412,3 +415,137 @@ Tradeoff: Pure 4.7+Plan агрессивнее (ракета всегда «го
 9. **Прагматизм vs полнота — обе стратегии работают, добавляется третья: модульность.** Pure 4.7+Plan выбрал минимализм (built-in trail material, агрегированный RocketData, нет range-config). Pure 4.7 выбрал defensive engineering (URP-specific material, разделённые компоненты, range-config). Pure 4.7+P xhigh выбрал **модульность под расширение** (разделённые Launcher/Homing/Event/Tag, IsPlayerProjectile хелпер, поиск цели в managed Bridge). Все три достигли работающей фичи. Выбор зависит от долгосрочного контекста: minimal — для MVP/прототипа, defensive — для production с защитой от регрессов, modular — для production с готовностью к расширению фичи (enemy rockets, multi-rocket).
 
 10. **Архитектурный выбор влияет на pattern-cycle vulnerability.** Pure 4.7+Plan не наткнулся на sort-cycle из-за aggregated дизайна (один `[UpdateBefore]`). Pure 4.7+P xhigh столкнулся с ним из-за разделённого дизайна (несколько систем, больше графовых рёбер). Это не значит, что разделение хуже — это значит, что разделение **требует более тщательной проверки графа зависимостей**. Урок для будущих ECS-проектов: tooling для DFS-проверки графа должен быть стандартом разработки, а не реактивной защитой от уже произошедшего бага.
+
+---
+
+## 10. Седьмая ветка: Superpowers brainstorming + Opus 4.7 high (`feature/rockets-superpowers-opus47-high`)
+
+### 10.1 Конфигурация
+
+| Параметр | SP+4.7+H |
+|---|---|
+| Модель | Opus 4.7 (1M context), reasoning **`high`** |
+| Фреймворк | **Superpowers brainstorming-skill** в основной сессии (clarify → design → spec) — **без** subagent-driven pipeline (как у Superpowers 4.6) |
+| TDD-skill | Используется (через Superpowers) |
+| MCP-проверка | В начале сессии (явный пункт «убедись что MCP работает; иначе НЕ продолжай») — состояние подтверждено через `editor-application-get-state` |
+| Промпт | Идентичный + 2 пункта: «убедись что MCP работает», «запиши решения, оценку токенов и промт в `DESISIONS.md`» |
+| Дата | 2026-04-27 |
+
+**Принципиальное отличие от Superpowers 4.6:** brainstorming-skill активируется в основной сессии (та же модель ведёт диалог и пишет код), а не делегируется чейну subagent'ов. Это снижает overhead на passing-context между агентами — но так же снимает выгоду «свежего взгляда» от спец-агентов.
+
+### 10.2 Метрики (vs ближайшие соседи)
+
+| Метрика | SP+4.6 (subagent) | SP+4.7+H (in-session) | Pure 4.7+Plan | Pure 4.7+P xhigh |
+|---|---|---|---|---|
+| Коммитов на фичу | 31 | **0 (!) — вся работа в working tree, не закоммичено** | 3 | 1 |
+| Docs-коммитов | 3 | 0 | 0 | 0 |
+| Fix-итераций (runtime) | 8 | **3** (sort-cycle + purple particles + missile rotation) | 2 | 1 (+1 known issue) |
+| Время wall clock | ~2 часа | ~2-3 часа (по записи в DESISIONS.md ~250K токенов) | ~2 часа | ~3-4 часа |
+| Тесты прогнаны через MCP | Да | Да | Да | Да |
+| Денежная оценка | — | **~$3-5** (явно посчитано в DESISIONS.md §6) | — | ~$10.13 |
+| Тест-сьют | 22 rocket | **~18 rocket** (9 Homing + 5 Launcher + 2 EntityFactory + 2 Collision) | ~25 | ~28 |
+
+**Самая интересная аномалия SP+4.7+H — 0 коммитов.** Все артефакты фичи (4 новых компонента, 2 системы, 1 visual, 2 теста-файла, изменения 9 существующих файлов, DESISIONS.md, новый prefab) лежат в working tree без `git add`. Это **противоречит брейнштормингу-skill инструкции «commit the design document to git»**. Для аудита состояние ветки эквивалентно «незаконченной session», даже если код функционально работает. Любая другая ветка имеет хотя бы один feat-коммит.
+
+### 10.3 Архитектурные решения
+
+| Аспект | SP+4.6 | SP+4.7+H | Pure 4.7+Plan | Pure 4.7+P xhigh |
+|---|---|---|---|---|
+| Naming | `Missile*` | **`Missile*`** (как Pure 4.6, SP 4.6, Pure 4.7) | `Rocket*` | `Rocket*` |
+| Ammo component | `MissileData` (single) | **`MissileLauncherData`** (Launcher отдельно: MaxShoots/CurrentShoots/ReloadDurationSec/ReloadRemaining/Shooting/Direction/ShootPosition) | `RocketData` (aggregated) | `RocketLauncherData` (только арсенал) |
+| Homing component | `HomingData` (Target, TurnRate, Speed, LifeTime) | **`HomingMissileData`** (TurnRateRadPerSec, **SeekRange**) — **с диапазоном захвата как у Pure 4.7** | `RocketHomingData` (Target, TurnRate) — без диапазона | `RocketHomingData` (Target, TurnRate) — без диапазона |
+| Тег ракеты | `MissileTag` + `PlayerBulletTag` (reuse) | **`MissileTag` + `PlayerMissileTag`** (tag split, как Pure 4.6) | `RocketTag` (одиночный) | `RocketTag` (одиночный) |
+| Event | `MissileShootEvent` | **`MissileShootEvent`** (singleton-buffer) | через `RocketData.Shooting` flag | `RocketLaunchEvent` (singleton-buffer + поиск цели в managed Bridge) |
+| Поиск цели | в guidance (cached) | **в `EcsHomingMissileSystem`** (`EntityQuery` каждый кадр, scan по AsteroidTag/UfoTag/UfoBigTag без DeadTag в `SeekRange`) | в Game.OnRocket (managed Game) | в managed Bridge (`ShootEventProcessorSystem`) |
+| Алгоритм поворота | `atan2 + clamp` | **`atan2`-style: dot-clamp + acos + cos/sin от шага + cross-sign** (текущий код, ~30 строк `RotateTowards`) | 2D rotation matrix | 2D rotation matrix + signed angle через cross/dot |
+| Dead-target | `WithNone<DeadTag>` | **Пропускает entity с `DeadTag`, retarget каждый кадр** (continuous reacquire) | retarget в том же кадре | НЕ retarget, last-known direction |
+| RotateData на ракете | Да | **Да (после фикса №2)** — изначально планировалась отдельная `EcsMissileRotateSyncSystem`, но реализовано прямо в `EcsHomingMissileSystem`: `rotate.ValueRW.Rotation = newDir` в каждой ветке (no-target / nearest-found / clamp / instant). | Да (после фикса) | Да (с самого начала) |
+| Trail / Visual | TrailRenderer + Sprites/Default | **TrailRenderer + `Particle-URP.mat`** (после замены `ParticleSystem`-child из изначального плана §3.10) | ParticleSystem-child + `Default-ParticleSystem.mat` | ParticleSystem + `Default-ParticleSystem.mat` (built-in extra) |
+| Trail lifecycle в коде | Play() в Connect | **`_trail.Clear() + emitting=true` в `OnConnected`** (для пуллинга) | Только префаб | `Clear()` в Connect, известен artifact at re-fire |
+| Префаб | через MCP `script-execute` | **через MCP** (но фактическое создание префаба в working tree свидетельствует о MCP-флоу, а не ручной YAML) | MCP `script-execute` + `PrefabUtility` | прямой YAML после `assets-copy` NRE |
+
+**SP+4.7+H уникальное (vs SP+4.6 subagent):** более ясное разделение `MissileLauncherData` (на корабле) vs `HomingMissileData` (на ракете), вместо одного `HomingData` с перемешанными полями. Это шаг к архитектуре Pure 4.7+P xhigh, но с `Missile*` именованием и без `IsPlayerProjectile`-хелпера.
+
+**SP+4.7+H уникальное (vs Pure 4.7+Plan/xhigh):** **есть `SeekRange`** — единственная из 4.7-веток (включая xhigh-plan), сохранившая range-конфиг. Унаследован от Pure 4.7 / SP 4.6 — те же подходы, что использовали reacquire-сценарий. Pure 4.7+Plan и Pure 4.7+P xhigh от него отказались.
+
+### 10.4 Тестовое покрытие
+
+| Категория | SP+4.6 | SP+4.7+H | Pure 4.7+Plan | Pure 4.7+P xhigh |
+|---|---|---|---|---|
+| Launcher / Ammo | 7 | **5** (`EcsMissileLauncherSystemTests`: reload, no-exceed, shoot decrement, no-ammo, reset Shooting flag) | 7 | 9 |
+| Guidance / Homing | 11 | **9** (`EcsHomingMissileSystemTests`: NoTargets, OutsideRange, RotatesToTarget, TurnRateClamp, NearestTarget, IgnoresDead, SyncsRotation×2, TargetsUfo) | 10 | 7 |
+| Collision | 4 | **2** (`PlayerMissileHitsAsteroid`, `PlayerMissileHitsUfo` с reverse order) | 4 | 7 |
+| EntityFactory | 0 | **2** (`CreateMissile_HasCorrectComponents`, `CreateMissile_StoresHomingParameters`) | 2 | 1 |
+| Bridge / HUD | 0 | 0 | 2 | в существующих |
+| System ordering (cycle) | 0 | **0 (!) — sort-cycle починен без регресса**, как у Pure 4.7+P xhigh | 0 (цикл не возник) | 0 (поправлен без регресса) |
+| Component defaults | в существующих | в существующих | в существующих | 5 |
+| Prefab validation | 0 | 0 | 0 | 0 |
+| **Итого rocket-тестов** | **22** | **~18** | **~25** | **~28** |
+
+**SP+4.7+H минусы:** меньше всех 4.7-веток по числу выделенных rocket-тестов. **Регресс-тестов на 3 пойманных runtime-бага — 0** (sort-cycle, purple particles, missile rotation). Это нарушает CLAUDE.md правило «при багфиксе всегда писать регрессионный тест». В отличие от Pure 4.7+Plan (regress на 2/2 баги), SP+4.7+H ограничился документированием «урока» в DESISIONS.md §8.
+
+### 10.5 Баги SP+4.7+H
+
+1. **Sort-cycle** — идентичен Pure 4.7+P xhigh. `[UpdateAfter(EcsShipPositionUpdateSystem)] + [UpdateBefore(EcsMoveSystem)]` создавал транзитивный цикл. Поймали через `console-get-logs` после первого PlayMode-запуска. Фикс — удалить лишний `[UpdateAfter]`. Регресс-теста нет (документировано в DESISIONS.md §8).
+2. **Purple particles в trail** — изначальный план §3.10 предписывал `ParticleSystem`-child для «инверсионного следа» (буквальная цитата промпта). При запуске PlayMode частицы рендерились фиолетовыми квадратами (отсутствовал URP shader). Фикс — заменить ParticleSystem на TrailRenderer + `Particle-URP.mat`. Регресс-теста нет.
+3. **Missile rotation не следовала направлению** — `GameObjectSyncSystem` читает `RotateData.Rotation`, но `EcsHomingMissileSystem` обновлял только `MoveData.Direction`. План §3.7 предполагал отдельную `EcsMissileRotateSyncSystem` для копирования Direction → Rotation, но при имплементации эта система НЕ была создана; синхронизацию пришлось добавлять ретроспективно прямо внутрь `EcsHomingMissileSystem` после визуальной проверки. Регресс-теста на rotation sync нет в коммитах (но 2 теста `SyncsRotation*` в `EcsHomingMissileSystemTests` появились по ходу фикса).
+
+**Сравнение с Pure 4.7+Plan (2 бага → 2 регресс-теста) и Pure 4.7+P xhigh (1 баг + 1 known issue → 0 регресс-тестов):** SP+4.7+H **+3 бага, 0 регрессов**. По числу багов хуже обеих 4.7-веток с явным планом-перед-кодом. Гипотеза: brainstorming-skill сфокусировался на high-level дизайне (clarifying questions, design sections, spec doc), но **не проверил Unity-specific quirks** (ParticleSystem default material → magenta под URP, RotateData как обязательный для GameObjectSync). MCP-проверка состояния («работает ли MCP») не заменяет проверку самого кода в PlayMode до коммита.
+
+### 10.6 Документация
+
+`DESISIONS.md` — 202 строки, 8 разделов:
+1. Исходный промт
+2. Контекст и проверка готовности
+3. Ключевые решения (3.1-3.10) — самый детальный раздел
+4. Альтернативы (отклонены)
+5. Верификация
+6. Оценка токенов (~250K, ~$3-5)
+7. План исполнения
+8. Пост-релизный инцидент: цикл в графе ECS-систем
+
+**Уникальное у SP+4.7+H:**
+- Раздел «Альтернативы (отклонены)» с 4 вариантами (Bezier-spline, BulletTag-reuse, GunData-extension, MoveTo+ShootTo) и причинами отказа. Это шире чем у Pure 4.7+Plan (только agreggated vs split аргумент) и Pure 4.7+P xhigh (нет explicit «отклонённых альтернатив»).
+- Подраздел «Перегенерация PlayerActions.cs» в §3.5 — единственная ветка, явно описавшая риск race condition при регенерации Input System auto-generated кода.
+
+**Не хватает (vs Pure 4.7+P xhigh):**
+- Денежная оценка грубее (~$3-5 без cache savings, без разбивки по фазам).
+- Нет таблицы MCP-инструментов с per-call status.
+- Нет чеклиста CLAUDE.md (но это и не обещалось в промпте — у SP+4.7+H было только «MCP + DESISIONS», а у xhigh — 4 явных пункта).
+- Нет раздела «Что требует ручной доработки» / «Невыполненные опциональные элементы».
+
+### 10.7 Ответ на гипотезу «Superpowers + 4.7 = best of both»
+
+**Гипотеза:** brainstorming-skill добавит дисциплину clarify→design→spec, а Opus 4.7 поднимет качество исполнения. Предполагалось получить **результат лучше обоих родителей** (SP 4.6 — слишком много ECS-API ошибок; Pure 4.7 — недостаточно brainstorming).
+
+**Факт:** результат **посередине, не лучше обоих**:
+- vs SP 4.6 — меньше ECS-API ошибок (Opus 4.7 их не путает), но **больше runtime-багов** (3 vs ~3 у SP 4.6, тенденция не улучшилась) и **0 коммитов** (vs 31 у SP 4.6).
+- vs Pure 4.7+Plan — *похоже* по дизайну (Launcher/Homing разделены), но **больше runtime-багов** (3 vs 2) и **меньше регресс-тестов** (0 vs 2/2).
+- vs Pure 4.7+P xhigh — *менее* модульная архитектура (нет `IsPlayerProjectile`-helper, нет event-buffer pattern с поиском в Bridge), **больше runtime-багов** (3 vs 1+1known), **меньше документации** (202 vs 287 строк), **нет** оценки токенов с per-фазной разбивкой.
+
+**Возможное объяснение:** brainstorming-skill хорош для **новых проектов с нуля** (когда clarifying questions помогают понять что строить), но в **существующем codebase с устоявшимися паттернами** (Gun, Laser, существующий ECS+Bridge) он не приносит выгоды по сравнению с прямым «Составь план» из Pure 4.7+Plan. Лишний clarifying-этап оплачивается токенами, но не закрывает Unity-specific quirks (ParticleSystem material, RotateData sync), потому что эти quirks обнаруживаются только через MCP runtime, а не через дизайн-обсуждение.
+
+### 10.8 Вердикт SP+4.7+H
+
+**Когда выбирать:** если задача **новая и неоднозначная** (нужны clarifying questions), и пользователь готов к 2-3 fix-итерациям. **Не выбирать** для:
+- задач в существующем codebase с явными аналогами (Gun→Rocket — есть готовый паттерн, brainstorming избыточен);
+- production-кода (количество fix-итераций выше, чем у Pure 4.7+Plan);
+- ситуаций с жёстким временным бюджетом (overhead clarify-этапа не окупается).
+
+**Что улучшить для следующего эксперимента:**
+1. **Закоммитить работу** — даже WIP. Без коммита ветка не сравнима с другими.
+2. **Регресс-тесты на каждый из 3 багов** (sort-cycle, particle material, rotation sync) — обязательное требование CLAUDE.md.
+3. **PlayMode integration test через MCP** ДО первого коммита, чтобы поймать sort-cycle и particle material до того, как они попадут в DESISIONS.md как «уроки».
+4. **Чеклист соответствия CLAUDE.md** в DESISIONS.md (как у Pure 4.7+P xhigh §10), с явной валидацией пункта «регрессионные тесты при фиксе».
+
+### 10.9 Обновлённая рекомендация по выбору workflow
+
+| Сценарий | Рекомендация |
+|---|---|
+| MVP в новом codebase, задача неоднозначная | **SP+4.7+H** или **Superpowers** (subagent) — clarify-этап окупается |
+| MVP в существующем codebase, задача с готовыми аналогами | **Pure 4.7+Plan** — самый быстрый путь, регрессы на каждый баг |
+| Production с высокими требованиями к расширяемости | **Pure 4.7+P xhigh** — модульная архитектура, явная документация (но добавить регресс-тест на sort-cycle) |
+| Production с требованием полной трассируемости и audit trail | **GSD** — несмотря на overhead, единственный путь с формальной R1-Rn → файлы → тесты |
+| Очень простая задача с дешёвым runtime feedback | **Pure 4.6** или **Pure 4.7** — минимальный overhead, скорость > всего |
+
+**SP+4.7+H — не лидер ни в одной категории**, но единственный путь, где brainstorming-skill активно вмешивается в основной диалог. Полезность зависит от **новизны задачи**, не от модели и не от effort.
