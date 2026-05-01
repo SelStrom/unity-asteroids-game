@@ -41,6 +41,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             m_Manager.AddComponentData(entity, new ThrustData());
             m_Manager.AddComponentData(entity, new GunData());
             m_Manager.AddComponentData(entity, new LaserData());
+            m_Manager.AddComponentData(entity, new RocketData());
             return entity;
         }
 
@@ -192,6 +193,13 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         {
             var entity = m_Manager.CreateEntity();
             m_Manager.AddBuffer<LaserShootEvent>(entity);
+            return entity;
+        }
+
+        protected Entity CreateRocketShootEventSingleton()
+        {
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddBuffer<RocketShootEvent>(entity);
             return entity;
         }
     }

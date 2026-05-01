@@ -12,6 +12,9 @@ namespace SelStrom.Asteroids
         public readonly ReactiveValue<string> LaserShootCount = new();
         public readonly ReactiveValue<string> LaserReloadTime = new();
         public readonly ReactiveValue<bool> IsLaserReloadTimeVisible = new();
+        public readonly ReactiveValue<string> RocketShootCount = new();
+        public readonly ReactiveValue<string> RocketReloadTime = new();
+        public readonly ReactiveValue<bool> IsRocketReloadTimeVisible = new();
     }
 
     public class HudVisual : AbstractWidgetView<HudData>
@@ -21,6 +24,8 @@ namespace SelStrom.Asteroids
         [SerializeField] private TMP_Text _speed = default;
         [SerializeField] private TMP_Text _laserShootCount = default;
         [SerializeField] private TMP_Text _laserReloadTime = default;
+        [SerializeField] private TMP_Text _rocketShootCount = default;
+        [SerializeField] private TMP_Text _rocketReloadTime = default;
 
         protected override void OnConnected()
         {
@@ -30,6 +35,15 @@ namespace SelStrom.Asteroids
             Bind.From(ViewModel.LaserShootCount).To(_laserShootCount);
             Bind.From(ViewModel.LaserReloadTime).To(_laserReloadTime);
             Bind.From(ViewModel.IsLaserReloadTimeVisible).To(_laserReloadTime.gameObject);
+            if (_rocketShootCount != null)
+            {
+                Bind.From(ViewModel.RocketShootCount).To(_rocketShootCount);
+            }
+            if (_rocketReloadTime != null)
+            {
+                Bind.From(ViewModel.RocketReloadTime).To(_rocketReloadTime);
+                Bind.From(ViewModel.IsRocketReloadTimeVisible).To(_rocketReloadTime.gameObject);
+            }
         }
     }
 }

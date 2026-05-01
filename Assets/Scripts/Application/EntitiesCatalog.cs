@@ -17,7 +17,8 @@ namespace SelStrom.Asteroids
         Asteroid,
         Bullet,
         UfoBig,
-        Ufo
+        Ufo,
+        Rocket
     }
 
     public class EntitiesCatalog
@@ -105,7 +106,9 @@ namespace SelStrom.Asteroids
                 _configs.Ship.Gun.MaxShoots,
                 _configs.Ship.Gun.ReloadDurationSec,
                 _configs.Laser.LaserMaxShoots,
-                _configs.Laser.LaserUpdateDurationSec
+                _configs.Laser.LaserUpdateDurationSec,
+                _configs.Rocket.MaxRockets,
+                _configs.Rocket.ReloadDurationSec
             );
             _entityManager.AddComponentObject(entity, new GameObjectRef
             {
@@ -120,6 +123,39 @@ namespace SelStrom.Asteroids
             };
 
             AddToCatalog(view.gameObject, entity, EntityType.Ship, bindings);
+        }
+
+        public void CreateRocket(Vector2 position, Vector2 direction)
+        {
+            var rocketConfig = _configs.Rocket;
+            var viewModel = new RocketViewModel();
+            var bindings = new EventBindingContext();
+            bindings.InvokeAll();
+
+            var view = _viewFactory.Get<RocketVisual>(rocketConfig.Prefab);
+            view.Connect(viewModel);
+
+            var entity = EntityFactory.CreateRocket(
+                _entityManager,
+                new float2(position.x, position.y),
+                rocketConfig.Speed,
+                new float2(direction.x, direction.y),
+                rocketConfig.LifeTimeSeconds,
+                math.radians(rocketConfig.TurnRateDegPerSec)
+            );
+            _entityManager.AddComponentObject(entity, new GameObjectRef
+            {
+                Transform = view.transform,
+                GameObject = view.gameObject
+            });
+            _collisionBridge.RegisterMapping(view.gameObject, entity);
+
+            viewModel.OnCollision.Value = (col) =>
+            {
+                _collisionBridge.ReportCollision(view.gameObject, col.gameObject);
+            };
+
+            AddToCatalog(view.gameObject, entity, EntityType.Rocket, bindings);
         }
 
         public void CreateBullet(GameData.BulletData data, GameObject prefab, Vector2 position, Vector2 direction)
