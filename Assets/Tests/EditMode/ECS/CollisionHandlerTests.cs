@@ -205,5 +205,62 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             Assert.AreEqual(0, scoreData.Value,
                 "Score should remain 0 without collisions");
         }
+
+        [Test]
+        public void RocketHitsAsteroid_BothDeadAndScoreIncreased()
+        {
+            var rocket = CreateRocketEntity(
+                float2.zero, 12f, new float2(1f, 0f), turnRate: 120f);
+            var asteroid = CreateAsteroidEntity(
+                new float2(5f, 0f), 3f, new float2(-1f, 0f), 3, score: 100);
+
+            AddCollisionEvent(rocket, asteroid);
+            RunSystem();
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(rocket),
+                "Rocket should get DeadTag on hit");
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(asteroid),
+                "Asteroid should get DeadTag on rocket hit");
+
+            var scoreData = m_Manager.GetComponentData<ScoreData>(_scoreEntity);
+            Assert.AreEqual(100, scoreData.Value,
+                "Score should increase by asteroid ScoreValue on rocket hit");
+        }
+
+        [Test]
+        public void RocketHitsUfoBig_ReversedOrder_BothDeadAndScoreIncreased()
+        {
+            var rocket = CreateRocketEntity(
+                float2.zero, 12f, new float2(1f, 0f), turnRate: 120f);
+            var ufoBig = CreateUfoBigEntity(
+                new float2(5f, 0f), 2f, new float2(-1f, 0f), score: 200);
+
+            AddCollisionEvent(ufoBig, rocket);
+            RunSystem();
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(rocket),
+                "Rocket should get DeadTag when UfoBig is entityA");
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(ufoBig),
+                "UfoBig should get DeadTag on rocket hit");
+
+            var scoreData = m_Manager.GetComponentData<ScoreData>(_scoreEntity);
+            Assert.AreEqual(200, scoreData.Value);
+        }
+
+        [Test]
+        public void RocketHitsShip_NothingHappens()
+        {
+            var rocket = CreateRocketEntity(
+                float2.zero, 12f, new float2(1f, 0f), turnRate: 120f);
+            var ship = CreateShipEntity(new float2(5f, 0f), 0f);
+
+            AddCollisionEvent(rocket, ship);
+            RunSystem();
+
+            Assert.IsFalse(m_Manager.HasComponent<DeadTag>(rocket),
+                "Rocket should not be destroyed by own ship");
+            Assert.IsFalse(m_Manager.HasComponent<DeadTag>(ship),
+                "Ship should not be hurt by own rocket");
+        }
     }
 }

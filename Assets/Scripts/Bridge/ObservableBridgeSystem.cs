@@ -48,8 +48,9 @@ namespace SelStrom.Asteroids
                 return;
             }
 
-            foreach (var (move, rotate, thrust, laser) in
-                     SystemAPI.Query<RefRO<MoveData>, RefRO<RotateData>, RefRO<ThrustData>, RefRO<LaserData>>()
+            foreach (var (move, rotate, thrust, laser, rocket) in
+                     SystemAPI.Query<RefRO<MoveData>, RefRO<RotateData>, RefRO<ThrustData>, RefRO<LaserData>,
+                         RefRO<RocketLauncherData>>()
                          .WithAll<ShipTag>())
             {
                 if (_hudData != null)
@@ -71,6 +72,13 @@ namespace SelStrom.Asteroids
                     _hudData.LaserReloadTime.Value =
                         $"Reload laser: {TimeSpan.FromSeconds((int)laser.ValueRO.ReloadRemaining):%s} sec";
                     _hudData.IsLaserReloadTimeVisible.Value = shoots < _laserMaxShoots;
+
+                    var rockets = rocket.ValueRO.CurrentRockets;
+                    _hudData.RocketCount.Value = $"Rockets: {rockets.ToString()}";
+                    _hudData.RocketRespawnTime.Value =
+                        $"Respawn rocket: {TimeSpan.FromSeconds((int)rocket.ValueRO.RespawnRemaining):%s} sec";
+                    _hudData.IsRocketRespawnTimeVisible.Value =
+                        rockets < rocket.ValueRO.MaxRockets;
                 }
 
                 if (_shipViewModel != null)
