@@ -151,6 +151,51 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         }
 
         [Test]
+        public void PushesRocketData_ToHudData()
+        {
+            var hudData = new HudData();
+            _system.SetHudData(hudData);
+            _system.SetRocketMaxCount(1);
+
+            var entity = CreateShipEntity(float2.zero, 0f);
+            m_Manager.AddComponentData(entity, new RocketLauncherData
+            {
+                CurrentRockets = 0,
+                MaxRockets = 1,
+                ReloadRemaining = 7.0f
+            });
+
+            _system.Update();
+
+            Assert.AreEqual("Rockets: 0", hudData.RocketCount.Value,
+                "RocketCount should show current rockets");
+            Assert.IsTrue(hudData.IsRocketReloadTimeVisible.Value,
+                "IsRocketReloadTimeVisible should be true when rockets < max");
+        }
+
+        [Test]
+        public void RocketReloadHidden_WhenAtMax()
+        {
+            var hudData = new HudData();
+            _system.SetHudData(hudData);
+            _system.SetRocketMaxCount(1);
+
+            var entity = CreateShipEntity(float2.zero, 0f);
+            m_Manager.AddComponentData(entity, new RocketLauncherData
+            {
+                CurrentRockets = 1,
+                MaxRockets = 1,
+                ReloadRemaining = 0f
+            });
+
+            _system.Update();
+
+            Assert.AreEqual("Rockets: 1", hudData.RocketCount.Value);
+            Assert.IsFalse(hudData.IsRocketReloadTimeVisible.Value,
+                "IsRocketReloadTimeVisible should be false at max rockets");
+        }
+
+        [Test]
         public void DoesNotCrash_WhenNoHudDataSet()
         {
             CreateFullShipEntity(

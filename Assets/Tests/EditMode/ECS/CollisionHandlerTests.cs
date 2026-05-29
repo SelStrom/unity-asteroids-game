@@ -91,6 +91,61 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         }
 
         [Test]
+        public void RocketHitsAsteroid_BothDeadAndScoreIncreased()
+        {
+            var rocket = CreateRocketEntity(
+                float2.zero, 12f, new float2(1f, 0f), 120f);
+            var asteroid = CreateAsteroidEntity(
+                new float2(5f, 0f), 3f, new float2(-1f, 0f), 3, score: 100);
+
+            AddCollisionEvent(rocket, asteroid);
+            RunSystem();
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(rocket), "Rocket should get DeadTag");
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(asteroid), "Asteroid should get DeadTag");
+
+            var scoreData = m_Manager.GetComponentData<ScoreData>(_scoreEntity);
+            Assert.AreEqual(100, scoreData.Value, "Score should increase by asteroid ScoreValue");
+        }
+
+        [Test]
+        public void RocketHitsUfo_BothDeadAndScoreIncreased()
+        {
+            var rocket = CreateRocketEntity(
+                float2.zero, 12f, new float2(1f, 0f), 120f);
+            var ufo = CreateUfoEntity(
+                new float2(5f, 0f), 2f, new float2(-1f, 0f), score: 500);
+
+            AddCollisionEvent(rocket, ufo);
+            RunSystem();
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(rocket), "Rocket should get DeadTag");
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(ufo), "Ufo should get DeadTag");
+
+            var scoreData = m_Manager.GetComponentData<ScoreData>(_scoreEntity);
+            Assert.AreEqual(500, scoreData.Value, "Score should increase by Ufo ScoreValue");
+        }
+
+        [Test]
+        public void RocketHitsUfoBig_ReversedOrder_BothDead()
+        {
+            // Ракета как entityB — попадание в случайного (не выбранного) врага тоже засчитывается.
+            var rocket = CreateRocketEntity(
+                float2.zero, 12f, new float2(1f, 0f), 120f);
+            var ufoBig = CreateUfoBigEntity(
+                new float2(5f, 0f), 2f, new float2(-1f, 0f), score: 200);
+
+            AddCollisionEvent(ufoBig, rocket);
+            RunSystem();
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(rocket), "Rocket should get DeadTag when entityB");
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(ufoBig), "UfoBig should get DeadTag");
+
+            var scoreData = m_Manager.GetComponentData<ScoreData>(_scoreEntity);
+            Assert.AreEqual(200, scoreData.Value);
+        }
+
+        [Test]
         public void EnemyBulletHitsShip_BothGetDeadTag()
         {
             var bullet = CreateBulletEntity(
