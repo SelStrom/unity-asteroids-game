@@ -151,6 +151,31 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         }
 
         [Test]
+        public void PushesRocketData_ToHudData()
+        {
+            var hudData = new HudData();
+            _system.SetHudData(hudData);
+
+            var ship = CreateFullShipEntity(
+                position: float2.zero, speed: 0f, direction: float2.zero,
+                rotation: new float2(1f, 0f), thrustActive: false,
+                laserCurrentShoots: 3, laserMaxShoots: 3, reloadRemaining: 0f);
+            m_Manager.AddComponentData(ship, new RocketLauncherData
+            {
+                MaxRockets = 2,
+                CurrentRockets = 1,
+                RespawnDurationSec = 10f,
+                RespawnRemaining = 7f
+            });
+
+            _system.Update();
+
+            Assert.AreEqual("Rockets: 1", hudData.RocketCount.Value);
+            Assert.IsTrue(hudData.IsRocketRespawnTimeVisible.Value,
+                "Respawn timer visible when current < max");
+        }
+
+        [Test]
         public void DoesNotCrash_WhenNoHudDataSet()
         {
             CreateFullShipEntity(

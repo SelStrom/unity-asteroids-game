@@ -82,6 +82,20 @@ namespace SelStrom.Asteroids
                     }
                 }
             }
+
+            if (_hudData != null)
+            {
+                foreach (var launcher in
+                         SystemAPI.Query<RefRO<RocketLauncherData>>().WithAll<ShipTag>())
+                {
+                    var current = launcher.ValueRO.CurrentRockets;
+                    _hudData.RocketCount.Value = $"Rockets: {current.ToString()}";
+                    _hudData.RocketRespawnTime.Value =
+                        $"Respawn rocket: {TimeSpan.FromSeconds((int)launcher.ValueRO.RespawnRemaining):%s} sec";
+                    _hudData.IsRocketRespawnTimeVisible.Value =
+                        current < launcher.ValueRO.MaxRockets;
+                }
+            }
         }
     }
 }

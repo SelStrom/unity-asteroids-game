@@ -14,7 +14,9 @@ namespace SelStrom.Asteroids.ECS
             int gunMaxShoots,
             float gunReloadSec,
             int laserMaxShoots,
-            float laserReloadSec)
+            float laserReloadSec,
+            int rocketMaxRockets,
+            float rocketRespawnSec)
         {
             var entity = em.CreateEntity();
             em.AddComponentData(entity, new ShipTag());
@@ -48,6 +50,46 @@ namespace SelStrom.Asteroids.ECS
                 UpdateDurationSec = laserReloadSec,
                 CurrentShoots = laserMaxShoots,
                 ReloadRemaining = laserReloadSec
+            });
+            em.AddComponentData(entity, new RocketLauncherData
+            {
+                MaxRockets = rocketMaxRockets,
+                RespawnDurationSec = rocketRespawnSec,
+                CurrentRockets = rocketMaxRockets,
+                RespawnRemaining = rocketRespawnSec,
+                Launching = false
+            });
+            return entity;
+        }
+
+        public static Entity CreateRocket(
+            EntityManager em,
+            float2 position,
+            float speed,
+            float2 direction,
+            float turnRateDegPerSec,
+            float lifeTime)
+        {
+            var entity = em.CreateEntity();
+            em.AddComponentData(entity, new RocketTag());
+            em.AddComponentData(entity, new MoveData
+            {
+                Position = position,
+                Speed = speed,
+                Direction = direction
+            });
+            em.AddComponentData(entity, new RotateData
+            {
+                Rotation = direction,
+                TargetDirection = 0f
+            });
+            em.AddComponentData(entity, new HomingData
+            {
+                TurnRateDegPerSec = turnRateDegPerSec
+            });
+            em.AddComponentData(entity, new LifeTimeData
+            {
+                TimeRemaining = lifeTime
             });
             return entity;
         }
