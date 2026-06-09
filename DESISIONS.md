@@ -146,4 +146,5 @@ Explore-агента на разведку):
 2. `10ffae7` feat(app): интеграция ракет — ввод (R), конфиг, HUD, событийный мост
 3. `db706c5` feat(assets): префаб ракеты, конфиг и HUD-тексты через MCP
 4. `fefdf04` test(playmode): интеграционные тесты ракет в игровом мире
-5. (этот файл) docs: DESISIONS.md
+5. `d9c6f90` docs: DESISIONS.md
+6. `1b855e9` feat(scene): HUD-тексты ракет в Main.unity (+ пересериализация сцены Unity 6.3)
