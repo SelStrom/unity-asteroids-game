@@ -31,6 +31,13 @@ MonoBehaviour:
     BeamEffectLifetimeSec: 0.5
     LaserUpdateDurationSec: 10
     LaserMaxShoots: 3
+  Rocket:
+    Prefab: {fileID: 1582027039822482553, guid: 28c0c9f2f5ac4a3abf7019f4838c75fb, type: 3}
+    MaxRockets: 3
+    RespawnDurationSec: 10
+    Speed: 10
+    TurnSpeed: 180
+    LifeTimeSeconds: 5
   Ship:
     Prefab: {fileID: 6148587323414874153, guid: 8b56a71807aefd442a40819e7f16e6cd, type: 3}
     MainSprite: {fileID: 2092087282, guid: 39238117801b40c43856f62b7fdf50fe, type: 3}

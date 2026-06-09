@@ -13,6 +13,7 @@ namespace SelStrom.Asteroids
         private HudData _hudData;
         private ShipViewModel _shipViewModel;
         private int _laserMaxShoots;
+        private int _rocketMaxCount;
         private Sprite _mainSprite;
         private Sprite _thrustSprite;
 
@@ -33,12 +34,18 @@ namespace SelStrom.Asteroids
             _laserMaxShoots = maxShoots;
         }
 
+        public void SetRocketMaxCount(int maxCount)
+        {
+            _rocketMaxCount = maxCount;
+        }
+
         public void ClearReferences()
         {
             _hudData = null;
             _shipViewModel = null;
             _mainSprite = null;
             _thrustSprite = null;
+            _rocketMaxCount = 0;
         }
 
         protected override void OnUpdate()
@@ -48,8 +55,8 @@ namespace SelStrom.Asteroids
                 return;
             }
 
-            foreach (var (move, rotate, thrust, laser) in
-                     SystemAPI.Query<RefRO<MoveData>, RefRO<RotateData>, RefRO<ThrustData>, RefRO<LaserData>>()
+            foreach (var (move, rotate, thrust, laser, rocket) in
+                     SystemAPI.Query<RefRO<MoveData>, RefRO<RotateData>, RefRO<ThrustData>, RefRO<LaserData>, RefRO<RocketLauncherData>>()
                          .WithAll<ShipTag>())
             {
                 if (_hudData != null)
@@ -71,6 +78,12 @@ namespace SelStrom.Asteroids
                     _hudData.LaserReloadTime.Value =
                         $"Reload laser: {TimeSpan.FromSeconds((int)laser.ValueRO.ReloadRemaining):%s} sec";
                     _hudData.IsLaserReloadTimeVisible.Value = shoots < _laserMaxShoots;
+
+                    var currentRockets = rocket.ValueRO.CurrentRockets;
+                    _hudData.RocketCount.Value = $"Rockets: {currentRockets}";
+                    _hudData.RocketRespawnTime.Value =
+                        $"Rocket respawn: {TimeSpan.FromSeconds((int)rocket.ValueRO.RespawnRemaining):%s} sec";
+                    _hudData.IsRocketRespawnTimeVisible.Value = currentRockets < _rocketMaxCount;
                 }
 
                 if (_shipViewModel != null)

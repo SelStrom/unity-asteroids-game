@@ -14,7 +14,9 @@ namespace SelStrom.Asteroids.ECS
             int gunMaxShoots,
             float gunReloadSec,
             int laserMaxShoots,
-            float laserReloadSec)
+            float laserReloadSec,
+            int rocketMax = 3,
+            float rocketRespawnSec = 10f)
         {
             var entity = em.CreateEntity();
             em.AddComponentData(entity, new ShipTag());
@@ -48,6 +50,13 @@ namespace SelStrom.Asteroids.ECS
                 UpdateDurationSec = laserReloadSec,
                 CurrentShoots = laserMaxShoots,
                 ReloadRemaining = laserReloadSec
+            });
+            em.AddComponentData(entity, new RocketLauncherData
+            {
+                MaxRockets = rocketMax,
+                CurrentRockets = rocketMax,
+                RespawnDurationSec = rocketRespawnSec,
+                RespawnRemaining = rocketRespawnSec
             });
             return entity;
         }
@@ -176,6 +185,39 @@ namespace SelStrom.Asteroids.ECS
             em.AddComponentData(entity, new ScoreValue
             {
                 Score = score
+            });
+            return entity;
+        }
+
+        public static Entity CreateRocket(
+            EntityManager em,
+            float2 position,
+            float speed,
+            float2 direction,
+            float turnSpeed,
+            float lifeTime)
+        {
+            var entity = em.CreateEntity();
+            em.AddComponentData(entity, new RocketTag());
+            em.AddComponentData(entity, new MoveData
+            {
+                Position = position,
+                Speed = speed,
+                Direction = direction
+            });
+            em.AddComponentData(entity, new RotateData
+            {
+                Rotation = direction,
+                TargetDirection = 0f
+            });
+            em.AddComponentData(entity, new HomingData
+            {
+                Speed = speed,
+                TurnSpeed = turnSpeed
+            });
+            em.AddComponentData(entity, new LifeTimeData
+            {
+                TimeRemaining = lifeTime
             });
             return entity;
         }

@@ -27,7 +27,8 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         private Entity CreateFullShipEntity(
             float2 position, float speed, float2 direction,
             float2 rotation, bool thrustActive,
-            int laserCurrentShoots, int laserMaxShoots, float reloadRemaining)
+            int laserCurrentShoots, int laserMaxShoots, float reloadRemaining,
+            int rocketCurrentRockets = 3, float rocketRespawnRemaining = 0f)
         {
             var entity = CreateShipEntity(position, speed);
             m_Manager.SetComponentData(entity, new MoveData
@@ -49,6 +50,13 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 CurrentShoots = laserCurrentShoots,
                 MaxShoots = laserMaxShoots,
                 ReloadRemaining = reloadRemaining
+            });
+            m_Manager.SetComponentData(entity, new RocketLauncherData
+            {
+                CurrentRockets = rocketCurrentRockets,
+                MaxRockets = 3,
+                RespawnRemaining = rocketRespawnRemaining,
+                RespawnDurationSec = 5f
             });
             return entity;
         }
@@ -249,6 +257,108 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
 
             Assert.IsNull(shipViewModel.Sprite.Value,
                 "ShipViewModel.Sprite should remain null when sprites not configured");
+        }
+
+        [Test]
+        public void PushesRocketCount_ToHudData()
+        {
+            var hudData = new HudData();
+            _system.SetHudData(hudData);
+            _system.SetRocketMaxCount(3);
+
+            CreateFullShipEntity(
+                position: float2.zero,
+                speed: 0f,
+                direction: float2.zero,
+                rotation: new float2(1f, 0f),
+                thrustActive: false,
+                laserCurrentShoots: 3,
+                laserMaxShoots: 3,
+                reloadRemaining: 0f,
+                rocketCurrentRockets: 2,
+                rocketRespawnRemaining: 0f);
+
+            _system.Update();
+
+            Assert.AreEqual("Rockets: 2", hudData.RocketCount.Value,
+                "RocketCount should show current rockets");
+        }
+
+        [Test]
+        public void PushesRocketRespawnTime_ToHudData()
+        {
+            var hudData = new HudData();
+            _system.SetHudData(hudData);
+            _system.SetRocketMaxCount(3);
+
+            CreateFullShipEntity(
+                position: float2.zero,
+                speed: 0f,
+                direction: float2.zero,
+                rotation: new float2(1f, 0f),
+                thrustActive: false,
+                laserCurrentShoots: 3,
+                laserMaxShoots: 3,
+                reloadRemaining: 0f,
+                rocketCurrentRockets: 1,
+                rocketRespawnRemaining: 4.7f);
+
+            _system.Update();
+
+            Assert.IsTrue(hudData.RocketRespawnTime.Value.Contains("4"),
+                "RocketRespawnTime should contain truncated seconds value");
+            Assert.IsTrue(hudData.RocketRespawnTime.Value.Contains("sec"),
+                "RocketRespawnTime should contain units");
+        }
+
+        [Test]
+        public void IsRocketRespawnTimeVisible_TrueWhenRocketsLessThanMax()
+        {
+            var hudData = new HudData();
+            _system.SetHudData(hudData);
+            _system.SetRocketMaxCount(3);
+
+            CreateFullShipEntity(
+                position: float2.zero,
+                speed: 0f,
+                direction: float2.zero,
+                rotation: new float2(1f, 0f),
+                thrustActive: false,
+                laserCurrentShoots: 3,
+                laserMaxShoots: 3,
+                reloadRemaining: 0f,
+                rocketCurrentRockets: 2,
+                rocketRespawnRemaining: 3f);
+
+            _system.Update();
+
+            Assert.IsTrue(hudData.IsRocketRespawnTimeVisible.Value,
+                "IsRocketRespawnTimeVisible should be true when CurrentRockets < MaxRockets");
+        }
+
+        [Test]
+        public void IsRocketRespawnTimeVisible_FalseWhenRocketsEqualMax()
+        {
+            var hudData = new HudData();
+            _system.SetHudData(hudData);
+            _system.SetRocketMaxCount(3);
+
+            CreateFullShipEntity(
+                position: float2.zero,
+                speed: 0f,
+                direction: float2.zero,
+                rotation: new float2(1f, 0f),
+                thrustActive: false,
+                laserCurrentShoots: 3,
+                laserMaxShoots: 3,
+                reloadRemaining: 0f,
+                rocketCurrentRockets: 3,
+                rocketRespawnRemaining: 0f);
+
+            _system.Update();
+
+            Assert.IsFalse(hudData.IsRocketRespawnTimeVisible.Value,
+                "IsRocketRespawnTimeVisible should be false when CurrentRockets == MaxRockets");
         }
     }
 }
