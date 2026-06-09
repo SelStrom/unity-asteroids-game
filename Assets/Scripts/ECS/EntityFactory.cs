@@ -14,7 +14,9 @@ namespace SelStrom.Asteroids.ECS
             int gunMaxShoots,
             float gunReloadSec,
             int laserMaxShoots,
-            float laserReloadSec)
+            float laserReloadSec,
+            int rocketMaxCount,
+            float rocketRespawnSec)
         {
             var entity = em.CreateEntity();
             em.AddComponentData(entity, new ShipTag());
@@ -48,6 +50,14 @@ namespace SelStrom.Asteroids.ECS
                 UpdateDurationSec = laserReloadSec,
                 CurrentShoots = laserMaxShoots,
                 ReloadRemaining = laserReloadSec
+            });
+            em.AddComponentData(entity, new RocketLauncherData
+            {
+                MaxRockets = rocketMaxCount,
+                CurrentRockets = rocketMaxCount,
+                RespawnDurationSec = rocketRespawnSec,
+                RespawnRemaining = rocketRespawnSec,
+                Launching = false
             });
             return entity;
         }
@@ -107,6 +117,35 @@ namespace SelStrom.Asteroids.ECS
             {
                 em.AddComponentData(entity, new EnemyBulletTag());
             }
+            return entity;
+        }
+
+        public static Entity CreateRocket(
+            EntityManager em,
+            float2 position,
+            float speed,
+            float2 direction,
+            float lifeTime,
+            float turnRateDegPerSec)
+        {
+            var entity = em.CreateEntity();
+            em.AddComponentData(entity, new RocketTag());
+            em.AddComponentData(entity, new PlayerBulletTag());
+            em.AddComponentData(entity, new MoveData
+            {
+                Position = position,
+                Speed = speed,
+                Direction = direction
+            });
+            em.AddComponentData(entity, new LifeTimeData
+            {
+                TimeRemaining = lifeTime
+            });
+            em.AddComponentData(entity, new RocketHomingData
+            {
+                TargetEntity = Entity.Null,
+                TurnRateDegPerSec = turnRateDegPerSec
+            });
             return entity;
         }
 
