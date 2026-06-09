@@ -41,6 +41,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             m_Manager.AddComponentData(entity, new ThrustData());
             m_Manager.AddComponentData(entity, new GunData());
             m_Manager.AddComponentData(entity, new LaserData());
+            m_Manager.AddComponentData(entity, new RocketLauncherData());
             return entity;
         }
 
@@ -193,6 +194,36 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             var entity = m_Manager.CreateEntity();
             m_Manager.AddBuffer<LaserShootEvent>(entity);
             return entity;
+        }
+
+        protected Entity CreateRocketShootEventSingleton()
+        {
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddBuffer<RocketShootEvent>(entity);
+            return entity;
+        }
+
+        protected Entity CreateRocketLauncherEntity(
+            int maxRockets = 1, float respawnDurationSec = 10f, int currentRockets = 1)
+        {
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new ShipTag());
+            m_Manager.AddComponentData(entity, new RocketLauncherData
+            {
+                MaxRockets = maxRockets,
+                RespawnDurationSec = respawnDurationSec,
+                CurrentRockets = currentRockets,
+                RespawnRemaining = respawnDurationSec
+            });
+            return entity;
+        }
+
+        protected Entity CreateRocketEntity(
+            float2 position, float speed, float2 direction,
+            float turnSpeedDegPerSec = 180f, float lifeTime = 10f)
+        {
+            return EntityFactory.CreateRocket(
+                m_Manager, position, speed, direction, turnSpeedDegPerSec, lifeTime);
         }
     }
 }

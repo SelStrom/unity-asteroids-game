@@ -14,7 +14,9 @@ namespace SelStrom.Asteroids.ECS
             int gunMaxShoots,
             float gunReloadSec,
             int laserMaxShoots,
-            float laserReloadSec)
+            float laserReloadSec,
+            int rocketMaxCount,
+            float rocketRespawnSec)
         {
             var entity = em.CreateEntity();
             em.AddComponentData(entity, new ShipTag());
@@ -48,6 +50,13 @@ namespace SelStrom.Asteroids.ECS
                 UpdateDurationSec = laserReloadSec,
                 CurrentShoots = laserMaxShoots,
                 ReloadRemaining = laserReloadSec
+            });
+            em.AddComponentData(entity, new RocketLauncherData
+            {
+                MaxRockets = rocketMaxCount,
+                RespawnDurationSec = rocketRespawnSec,
+                CurrentRockets = rocketMaxCount,
+                RespawnRemaining = rocketRespawnSec
             });
             return entity;
         }
@@ -107,6 +116,40 @@ namespace SelStrom.Asteroids.ECS
             {
                 em.AddComponentData(entity, new EnemyBulletTag());
             }
+            return entity;
+        }
+
+        public static Entity CreateRocket(
+            EntityManager em,
+            float2 position,
+            float speed,
+            float2 direction,
+            float turnSpeedDegPerSec,
+            float lifeTime)
+        {
+            var entity = em.CreateEntity();
+            em.AddComponentData(entity, new RocketTag());
+            em.AddComponentData(entity, new PlayerBulletTag());
+            em.AddComponentData(entity, new MoveData
+            {
+                Position = position,
+                Speed = speed,
+                Direction = direction
+            });
+            em.AddComponentData(entity, new RotateData
+            {
+                Rotation = direction,
+                TargetDirection = 0f
+            });
+            em.AddComponentData(entity, new HomingData
+            {
+                TurnSpeedDegPerSec = turnSpeedDegPerSec,
+                TargetEntity = Entity.Null
+            });
+            em.AddComponentData(entity, new LifeTimeData
+            {
+                TimeRemaining = lifeTime
+            });
             return entity;
         }
 

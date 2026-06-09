@@ -19,7 +19,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 gunMaxShoots: 3,
                 gunReloadSec: 1.5f,
                 laserMaxShoots: 2,
-                laserReloadSec: 5f
+                laserReloadSec: 5f,
+                rocketMaxCount: 1,
+                rocketRespawnSec: 10f
             );
 
             Assert.IsTrue(m_Manager.HasComponent<ShipTag>(entity));
@@ -28,6 +30,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             Assert.IsTrue(m_Manager.HasComponent<ThrustData>(entity));
             Assert.IsTrue(m_Manager.HasComponent<GunData>(entity));
             Assert.IsTrue(m_Manager.HasComponent<LaserData>(entity));
+            Assert.IsTrue(m_Manager.HasComponent<RocketLauncherData>(entity));
         }
 
         [Test]
@@ -42,7 +45,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 gunMaxShoots: 5,
                 gunReloadSec: 2f,
                 laserMaxShoots: 3,
-                laserReloadSec: 6f
+                laserReloadSec: 6f,
+                rocketMaxCount: 1,
+                rocketRespawnSec: 10f
             );
 
             var move = m_Manager.GetComponentData<MoveData>(entity);
@@ -65,7 +70,9 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
                 gunMaxShoots: 0,
                 gunReloadSec: 0f,
                 laserMaxShoots: 0,
-                laserReloadSec: 0f
+                laserReloadSec: 0f,
+                rocketMaxCount: 0,
+                rocketRespawnSec: 0f
             );
 
             Assert.IsFalse(m_Manager.HasComponent<ScoreValue>(entity));
