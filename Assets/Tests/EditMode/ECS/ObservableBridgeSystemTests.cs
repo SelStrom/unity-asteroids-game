@@ -151,6 +151,71 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         }
 
         [Test]
+        public void PushesRocketData_ToHudData()
+        {
+            var hudData = new HudData();
+            _system.SetHudData(hudData);
+            _system.SetRocketMaxCount(1);
+
+            var entity = CreateFullShipEntity(
+                position: float2.zero,
+                speed: 0f,
+                direction: float2.zero,
+                rotation: new float2(1f, 0f),
+                thrustActive: false,
+                laserCurrentShoots: 3,
+                laserMaxShoots: 3,
+                reloadRemaining: 0f);
+            m_Manager.SetComponentData(entity, new RocketAmmoData
+            {
+                MaxRockets = 1,
+                CurrentRockets = 0,
+                RespawnDurationSec = 10f,
+                RespawnRemaining = 4f
+            });
+
+            _system.Update();
+
+            Assert.AreEqual("Rockets: 0", hudData.RocketCount.Value,
+                "RocketCount should show current rockets");
+            Assert.IsTrue(hudData.RocketRespawnTime.Value.Contains("4"),
+                "RocketRespawnTime should show remaining seconds");
+            Assert.IsTrue(hudData.IsRocketRespawnTimeVisible.Value,
+                "IsRocketRespawnTimeVisible should be true when rockets < max");
+        }
+
+        [Test]
+        public void RocketRespawnTime_Hidden_WhenFullAmmo()
+        {
+            var hudData = new HudData();
+            _system.SetHudData(hudData);
+            _system.SetRocketMaxCount(1);
+
+            var entity = CreateFullShipEntity(
+                position: float2.zero,
+                speed: 0f,
+                direction: float2.zero,
+                rotation: new float2(1f, 0f),
+                thrustActive: false,
+                laserCurrentShoots: 3,
+                laserMaxShoots: 3,
+                reloadRemaining: 0f);
+            m_Manager.SetComponentData(entity, new RocketAmmoData
+            {
+                MaxRockets = 1,
+                CurrentRockets = 1,
+                RespawnDurationSec = 10f,
+                RespawnRemaining = 10f
+            });
+
+            _system.Update();
+
+            Assert.AreEqual("Rockets: 1", hudData.RocketCount.Value);
+            Assert.IsFalse(hudData.IsRocketRespawnTimeVisible.Value,
+                "IsRocketRespawnTimeVisible should be false when ammo is full");
+        }
+
+        [Test]
         public void DoesNotCrash_WhenNoHudDataSet()
         {
             CreateFullShipEntity(

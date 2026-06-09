@@ -30,6 +30,17 @@ namespace SelStrom.Asteroids.Configs
         }
 
         [Serializable]
+        public struct RocketData
+        {
+            public GameObject Prefab;
+            public float Speed;
+            public float TurnSpeedDegPerSec;
+            public float LifeTimeSeconds;
+            public int MaxRockets;
+            public float RespawnDurationSec;
+        }
+
+        [Serializable]
         public struct LaserData
         {
             public GameObject Prefab;
@@ -54,6 +65,7 @@ namespace SelStrom.Asteroids.Configs
         [Space]
         public BulletData Bullet;
         public LaserData Laser;
+        public RocketData Rocket;
         [Space]
         public ShipData Ship;
 

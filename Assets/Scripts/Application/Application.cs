@@ -167,6 +167,19 @@ namespace SelStrom.Asteroids
                 _entityManager.GetBuffer<LaserShootEvent>(existingEntity).Clear();
             }
 
+            // RocketLaunchEvent buffer singleton
+            var rocketQuery = _entityManager.CreateEntityQuery(typeof(RocketLaunchEvent));
+            if (rocketQuery.CalculateEntityCount() == 0)
+            {
+                var rocketEventEntity = _entityManager.CreateEntity();
+                _entityManager.AddBuffer<RocketLaunchEvent>(rocketEventEntity);
+            }
+            else
+            {
+                var existingEntity = rocketQuery.GetSingletonEntity();
+                _entityManager.GetBuffer<RocketLaunchEvent>(existingEntity).Clear();
+            }
+
             // ShipPositionData singleton
             var shipPosQuery = _entityManager.CreateEntityQuery(typeof(ShipPositionData));
             if (shipPosQuery.CalculateEntityCount() == 0)
