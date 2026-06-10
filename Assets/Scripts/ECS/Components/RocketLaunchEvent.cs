@@ -1,0 +1,11 @@
+using Unity.Entities;
+using Unity.Mathematics;
+
+namespace SelStrom.Asteroids.ECS
+{
+    public struct RocketLaunchEvent : IBufferElementData
+    {
+        public float2 Position;
+        public float2 Direction;
+    }
+}

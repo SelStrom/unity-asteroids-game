@@ -38,6 +38,17 @@ namespace SelStrom.Asteroids.Configs
             public int LaserMaxShoots;
         }
 
+        [Serializable]
+        public struct RocketData
+        {
+            public GameObject Prefab;
+            public int MaxRockets;
+            public float RespawnDurationSec;
+            public float Speed;
+            public float LifeTimeSeconds;
+            public float TurnSpeedDegPerSec;
+        }
+
         public int AsteroidInitialCount;
         public int SpawnAllowedRadius;
         public float SpawnNewEnemyDurationSec;
@@ -54,6 +65,7 @@ namespace SelStrom.Asteroids.Configs
         [Space]
         public BulletData Bullet;
         public LaserData Laser;
+        public RocketData Rocket;
         [Space]
         public ShipData Ship;
 

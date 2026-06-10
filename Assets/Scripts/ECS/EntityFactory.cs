@@ -14,7 +14,9 @@ namespace SelStrom.Asteroids.ECS
             int gunMaxShoots,
             float gunReloadSec,
             int laserMaxShoots,
-            float laserReloadSec)
+            float laserReloadSec,
+            int rocketMaxRockets,
+            float rocketRespawnSec)
         {
             var entity = em.CreateEntity();
             em.AddComponentData(entity, new ShipTag());
@@ -48,6 +50,46 @@ namespace SelStrom.Asteroids.ECS
                 UpdateDurationSec = laserReloadSec,
                 CurrentShoots = laserMaxShoots,
                 ReloadRemaining = laserReloadSec
+            });
+            em.AddComponentData(entity, new RocketAmmoData
+            {
+                MaxRockets = rocketMaxRockets,
+                RespawnDurationSec = rocketRespawnSec,
+                CurrentRockets = rocketMaxRockets,
+                RespawnRemaining = rocketRespawnSec
+            });
+            return entity;
+        }
+
+        public static Entity CreateRocket(
+            EntityManager em,
+            float2 position,
+            float speed,
+            float2 direction,
+            float lifeTime,
+            float turnSpeedRadPerSec)
+        {
+            var entity = em.CreateEntity();
+            em.AddComponentData(entity, new RocketTag());
+            em.AddComponentData(entity, new PlayerBulletTag());
+            em.AddComponentData(entity, new MoveData
+            {
+                Position = position,
+                Speed = speed,
+                Direction = direction
+            });
+            em.AddComponentData(entity, new RotateData
+            {
+                Rotation = direction,
+                TargetDirection = 0f
+            });
+            em.AddComponentData(entity, new RocketData
+            {
+                TurnSpeedRadPerSec = turnSpeedRadPerSec
+            });
+            em.AddComponentData(entity, new LifeTimeData
+            {
+                TimeRemaining = lifeTime
             });
             return entity;
         }

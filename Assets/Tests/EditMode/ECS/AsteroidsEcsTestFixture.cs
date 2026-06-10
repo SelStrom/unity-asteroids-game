@@ -41,6 +41,36 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
             m_Manager.AddComponentData(entity, new ThrustData());
             m_Manager.AddComponentData(entity, new GunData());
             m_Manager.AddComponentData(entity, new LaserData());
+            m_Manager.AddComponentData(entity, new RocketAmmoData());
+            return entity;
+        }
+
+        protected Entity CreateRocketEntity(
+            float2 position, float2 direction, float turnSpeedRadPerSec,
+            float speed = 10f, float lifeTime = 10f)
+        {
+            var entity = m_Manager.CreateEntity();
+            m_Manager.AddComponentData(entity, new RocketTag());
+            m_Manager.AddComponentData(entity, new PlayerBulletTag());
+            m_Manager.AddComponentData(entity, new MoveData
+            {
+                Position = position,
+                Speed = speed,
+                Direction = direction
+            });
+            m_Manager.AddComponentData(entity, new RotateData
+            {
+                Rotation = direction,
+                TargetDirection = 0f
+            });
+            m_Manager.AddComponentData(entity, new RocketData
+            {
+                TurnSpeedRadPerSec = turnSpeedRadPerSec
+            });
+            m_Manager.AddComponentData(entity, new LifeTimeData
+            {
+                TimeRemaining = lifeTime
+            });
             return entity;
         }
 

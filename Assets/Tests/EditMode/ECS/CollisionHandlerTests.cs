@@ -188,6 +188,66 @@ namespace SelStrom.Asteroids.Tests.EditMode.ECS
         }
 
         [Test]
+        public void RocketHitsAsteroid_BothDeadAndScoreIncreased()
+        {
+            var rocket = CreateRocketEntity(
+                float2.zero, new float2(1f, 0f), turnSpeedRadPerSec: math.PI);
+            var asteroid = CreateAsteroidEntity(
+                new float2(5f, 0f), 3f, new float2(-1f, 0f), 3, score: 100);
+
+            AddCollisionEvent(rocket, asteroid);
+            RunSystem();
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(rocket),
+                "Rocket should get DeadTag on hit");
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(asteroid),
+                "Asteroid should get DeadTag on rocket hit");
+
+            var scoreData = m_Manager.GetComponentData<ScoreData>(_scoreEntity);
+            Assert.AreEqual(100, scoreData.Value,
+                "Rocket kill should award asteroid score");
+        }
+
+        [Test]
+        public void RocketHitsUfo_BothDeadAndScoreIncreased()
+        {
+            var rocket = CreateRocketEntity(
+                float2.zero, new float2(1f, 0f), turnSpeedRadPerSec: math.PI);
+            var ufo = CreateUfoEntity(
+                new float2(5f, 0f), 2f, new float2(-1f, 0f), score: 500);
+
+            AddCollisionEvent(ufo, rocket);
+            RunSystem();
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(rocket),
+                "Rocket should get DeadTag on hit (reversed event order)");
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(ufo),
+                "Ufo should get DeadTag on rocket hit");
+
+            var scoreData = m_Manager.GetComponentData<ScoreData>(_scoreEntity);
+            Assert.AreEqual(500, scoreData.Value,
+                "Rocket kill should award UFO score");
+        }
+
+        [Test]
+        public void RocketHitsUfoBig_BothDeadAndScoreIncreased()
+        {
+            var rocket = CreateRocketEntity(
+                float2.zero, new float2(1f, 0f), turnSpeedRadPerSec: math.PI);
+            var ufoBig = CreateUfoBigEntity(
+                new float2(5f, 0f), 2f, new float2(-1f, 0f), score: 200);
+
+            AddCollisionEvent(rocket, ufoBig);
+            RunSystem();
+
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(rocket));
+            Assert.IsTrue(m_Manager.HasComponent<DeadTag>(ufoBig));
+
+            var scoreData = m_Manager.GetComponentData<ScoreData>(_scoreEntity);
+            Assert.AreEqual(200, scoreData.Value);
+        }
+
+        [Test]
         public void NoCollisionEvents_NothingHappens()
         {
             var ship = CreateShipEntity(new float2(0f, 0f), 5f);

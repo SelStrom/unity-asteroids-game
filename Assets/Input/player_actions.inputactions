@@ -43,6 +43,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Rocket",
+                    "type": "Button",
+                    "id": "380384a7-4ad1-476e-a58f-dcd9b1d4d025",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Back",
                     "type": "Button",
                     "id": "5213a6ea-fd10-4689-ad70-330834d038da",
@@ -125,6 +134,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Laser",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "04b4b43a-1ad3-4c5b-a506-c9f6fb1260e6",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rocket",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
