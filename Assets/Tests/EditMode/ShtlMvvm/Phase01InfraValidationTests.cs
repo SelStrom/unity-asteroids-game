@@ -31,7 +31,7 @@ namespace SelStrom.Asteroids.Tests.EditMode.ShtlMvvm
                 "Packages/manifest.json должен существовать");
 
             var content = File.ReadAllText(manifestPath);
-            Assert.That(content, Does.Contain("com.ivanmurzak.unity.mcp"),
+            Assert.That(content, Does.Contain("com.shtl.mcp"),
                 "manifest.json должен содержать пакет Unity-MCP (TOOL-01)");
         }
 

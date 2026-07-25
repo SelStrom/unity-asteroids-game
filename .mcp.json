@@ -1,11 +1,8 @@
 {
   "mcpServers": {
-    "unity-mcp": {
+    "unity-asteroids": {
       "type": "http",
-      "url": "http://127.0.0.1:23537",
-      "headers": {
-        "Authorization": "Bearer lvUBWYYzl5DEgtCJwClfsTsEQjf4eSfUgDh2YU9ghVo"
-      }
+      "url": "http://127.0.0.1:9794/mcp"
     }
   }
 }
