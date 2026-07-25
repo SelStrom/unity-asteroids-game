@@ -215,7 +215,12 @@ await assert.rejects(
   () => run({ date: '2026-07-26', models: ['claude-opus-4-6'], efforts: ['high'], runs: 1 }, { failModels: ['claude-opus-5'] }),
   /модель судьи/,
 )
-console.log('✓ валидация args, опечатки в effort, недоступный судья')
+const stringArgs = await run(
+  JSON.stringify({ date: '2026-07-26', models: ['claude-opus-5'], efforts: ['low'], runs: 1, outDir: '/tmp/bench-out' }),
+)
+assert.equal(stringArgs.result.summary.plannedRuns, 1, 'args в виде JSON-строки должны парситься')
+await assert.rejects(() => run('не json'), /не парсятся как JSON/)
+console.log('✓ валидация args, опечатки в effort, недоступный судья, args-строка')
 
 // ── 2. Матрица по нескольким моделям, включая ранние Opus ──
 const multi = await run(

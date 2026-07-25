@@ -39,7 +39,15 @@ const KNOWN_EFFORTS = {
 }
 const ALIASES = ['opus', 'sonnet', 'haiku', 'fable', 'default', 'best', 'opusplan']
 
-const cfg = args || {}
+// args может приехать JSON-строкой, а не объектом — зависит от того, как вызвали Workflow.
+let cfg = args || {}
+if (typeof cfg === 'string') {
+  try {
+    cfg = JSON.parse(cfg)
+  } catch (e) {
+    throw new Error('args пришли строкой и не парсятся как JSON: ' + e.message)
+  }
+}
 const REPO = cfg.repo || '/Users/selstrom/work/projects/asteroids'
 const BASE = cfg.base || '264ba77a47f4d03ab4beb10cf83cc1dcaf54a34d'
 const EFFORTS = cfg.efforts || DEFAULT_EFFORTS
