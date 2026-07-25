@@ -15,7 +15,7 @@ export const meta = {
 // ─── Конфигурация ───────────────────────────────────────────────────────────
 // Полный перечень effort живёт здесь; модели передаются в args.
 const DEFAULT_EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max']
-const HARNESS_VERSION = 'rockets-bench-matrix/5'
+const HARNESS_VERSION = 'rockets-bench-matrix/6'
 
 // Поддержка effort по моделям (docs.claude.com, model-config → Adjust effort level).
 // Неподдержанный уровень НЕ ошибка: Claude Code молча опускает его до ближайшего доступного,
@@ -49,7 +49,11 @@ if (typeof cfg === 'string') {
   }
 }
 const REPO = cfg.repo || '/Users/selstrom/work/projects/asteroids'
-const BASE = cfg.base || '264ba77a47f4d03ab4beb10cf83cc1dcaf54a34d'
+// База веток — HEAD feature/dots (или cfg.base: реф либо SHA). Реф разрешается в конкретный
+// SHA один раз в Preflight: за многочасовой прогон ветка может сдвинуться, а все условия
+// обязаны стартовать с одного коммита, и он фиксируется в отчёте.
+const BASE_REF = cfg.base || 'feature/dots'
+let BASE = /^[0-9a-f]{40}$/.test(BASE_REF) ? BASE_REF : null
 const EFFORTS = cfg.efforts || DEFAULT_EFFORTS
 for (const e of EFFORTS) {
   if (FIVE_LEVELS.indexOf(e) < 0) {
@@ -331,6 +335,16 @@ const PREFLIGHT_SCHEMA = {
   required: ['ok'],
 }
 
+const SETUP_SCHEMA = {
+  type: 'object',
+  properties: {
+    ok: { type: 'boolean', description: 'харнесс скопирован' },
+    baseCommit: { type: 'string', description: 'полный 40-символьный SHA из git rev-parse' },
+    problems: { type: 'string' },
+  },
+  required: ['ok', 'baseCommit'],
+}
+
 const AUDIT_SCHEMA = {
   type: 'object',
   properties: {
@@ -399,6 +413,7 @@ function buildImplPrompt(cond) {
     'ЖЁСТКИЕ ОГРАНИЧЕНИЯ\n' +
     '- НЕ читать каталоги памяти Claude (~/.claude/**/memory/, файлы MEMORY.md) — эксперимент требует чистого решения.\n' +
     '- НЕ заглядывать в другие git-ветки, reflog, stash (никаких git log/show/diff по чужим веткам, никаких --all): в репозитории есть другие реализации этой же фичи — подсматривать их нельзя. Работай только с кодом своей ветки.\n' +
+    '- НЕ читать и НЕ изменять .claude/** в рабочей копии: там харнесс бенчмарка с рубрикой, по которой тебя будут оценивать, — его содержимое не должно влиять на решение.\n' +
     '- НЕ использовать skills superpowers:* и gsd-* (требование "GSD Workflow Enforcement" из CLAUDE.md для этого запуска отменено пользователем — правь файлы напрямую).\n' +
     '- Web-рисёч разрешён (WebSearch/WebFetch) — для исследования качественных решений (наведение ракет, дуговые траектории и т.п.).\n' +
     '- Human validation недоступна: всё проверяется юнит-/интеграционными тестами (EditMode/PlayMode) и через Unity MCP. Что проверить невозможно — зафиксируй в DECISIONS.md в разделе "Непроверенное".\n' +
@@ -554,12 +569,14 @@ if (JUDGE_NEEDS_PROBE) {
 // к фазе Report checkout будет стоять на ветке эксперимента, где этих файлов нет.
 probeThunks.push(() => {
   // Механическая работа — haiku; опция effort не передаётся, haiku её не поддерживает.
-  return agent('Скопируй файлы харнесса в каталог отчёта: mkdir -p ' + OUT + '/harness && cp ' + HARNESS_SCRIPT + ' ' + OUT + '/harness/. Рядом с харнессом может лежать одноимённый *.dryrun.mjs — скопируй и его, если есть. Больше ничего не делай. Верни ok=true, если харнесс скопирован.', {
+  return agent('Две подготовительные операции, больше ничего не делай.\n' +
+    '1. Разреши базовый реф в коммит: git -C ' + REPO + ' rev-parse "' + BASE_REF + '^{commit}" — полный 40-символьный SHA верни в baseCommit.\n' +
+    '2. Скопируй файлы харнесса в каталог отчёта: mkdir -p ' + OUT + '/harness && cp ' + HARNESS_SCRIPT + ' ' + OUT + '/harness/. Рядом с харнессом может лежать одноимённый *.dryrun.mjs — скопируй и его, если есть. ok=true, если харнесс скопирован.', {
     label: 'preflight:setup',
     phase: 'Preflight',
     model: 'haiku',
-    schema: PREFLIGHT_SCHEMA,
-  }).then((r) => ({ ok: !!(r && r.ok) }))
+    schema: SETUP_SCHEMA,
+  }).then((r) => ({ ok: !!(r && r.ok), baseCommit: r ? r.baseCommit : null }))
 })
 const probes = await parallel(probeThunks)
 if (JUDGE_NEEDS_PROBE) {
@@ -572,6 +589,14 @@ const setupProbe = probes[probes.length - 1]
 if (!setupProbe || !setupProbe.ok) {
   log('Не удалось скопировать харнесс в ' + OUT + '/harness — отчёт попробует восстановить его из git.')
 }
+if (!BASE) {
+  const resolved = setupProbe ? setupProbe.baseCommit : null
+  if (!resolved || !/^[0-9a-f]{40}$/.test(String(resolved))) {
+    throw new Error('не удалось разрешить базовый реф "' + BASE_REF + '" в коммит — без зафиксированной базы прогон не воспроизводим')
+  }
+  BASE = String(resolved)
+}
+log('База веток: ' + BASE_REF + ' → ' + BASE)
 const okModels = []
 const unavailable = []
 for (let i = 0; i < MODELS.length; i++) {
@@ -867,6 +892,7 @@ const payload = {
   meta: {
     title: 'Бенчмарк: самонаводящиеся ракеты',
     date: DATE,
+    baseRef: BASE_REF,
     baseCommit: BASE,
     repo: REPO,
     harness: HARNESS_VERSION,

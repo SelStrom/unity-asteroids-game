@@ -8,6 +8,7 @@ import assert from 'node:assert/strict'
 const SRC = new URL('./rockets-bench-matrix.js', import.meta.url).pathname
 const body = readFileSync(SRC, 'utf8').replace(/^export const meta/m, 'const meta')
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
+const FAKE_BASE = 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0'
 
 function firstJsonArray(text) {
   return JSON.parse(/\[\s*{[\s\S]*?}\s*\]/.exec(text)[0])
@@ -61,6 +62,9 @@ function makeRuntime(opts) {
     if (label.startsWith('preflight:')) {
       if (failModels.indexOf(opts2.model) >= 0) {
         return null
+      }
+      if (label === 'preflight:setup') {
+        return { ok: true, baseCommit: FAKE_BASE }
       }
       return { ok: true }
     }
@@ -226,7 +230,22 @@ const stringArgs = await run(
 )
 assert.equal(stringArgs.result.summary.plannedRuns, 1, 'args в виде JSON-строки должны парситься')
 await assert.rejects(() => run('не json'), /не парсятся как JSON/)
-console.log('✓ валидация args, опечатки в effort, недоступный судья, args-строка')
+// База: реф разрешается setup-агентом, явный SHA из args используется как есть,
+// нерешённая база — ошибка, а не молчаливый запуск от неизвестного коммита.
+await assert.rejects(
+  () => run({ date: '2026-07-26', models: ['claude-opus-5'], efforts: ['low'], runs: 1 }, { failModels: ['haiku'] }),
+  /не удалось разрешить базовый реф/,
+)
+const pinnedBase = await run({
+  date: '2026-07-26',
+  models: ['claude-opus-5'],
+  efforts: ['low'],
+  runs: 1,
+  base: 'b'.repeat(40),
+  outDir: '/tmp/bench-out',
+})
+assert.equal(pinnedBase.result.summary.baseCommit, 'b'.repeat(40), 'явный SHA базы используется без разрешения')
+console.log('✓ валидация args, опечатки в effort, недоступный судья, args-строка, база')
 
 // ── 2. Матрица по нескольким моделям, включая ранние Opus ──
 const multi = await run(
@@ -293,7 +312,9 @@ const setupCall = multi.state.calls.find((c) => c.label === 'preflight:setup')
 assert.ok(setupCall, 'харнесс должен копироваться в preflight, пока checkout на исходной ветке')
 assert.equal(setupCall.model, 'haiku', 'механический setup — на haiku')
 assert.equal(setupCall.effort, undefined, 'haiku не поддерживает effort — опция не передаётся')
-console.log('✓ model/effort передаются корректно, судья закреплён и не зондируется дважды, setup на haiku')
+assert.equal(multi.result.summary.baseRef, 'feature/dots', 'база по умолчанию — HEAD feature/dots')
+assert.equal(multi.result.summary.baseCommit, FAKE_BASE, 'реф должен быть разрешён в SHA из setup-агента')
+console.log('✓ model/effort передаются корректно, судья закреплён и не зондируется дважды, setup на haiku, база разрешена в SHA')
 
 // ── 5. Аудит ловит расхождение, не путая high и xhigh ──
 const byCell = {}
@@ -406,7 +427,8 @@ for (const needle of [
   'GetActiveScene().isDirty',
   'NewSceneSetup.EmptyScene',
   'open_scene Assets/Scenes/Main.unity',
-  'git checkout -b bench/2026-07-26/opus5/rockets-pure-plan/high_02',
+  'git checkout -b bench/2026-07-26/opus5/rockets-pure-plan/high_02 ' + FAKE_BASE,
+  'НЕ читать и НЕ изменять .claude/',
   'КАДР ПОЛЁТА (обязательный артефакт)',
   'QueuePlayerLoopUpdate',
   'sips -f vertical',
