@@ -215,6 +215,12 @@ await assert.rejects(
   () => run({ date: '2026-07-26', models: ['claude-opus-4-6'], efforts: ['high'], runs: 1 }, { failModels: ['claude-opus-5'] }),
   /модель судьи/,
 )
+// Судья совпадает с матричной моделью, и её зонд упал: судья должен быть признан недоступным
+// по результату общего зонда, без отдельного вызова.
+await assert.rejects(
+  () => run({ date: '2026-07-26', models: ['claude-opus-5', 'claude-opus-4-6'], efforts: ['high'], runs: 1 }, { failModels: ['claude-opus-5'] }),
+  /модель судьи/,
+)
 const stringArgs = await run(
   JSON.stringify({ date: '2026-07-26', models: ['claude-opus-5'], efforts: ['low'], runs: 1, outDir: '/tmp/bench-out' }),
 )
@@ -279,9 +285,15 @@ for (const c of judges) {
   assert.equal(c.model, 'claude-opus-5', 'судья закреплён точным ID, а не алиасом')
   assert.equal(c.effort, 'high')
 }
-assert.ok(multi.state.calls.some((c) => c.label === 'preflight:judge'), 'судья должен проверяться в preflight')
-assert.ok(multi.state.calls.some((c) => c.label === 'preflight:setup'), 'харнесс должен копироваться в preflight, пока checkout на исходной ветке')
-console.log('✓ model/effort передаются корректно, судья закреплён (claude-opus-5/high) и проверен в preflight')
+assert.ok(
+  !multi.state.calls.some((c) => c.label === 'preflight:judge'),
+  'ID судьи совпадает с матричной моделью — отдельный зонд был бы дублем на ~38k токенов контекста',
+)
+const setupCall = multi.state.calls.find((c) => c.label === 'preflight:setup')
+assert.ok(setupCall, 'харнесс должен копироваться в preflight, пока checkout на исходной ветке')
+assert.equal(setupCall.model, 'haiku', 'механический setup — на haiku')
+assert.equal(setupCall.effort, undefined, 'haiku не поддерживает effort — опция не передаётся')
+console.log('✓ model/effort передаются корректно, судья закреплён и не зондируется дважды, setup на haiku')
 
 // ── 5. Аудит ловит расхождение, не путая high и xhigh ──
 const byCell = {}
@@ -373,6 +385,12 @@ assert.equal(result.summary.reviewedRuns, 5)
 assert.equal(result.summary.screenshotsOk, 4) // low#03 упал, high#02 не завершён
 console.log('✓ агрегация: low ' + low.scoreMean + '/50 pass@1=' + low.pass1 + ', high ' + high.scoreMean + '/50 pass@1=' + high.pass1)
 
+const prepCall = state.calls.find((c) => c.label === 'prep:worktrees')
+const auditCall = state.calls.find((c) => c.label === 'audit:models')
+assert.equal(prepCall.model, 'haiku', 'prep — механическая стадия, на haiku')
+assert.equal(prepCall.effort, undefined)
+assert.equal(auditCall.model, 'haiku', 'audit — grep по транскриптам, на haiku')
+assert.equal(auditCall.effort, undefined)
 assert.ok(state.reportPrompt.includes('BENCH_JSON'), 'в промпте отчёта должен быть JSON-блок')
 assert.ok(state.reportPrompt.includes('/tmp/bench-out/shots/'), 'в отчёт должны попасть пути кадров')
 assert.ok(state.reportPrompt.includes('галерея кадров полёта'), 'отчёт должен требовать галерею кадров')

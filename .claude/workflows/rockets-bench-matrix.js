@@ -15,7 +15,7 @@ export const meta = {
 // ─── Конфигурация ───────────────────────────────────────────────────────────
 // Полный перечень effort живёт здесь; модели передаются в args.
 const DEFAULT_EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max']
-const HARNESS_VERSION = 'rockets-bench-matrix/4'
+const HARNESS_VERSION = 'rockets-bench-matrix/5'
 
 // Поддержка effort по моделям (docs.claude.com, model-config → Adjust effort level).
 // Неподдержанный уровень НЕ ошибка: Claude Code молча опускает его до ближайшего доступного,
@@ -536,31 +536,39 @@ const probeThunks = MODELS.map((m) => {
 })
 // Судья проверяется вместе с матрицей: его недоступность обнаружилась бы только после
 // самой дорогой фазы, когда все реализации уже готовы, а ревью молча вернуло бы нули.
-probeThunks.push(() => {
-  return agent(buildPreflightPrompt({ id: JUDGE_MODEL }), {
-    label: 'preflight:judge',
-    phase: 'Preflight',
-    model: JUDGE_MODEL,
-    effort: 'low',
-    schema: PREFLIGHT_SCHEMA,
-  }).then((r) => ({ ok: !!(r && r.ok) }))
-})
+// Отдельный зонд нужен только когда ID судьи не совпадает ни с одной матричной моделью:
+// каждый субагент платит ~38k токенов фиксированного контекста, дубль зонда — чистая трата.
+const JUDGE_NEEDS_PROBE = !MODELS.some((m) => m.id === JUDGE_MODEL)
+if (JUDGE_NEEDS_PROBE) {
+  probeThunks.push(() => {
+    return agent(buildPreflightPrompt({ id: JUDGE_MODEL }), {
+      label: 'preflight:judge',
+      phase: 'Preflight',
+      model: JUDGE_MODEL,
+      effort: 'low',
+      schema: PREFLIGHT_SCHEMA,
+    }).then((r) => ({ ok: !!(r && r.ok) }))
+  })
+}
 // Копия харнесса в каталог отчёта делается сейчас, пока рабочая копия на исходной ветке:
 // к фазе Report checkout будет стоять на ветке эксперимента, где этих файлов нет.
 probeThunks.push(() => {
+  // Механическая работа — haiku; опция effort не передаётся, haiku её не поддерживает.
   return agent('Скопируй файлы харнесса в каталог отчёта: mkdir -p ' + OUT + '/harness && cp ' + HARNESS_SCRIPT + ' ' + OUT + '/harness/. Рядом с харнессом может лежать одноимённый *.dryrun.mjs — скопируй и его, если есть. Больше ничего не делай. Верни ok=true, если харнесс скопирован.', {
     label: 'preflight:setup',
     phase: 'Preflight',
-    effort: 'low',
+    model: 'haiku',
     schema: PREFLIGHT_SCHEMA,
   }).then((r) => ({ ok: !!(r && r.ok) }))
 })
 const probes = await parallel(probeThunks)
-const judgeProbe = probes[MODELS.length]
-if (!judgeProbe || !judgeProbe.ok) {
-  throw new Error('модель судьи "' + JUDGE_MODEL + '" недоступна — без неё ревью сорвётся после многочасовой фазы реализации; передай другой judgeModel в args')
+if (JUDGE_NEEDS_PROBE) {
+  const judgeProbe = probes[MODELS.length]
+  if (!judgeProbe || !judgeProbe.ok) {
+    throw new Error('модель судьи "' + JUDGE_MODEL + '" недоступна — без неё ревью сорвётся после многочасовой фазы реализации; передай другой judgeModel в args')
+  }
 }
-const setupProbe = probes[MODELS.length + 1]
+const setupProbe = probes[probes.length - 1]
 if (!setupProbe || !setupProbe.ok) {
   log('Не удалось скопировать харнесс в ' + OUT + '/harness — отчёт попробует восстановить его из git.')
 }
@@ -575,6 +583,9 @@ for (let i = 0; i < MODELS.length; i++) {
 }
 if (unavailable.length) {
   log('Недоступны, их условия исключены из матрицы: ' + unavailable.join(', '))
+}
+if (!JUDGE_NEEDS_PROBE && unavailable.indexOf(JUDGE_MODEL) >= 0) {
+  throw new Error('модель судьи "' + JUDGE_MODEL + '" недоступна — без неё ревью сорвётся после многочасовой фазы реализации; передай другой judgeModel в args')
 }
 const RUNNABLE = CONDITIONS.filter((c) => okModels.indexOf(c.model) >= 0)
 if (RUNNABLE.length === 0) {
@@ -627,7 +638,7 @@ for (const cond of ORDERED) {
 // ─── Фаза 2: обезличенные рабочие копии ─────────────────────────────────────
 phase('Prep')
 const pairs = runResults.map((r) => ({ branch: r.branch, anonId: r.anonId }))
-const prep = await agent(buildPrepPrompt(pairs), { label: 'prep:worktrees', phase: 'Prep', effort: 'low', schema: PREP_SCHEMA })
+const prep = await agent(buildPrepPrompt(pairs), { label: 'prep:worktrees', phase: 'Prep', model: 'haiku', schema: PREP_SCHEMA })
 if (!prep || !prep.created || prep.created.length === 0) {
   log('Обезличенные копии создать не удалось — ревью и отчёт пропущены.')
   return { date: DATE, base: BASE, harness: HARNESS_VERSION, runs: runResults, prep: prep, review: null, report: null }
@@ -672,7 +683,7 @@ const reviewed = await pipeline(
 // ─── Фаза 3.5: сверка фактических параметров агентов ────────────────────────
 phase('Audit')
 const auditPairs = runResults.map((r) => ({ branch: r.branch, requestedModel: r.modelId, requestedEffort: r.effort }))
-const audit = await agent(buildAuditPrompt(auditPairs), { label: 'audit:models', phase: 'Audit', effort: 'low', schema: AUDIT_SCHEMA })
+const audit = await agent(buildAuditPrompt(auditPairs), { label: 'audit:models', phase: 'Audit', model: 'haiku', schema: AUDIT_SCHEMA })
 const auditByBranch = {}
 if (audit && audit.entries) {
   for (const e of audit.entries) {
