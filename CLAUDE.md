@@ -384,3 +384,6 @@ Do not make direct repo edits outside a GSD workflow unless the user explicitly 
 > Profile not yet configured. Run `/gsd:profile-user` to generate your developer profile.
 > This section is managed by `generate-claude-profile` -- do not edit manually.
 <!-- GSD:profile-end -->
+
+<!-- shtl-mcp-recovery -->
+> **Unity MCP recovery (shtl-mcp).** If a `unity-*` MCP tool is unreachable (connection refused / timeout), read `~/.unity-mcp/registry.json`: each instance entry has a `recovery` block with diagnostic steps and a restart command. The `ping` tool answers even when Unity's main thread is blocked (modal dialog / compiling), distinguishing a wedged main thread from a dead server.
