@@ -7,15 +7,15 @@ export const meta = {
     { title: 'Implement', detail: 'model × effort × runs, строго последовательно — Unity Editor один на весь проект' },
     { title: 'Prep', detail: 'обезличенные detached-worktree, по одному на ветку' },
     { title: 'Review', detail: 'оценка по рубрике + состязательная проверка блокеров' },
-    { title: 'Audit', detail: 'сверка фактических модели и effort каждого агента по транскриптам' },
-    { title: 'Report', detail: 'агрегация в JS, затем HTML и PDF (weasyprint / Chrome / pandoc)' },
+    { title: 'Audit', detail: 'фактические модель, effort и расход токенов каждого агента — по транскриптам' },
+    { title: 'Report', detail: 'агрегация в JS, затем полный и краткий HTML с PDF (weasyprint / Chrome / pandoc)' },
   ],
 }
 
 // ─── Конфигурация ───────────────────────────────────────────────────────────
 // Полный перечень effort живёт здесь; модели передаются в args.
 const DEFAULT_EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max']
-const HARNESS_VERSION = 'rockets-bench-matrix/6'
+const HARNESS_VERSION = 'rockets-bench-matrix/7'
 
 // Поддержка effort по моделям (docs.claude.com, model-config → Adjust effort level).
 // Неподдержанный уровень НЕ ошибка: Claude Code молча опускает его до ближайшего доступного,
@@ -349,18 +349,27 @@ const AUDIT_SCHEMA = {
   type: 'object',
   properties: {
     transcriptDir: { type: 'string' },
+    agentsSeen: { type: 'integer', description: 'сколько файлов agent-*.jsonl в каталоге' },
+    implAgents: { type: 'integer', description: 'сколько из них опознано как реализации' },
     entries: {
       type: 'array',
       items: {
         type: 'object',
         properties: {
-          branch: { type: 'string', description: 'ветка, найденная в транскрипте агента' },
+          branch: { type: 'string', description: 'ветка из первого промпта агента' },
           requestedModel: { type: 'string', description: 'поле model из agent-*.meta.json' },
-          resolvedModel: { type: 'string', description: 'первое "model":"claude-..." в транскрипте' },
-          actualEffort: { type: 'string', description: 'первое "effort":"..." в транскрипте' },
+          resolvedModel: { type: 'string', description: 'message.model первой assistant-записи' },
+          actualEffort: { type: 'string', description: 'поле effort assistant-записи' },
           agentFile: { type: 'string' },
+          steps: { type: 'integer', description: 'число assistant-записей' },
+          outputTokens: { type: 'integer', description: 'сумма usage.output_tokens зачётной попытки' },
+          inputTokens: { type: 'integer' },
+          cacheCreateTokens: { type: 'integer' },
+          cacheReadTokens: { type: 'integer' },
+          attempts: { type: 'integer', description: 'сколько агентов-реализаций было у этой ветки' },
+          lostOutputTokens: { type: 'integer', description: 'выходные токены незачётных попыток' },
         },
-        required: ['branch', 'resolvedModel', 'actualEffort'],
+        required: ['branch', 'resolvedModel', 'actualEffort', 'outputTokens'],
       },
     },
     problems: { type: 'string' },
@@ -372,6 +381,8 @@ const REPORT_SCHEMA = {
   type: 'object',
   properties: {
     htmlPath: { type: 'string', description: 'обязательный результат' },
+    shortHtmlPath: { type: 'string', description: 'краткий вариант отчёта' },
+    shortPdfPath: { type: 'string', description: 'если PDF краткого варианта собрался' },
     pdfProduced: { type: 'boolean' },
     pdfPath: { type: 'string', description: 'если PDF собрался' },
     renderer: { type: 'string', description: 'чем собран PDF: weasyprint / chrome / pandoc; пусто, если PDF не собран' },
@@ -395,10 +406,14 @@ const BRANCH_SWITCH_RULE = 'ПРАВИЛО ПЕРЕКЛЮЧЕНИЯ ВЕТОК (
   'd. После переключения: refresh_assets, дождись окончания компиляции (status), и лишь затем open_scene ' + SCENE + '.\n' +
   'Пропуск шагов a–b означает модальный диалог «scene changed on disk»: ping будет отвечать, а status/run_tests таймаутить, и снять диалог сможет только человек.'
 
+// Первые слова промпта реализации: по ним фаза Audit отличает агента-реализацию от
+// вспомогательных агентов, у которых имена ветвей тоже встречаются в тексте.
+const IMPL_MARKER = 'Ты — автономный инженер'
+
 function buildImplPrompt(cond) {
   const branch = cond.branch
   const anonId = ANON_BY_BRANCH[branch]
-  return 'Ты — автономный инженер, работаешь в одиночку, пользователь недоступен. Проект: классическая аркада Asteroids на Unity 6.3, репозиторий ' + REPO + '. Unity Editor уже открыт с этим проектом. Его MCP-инструменты (сервер unity-asteroids: status, ping, recompile, refresh_assets, run_tests, get_logs, screenshot, read_asset, write_asset, create_prefab, open_prefab, open_scene, save_scene, run_csharp и др.) подключай через ToolSearch (например, запрос "select:mcp__unity-asteroids__run_tests"). Если MCP-инструмент недоступен (connection refused / timeout) — прочитай /Users/selstrom/.unity-mcp/registry.json: там recovery-блок с шагами и командой перезапуска.\n\n' +
+  return IMPL_MARKER + ', работаешь в одиночку, пользователь недоступен. Проект: классическая аркада Asteroids на Unity 6.3, репозиторий ' + REPO + '. Unity Editor уже открыт с этим проектом. Его MCP-инструменты (сервер unity-asteroids: status, ping, recompile, refresh_assets, run_tests, get_logs, screenshot, read_asset, write_asset, create_prefab, open_prefab, open_scene, save_scene, run_csharp и др.) подключай через ToolSearch (например, запрос "select:mcp__unity-asteroids__run_tests"). Если MCP-инструмент недоступен (connection refused / timeout) — прочитай /Users/selstrom/.unity-mcp/registry.json: там recovery-блок с шагами и командой перезапуска.\n\n' +
     BRANCH_SWITCH_RULE + '\n\n' +
     'ПОДГОТОВКА\n' +
     '1. Отметь время старта: date -u +%FT%TZ — оно понадобится в конце.\n' +
@@ -451,19 +466,95 @@ function buildPreflightPrompt(model) {
   return 'Проверка доступности модели. Не вызывай инструменты, ничего не читай и не пиши. Просто верни ok=true. Смысл вызова в том, что он либо состоится на запрошенной модели, либо упадёт, и оркестратор узнает об этом до многочасовой фазы реализации. Модель: ' + model.id + '.'
 }
 
+// Сверка параметров и расхода токенов делается детерминированным скриптом, а не поиском по
+// тексту: grep по всему файлу цепляет вспомогательных агентов (у них в тексте сразу все ветки)
+// и приписывает их параметры чужому прогону. Ветка агента определяется только по его первому
+// промпту, реализация — по маркеру начала промпта.
+function buildUsageScript(pairs) {
+  return [
+    'import glob, json, os, sys',
+    '',
+    'PAIRS = json.loads(r\'\'\'' + JSON.stringify(pairs) + '\'\'\')',
+    'BRANCHES = [p["branch"] for p in PAIRS]',
+    'IMPL_MARKER = ' + JSON.stringify(IMPL_MARKER),
+    'TDIR = sys.argv[1]',
+    '',
+    'agents = []',
+    'for path in sorted(glob.glob(os.path.join(TDIR, "agent-*.jsonl"))):',
+    '    first = None',
+    '    model = None',
+    '    effort = None',
+    '    steps = 0',
+    '    tok = {"outputTokens": 0, "inputTokens": 0, "cacheCreateTokens": 0, "cacheReadTokens": 0}',
+    '    with open(path, encoding="utf-8", errors="replace") as handle:',
+    '        for line in handle:',
+    '            try:',
+    '                rec = json.loads(line)',
+    '            except ValueError:',
+    '                continue',
+    '            kind = rec.get("type")',
+    '            if kind == "user" and first is None:',
+    '                content = (rec.get("message") or {}).get("content")',
+    '                first = content if isinstance(content, str) else json.dumps(content, ensure_ascii=False)',
+    '            if kind != "assistant":',
+    '                continue',
+    '            msg = rec.get("message") or {}',
+    '            model = model or msg.get("model")',
+    '            effort = effort or rec.get("effort")',
+    '            usage = msg.get("usage") or {}',
+    '            tok["outputTokens"] += usage.get("output_tokens", 0)',
+    '            tok["inputTokens"] += usage.get("input_tokens", 0)',
+    '            tok["cacheCreateTokens"] += usage.get("cache_creation_input_tokens", 0)',
+    '            tok["cacheReadTokens"] += usage.get("cache_read_input_tokens", 0)',
+    '            steps += 1',
+    '    if not first or IMPL_MARKER not in first[:400]:',
+    '        continue',
+    '    hits = [b for b in BRANCHES if b in first]',
+    '    if len(hits) != 1:',
+    '        continue',
+    '    meta = {}',
+    '    meta_path = path[: -len(".jsonl")] + ".meta.json"',
+    '    if os.path.isfile(meta_path):',
+    '        try:',
+    '            with open(meta_path, encoding="utf-8") as handle:',
+    '                meta = json.load(handle)',
+    '        except ValueError:',
+    '            meta = {}',
+    '    agents.append(dict(branch=hits[0], agentFile=os.path.basename(path), requestedModel=meta.get("model"),',
+    '                       resolvedModel=model, actualEffort=effort, steps=steps,',
+    '                       mtime=os.path.getmtime(path), **tok))',
+    '',
+    'by = {}',
+    'for a in agents:',
+    '    by.setdefault(a["branch"], []).append(a)',
+    '',
+    'entries = []',
+    'for branch in sorted(by):',
+    '    # Прерванный resume оставляет у ветки две попытки; зачётная — последняя по времени записи.',
+    '    attempts = sorted(by[branch], key=lambda a: a["mtime"])',
+    '    final = attempts[-1]',
+    '    entry = dict((k, final[k]) for k in ("branch", "agentFile", "requestedModel", "resolvedModel",',
+    '                                        "actualEffort", "steps", "outputTokens", "inputTokens",',
+    '                                        "cacheCreateTokens", "cacheReadTokens"))',
+    '    entry["attempts"] = len(attempts)',
+    '    entry["lostOutputTokens"] = sum(a["outputTokens"] for a in attempts[:-1])',
+    '    entries.append(entry)',
+    '',
+    'print(json.dumps({"transcriptDir": TDIR, "entries": entries,',
+    '                  "agentsSeen": len(glob.glob(os.path.join(TDIR, "agent-*.jsonl"))),',
+    '                  "implAgents": len(agents)}, ensure_ascii=False))',
+  ].join('\n')
+}
+
 function buildAuditPrompt(pairs) {
-  return 'Сверь, на какой модели и с каким уровнем effort реально работал каждый агент этого прогона. Это проверка честности харнесса: заявленные параметры не принимаем на веру, читаем записанные транскрипты.\n\n' +
-    'Заявлено (JSON, ветка → что просил оркестратор):\n' + JSON.stringify(pairs, null, 2) + '\n\n' +
-    'КАК ИСКАТЬ\n' +
-    '1. Найди каталог транскриптов текущего прогона: ls -dt ~/.claude/projects/*/subagents/workflows/wf_*/ | head -5. Нужен тот, где есть journal.jsonl и файлы agent-*.meta.json, а в транскриптах встречаются имена ветвей из списка выше (grep -l).\n' +
-    '2. Для каждого файла agent-*.jsonl:\n' +
-    '   ветка — найди в транскрипте имя одной из ветвей выше: grep -m1 -oE "bench/[^ \\"]+" <файл>;\n' +
-    '   requestedModel — поле model из парного agent-*.meta.json;\n' +
-    '   resolvedModel — фактическая модель запросов: grep -m1 -oE \'"model":"claude-[a-z0-9-]+"\' <файл>;\n' +
-    '   actualEffort — фактический уровень: grep -m1 -oE \'"effort":"[a-z]+"\' <файл>.\n' +
-    '   Файлы большие (единицы мегабайт) — работай через grep с -m1, не читай их целиком.\n' +
-    '3. Агенты ревью и вспомогательные в список не включай. Файл, в котором встречаются СРАЗУ НЕСКОЛЬКО веток из списка, — это вспомогательный агент (подготовка worktree, сам аудит), а не реализация: пропусти его. У агента-реализации в транскрипте ровно одна ветка из списка.\n\n' +
-    'Если каталог найти не удалось или в транскриптах нет нужных полей — верни пустой entries и объясни в problems. Не выдумывай значения: этот аудит существует ровно для того, чтобы поймать расхождение между заявленным и фактическим.'
+  return 'Сверь по записанным транскриптам, на какой модели и с каким effort реально работал каждый агент-реализация этого прогона и сколько токенов он потратил. Заявленные параметры не принимаем на веру, оценки расхода от самих агентов — тоже.\n\n' +
+    'ШАГИ\n' +
+    '1. Найди каталог транскриптов текущего прогона: ls -dt ~/.claude/projects/*/subagents/workflows/wf_*/ | head -5. Нужен тот, где есть journal.jsonl и файлы agent-*.meta.json, а в транскриптах встречается ветка ' + (pairs.length ? pairs[0].branch : '') + ' (grep -l).\n' +
+    '2. Запиши скрипт ниже дословно в /tmp/bench-usage.py через heredoc с закрытым разделителем (cat > /tmp/bench-usage.py <<\'PYEOF\' ... PYEOF), чтобы shell ничего не подставил. Ни строки не меняй.\n' +
+    '3. Запусти: python3 /tmp/bench-usage.py <каталог транскриптов>. Файлы большие (единицы мегабайт каждый), скрипт читает их построчно — это нормально, ждать до конца. Сам транскрипты не читай и не грепай: результат должен быть посчитан скриптом, а не восстановлен по памяти.\n' +
+    '4. Верни JSON скрипта как результат: entries дословно, transcriptDir, agentsSeen, implAgents. Ничего не пересчитывай и не дополняй.\n\n' +
+    'СКРИПТ\n' + buildUsageScript(pairs) + '\n\n' +
+    'Если каталог найти не удалось, скрипт упал или entries пуст — верни пустой entries и объясни причину в problems. Не выдумывай числа: этот аудит существует ровно для того, чтобы поймать расхождение между заявленным и фактическим.'
 }
 
 function buildPrepPrompt(pairs) {
@@ -514,20 +605,20 @@ function buildReportPrompt(payload) {
     '1. mkdir -p ' + OUT + '/harness и запиши JSON дословно в ' + OUT + '/data.json.\n' +
     '2. Харнесс должен уже лежать в ' + OUT + '/harness/ — его копирует фаза Preflight, пока рабочая копия ещё на исходной ветке. Проверь наличие; если файла нет — восстанови из git: git -C ' + REPO + ' show "$(git -C ' + REPO + ' log --all -1 --format=%H -- .claude/workflows/rockets-bench-matrix.js)":.claude/workflows/rockets-bench-matrix.js > ' + OUT + '/harness/rockets-bench-matrix.js. В харнессе дословный промпт агентов, это часть воспроизводимости отчёта.\n' +
     '3. Напиши ' + OUT + '/conclusions.md — краткая проза по-русски, без воды: сначала главный вывод одним абзацем (что победило и победило ли вообще, с оговоркой про размер выборки), затем что реально различалось между условиями, затем что оказалось общим у всех реализаций, затем подтверждённые блокеры, затем чего этот эксперимент НЕ измеряет. Полными предложениями, не обрубками. Числа только из data.json.\n' +
-    '4. Напиши ' + OUT + '/render.py — скрипт, который читает data.json и conclusions.md и генерирует ' + OUT + '/report.html. Все таблицы строятся кодом из JSON, руками числа не вписывай. Модуль markdown в системе есть — им конвертируй conclusions.md. HTML полностью самодостаточный: инлайновый CSS, никаких внешних шрифтов и картинок (иначе weasyprint полезет в сеть), печатная вёрстка @page A4 с полями 14 мм, компактные таблицы с полосатыми строками, моноширинный шрифт для идентификаторов и путей, page-break-inside: avoid для строк таблиц.\n' +
+    '4. Напиши ' + OUT + '/render.py — скрипт, который читает data.json и conclusions.md и генерирует ДВА файла: полный ' + OUT + '/report.html и краткий ' + OUT + '/report-short.html (ключ --short). Краткий вариант — для чтения человеком: титул, «Итоги», таблица по условиям, таблица по измерениям рубрики, матрица соответствия ТЗ, сводка дефектов ЧИСЛАМИ по условиям (сколько blocker/major/minor подтверждено и сколько опровергнуто), «Ограничения». В краткий НЕ включай построчные таблицы дефектов, таблицу отдельных прогонов и галерею кадров — они и делают полный отчёт многомегабайтным. Все таблицы строятся кодом из JSON, руками числа не вписывай. Модуль markdown в системе есть — им конвертируй conclusions.md. HTML полностью самодостаточный: инлайновый CSS, никаких внешних шрифтов и картинок (иначе weasyprint полезет в сеть), печатная вёрстка @page A4 с полями 14 мм, компактные таблицы с полосатыми строками, моноширинный шрифт для идентификаторов и путей, page-break-inside: avoid для строк таблиц.\n' +
     '   Состав отчёта:\n' +
     '   титул — название, дата, базовый коммит, версия харнесса, матрица (модели × режимы × число прогонов), сколько прогонов реально состоялось;\n' +
     '   «Итоги» — текст из conclusions.md;\n' +
-    '   таблица по условиям, одна строка = модель × режим: n прогонов, средний балл из 50 и разброс min–max, стандартное отклонение, Pass@1, Pass@' + RUNS + ', All@' + RUNS + ', медиана токенов, среднее число тестов, среднее время, число подтверждённых блокеров;\n' +
+    '   таблица по условиям, одна строка = модель × режим: n прогонов, средний балл из 50 и разброс min–max, стандартное отклонение, Pass@1, Pass@' + RUNS + ', All@' + RUNS + ', медиана выходных токенов (tokensMedian) и медиана входных с кэшем (inputTokensMedian), среднее число тестов, среднее время, число подтверждённых блокеров. Токены измерены по транскриптам (meta.tokensSource); null означает «не измерено» и печатается как «н/д», а не как ноль. Поле budgetDelta в отчёт не выводи: это цена прогона для сессии, а не расход модели (см. meta.tokensNote);\n' +
     '   таблица по измерениям рубрики (architecture / guidance / tests / assets / risk) — средние по каждому условию, чтобы видеть, где именно расходятся;\n' +
     '   таблица прогонов, все строки включая упавшие: условие, номер прогона, обезличенный id, балл, годен ли прогон, глубина верификации, «заявлено зелёным» против «подтверждено», число блокеров, а также фактические модель и effort из аудита (поля actualModel, actualEffort, paramsVerified) — расхождения выдели, paramsVerified=null означает «аудит не дал данных», а не «совпало»;\n' +
     '   матрица соответствия ТЗ: фичи по строкам, условия по столбцам, доля прогонов, где фича реализована;\n' +
     '   таблица блокеров: подтверждённые и опровергнутые, с severity, доказательством и id прогона;\n' +
     '   галерея кадров полёта — по одному кадру на прогон, сгруппировано по условиям, сетка по 2–3 в ряд; подпись: условие, номер прогона, обезличенный id, момент t после пуска. Путь кадра в каждой строке rows (screenshotPath). Перед встраиванием сделай копию и уменьши до ширины не больше 900 px (sips -Z 900), затем встрой как data-URI в base64 — так HTML остаётся самодостаточным и переносимым. Если файла нет или screenshotOk=false — вместо картинки плашка с причиной из screenshotNotes;\n' +
     '   «Методология» — как считались Pass@1 (средняя доля годных прогонов), Pass@' + RUNS + ' (годен хотя бы один), All@' + RUNS + ' (годны все); что значит годный прогон (завершён и без выживших блокеров severity=blocker); как проходило слепое ревью и состязательная проверка; какой моделью и на каком effort работал судья (meta.judgeModel, meta.judgeEffort) — это часть условий эксперимента, и её надо указать в отчёте прямым текстом;\n' +
-    '   «Ограничения» — обязательно: если в матрице больше одной модели, скажи прямо, что шкала effort калибруется под каждую модель и одинаковый уровень у разных моделей не означает равный объём рассуждений (meta.effortScaleNote), поэтому сравнение по столбцу effort между моделями некорректно, сравнивать честно только модели целиком; если meta.droppedCells не пуст — перечисли отброшенные ячейки и причину; выборка ' + RUNS + ' прогонов на условие, поэтому разницу в пару баллов нельзя считать превосходством; проверка статическая, тесты в рамках ревью не запускались, поэтому зелёные прогоны идут как заявленные, а не подтверждённые; ревью слепое, но остаточная утечка условия через тексты возможна; Unity Editor и его Library общие для всех прогонов; порядок исполнения перемешан детерминированно (по хешу ветки), не случайно.\n' +
-    '5. Проверь HTML: открой его и убедись, что таблицы не пустые, числа совпадают с data.json, картинки отображаются (проверить можно, срендерив страницу в PNG или прочитав размер data-URI). HTML — обязательный результат отчёта.\n' +
-    '6. PDF — по возможности, не любой ценой. Попробуй по порядку до первого успеха: weasyprint ' + OUT + '/report.html ' + OUT + '/report.pdf; иначе "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=' + OUT + '/report.pdf ' + OUT + '/report.html; иначе pandoc. Если рендер падает или тянется долго — не занимайся починкой вёрстки под PDF: верни pdfProduced=false, оставь HTML как итог и напиши причину в problems. Если PDF собрался — проверь размер больше 20 КБ и число страниц через mdls -name kMDItemNumberOfPages, и верни в renderer то, что сработало.\n' +
+    '   «Ограничения» — обязательно: если в матрице больше одной модели, скажи прямо, что шкала effort калибруется под каждую модель и одинаковый уровень у разных моделей не означает равный объём рассуждений (meta.effortScaleNote), поэтому сравнение по столбцу effort между моделями некорректно, сравнивать честно только модели целиком; если meta.droppedCells не пуст — перечисли отброшенные ячейки и причину; выборка ' + RUNS + ' прогонов на условие, поэтому разницу в пару баллов нельзя считать превосходством; проверка статическая, тесты в рамках ревью не запускались, поэтому зелёные прогоны идут как заявленные, а не подтверждённые; ревью слепое, но остаточная утечка условия через тексты возможна; Unity Editor и его Library общие для всех прогонов; порядок исполнения перемешан детерминированно (по хешу ветки), не случайно; если meta.tokensMeasuredRuns меньше числа прогонов — скажи, у скольких расход не измерен; если meta.retriedRuns не ноль — скажи, что у столько-то прогонов была прерванная попытка и в расход зачтена только последняя (поле lostOutputTokens в строках).\n' +
+    '5. Проверь оба HTML: открой их и убедись, что таблицы не пустые, числа совпадают с data.json, в полном отображаются картинки (проверить можно, срендерив страницу в PNG или прочитав размер data-URI). HTML — обязательный результат отчёта.\n' +
+    '6. PDF — по возможности, не любой ценой; собери из обоих HTML (report.pdf и report-short.pdf). Попробуй по порядку до первого успеха: weasyprint ' + OUT + '/report.html ' + OUT + '/report.pdf; иначе "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=' + OUT + '/report.pdf ' + OUT + '/report.html; иначе pandoc. Если рендер падает или тянется долго — не занимайся починкой вёрстки под PDF: верни pdfProduced=false, оставь HTML как итог и напиши причину в problems. Если PDF собрался — проверь размер больше 20 КБ и число страниц через mdls -name kMDItemNumberOfPages, и верни в renderer то, что сработало.\n' +
     '7. Убери рабочие копии ревьюеров: для каждого пути из worktrees в JSON — git -C ' + REPO + ' worktree remove --force <path>, затем git -C ' + REPO + ' worktree prune. Посчитай удалённые.\n\n' +
     'Ветки эксперимента НЕ удаляй, текущий checkout основного репозитория не меняй. Верни результат строго по схеме.'
 }
@@ -705,7 +796,7 @@ const reviewed = await pipeline(
   },
 )
 
-// ─── Фаза 3.5: сверка фактических параметров агентов ────────────────────────
+// ─── Фаза 3.5: сверка фактических параметров агентов и расхода токенов ──────
 phase('Audit')
 const auditPairs = runResults.map((r) => ({ branch: r.branch, requestedModel: r.modelId, requestedEffort: r.effort }))
 const audit = await agent(buildAuditPrompt(auditPairs), { label: 'audit:models', phase: 'Audit', model: 'haiku', schema: AUDIT_SCHEMA })
@@ -715,10 +806,13 @@ if (audit && audit.entries) {
     auditByBranch[e.branch] = e
   }
 }
+const measuredRuns = runResults.filter((r) => auditByBranch[r.branch] && auditByBranch[r.branch].outputTokens > 0).length
 if (audit && audit.entries && audit.entries.length) {
-  log('Аудит параметров: сверено агентов — ' + audit.entries.length + ' из ' + runResults.length)
+  const retried = audit.entries.filter((e) => e.attempts > 1)
+  log('Аудит: сверено агентов — ' + audit.entries.length + ' из ' + runResults.length + ', расход токенов измерен у ' + measuredRuns +
+    (retried.length ? '; прогонов с прерванной попыткой — ' + retried.length : ''))
 } else {
-  log('Аудит параметров не дал данных' + (audit && audit.problems ? ': ' + audit.problems : '') + '. Фактические модель и effort в отчёте будут помечены как непроверенные.')
+  log('Аудит не дал данных' + (audit && audit.problems ? ': ' + audit.problems : '') + '. Фактические модель, effort и расход токенов в отчёте будут помечены как непроверенные.')
 }
 
 // Алиас разрешается в новейшую версию семейства, поэтому его совпадение не проверяем;
@@ -774,7 +868,18 @@ const rows = runResults.map((r) => {
     run: r.run,
     anonId: r.anonId,
     branch: r.branch,
-    outputTokens: r.outputTokens,
+    // Расход берётся из транскрипта, а не из дельты budget.spent(): дельта считает живое
+    // исполнение на всю сессию, поэтому у переигранного из кэша прогона она нулевая, а у
+    // остальных вбирает вывод оркестратора и вспомогательных агентов. Дельта сохранена
+    // рядом как budgetDelta — она показывает цену прогона для сессии, а не для модели.
+    outputTokens: auditEntry && auditEntry.outputTokens > 0 ? auditEntry.outputTokens : null,
+    inputTokens: auditEntry && auditEntry.inputTokens ? auditEntry.inputTokens : null,
+    cacheCreateTokens: auditEntry ? auditEntry.cacheCreateTokens || null : null,
+    cacheReadTokens: auditEntry ? auditEntry.cacheReadTokens || null : null,
+    budgetDelta: r.outputTokens || null,
+    agentSteps: auditEntry ? auditEntry.steps || null : null,
+    attempts: auditEntry ? auditEntry.attempts || null : null,
+    lostOutputTokens: auditEntry ? auditEntry.lostOutputTokens || 0 : 0,
     actualModel: auditEntry ? auditEntry.resolvedModel : null,
     actualEffort: auditEntry ? auditEntry.actualEffort : null,
     paramsVerified: paramsMatch(r.modelId, r.effort, auditEntry),
@@ -875,8 +980,12 @@ for (const model of MODELS) {
       pass1: round(usableCount / g.length, 2),
       passAny: usableCount > 0 ? 1 : 0,
       passAll: usableCount === g.length ? 1 : 0,
-      tokensMedian: median(g.map((r) => r.outputTokens)),
-      tokensTotal: g.reduce((a, r) => a + r.outputTokens, 0),
+      // Медиана считается только по измеренным прогонам: подмешивать сюда дельту бюджета
+      // нельзя — это другая величина, и смесь давала бы аккуратно выглядящую неправду.
+      tokensMeasured: g.filter((r) => r.outputTokens).length,
+      tokensMedian: median(g.filter((r) => r.outputTokens).map((r) => r.outputTokens)),
+      tokensTotal: g.reduce((a, r) => a + (r.outputTokens || 0), 0),
+      inputTokensMedian: median(g.filter((r) => r.inputTokens || r.cacheReadTokens).map((r) => (r.inputTokens || 0) + (r.cacheCreateTokens || 0) + (r.cacheReadTokens || 0))),
       testsMean: round(mean(g.filter((r) => r.metrics).map((r) => r.metrics.testAttributes)), 1),
       durationMeanMin: round(mean(g.filter((r) => r.metrics && r.metrics.durationMinutes > 0).map((r) => r.metrics.durationMinutes)), 1),
       claimedGreen: g.filter((r) => r.claimedTestsGreen).length,
@@ -905,6 +1014,10 @@ const payload = {
     effortScaleNote: 'шкала effort калибруется отдельно для каждой модели: одинаковый уровень у разных моделей не означает одинаковый объём рассуждений',
     paramsAuditedRuns: rows.filter((r) => r.paramsVerified === true).length,
     paramsMismatchedRuns: rows.filter((r) => r.paramsVerified === false).length,
+    tokensMeasuredRuns: rows.filter((r) => r.outputTokens).length,
+    tokensSource: 'usage из транскриптов агентов (message.usage каждой assistant-записи)',
+    tokensNote: 'outputTokens — выходные токены зачётной попытки прогона; inputTokens/cacheCreateTokens/cacheReadTokens — входная сторона, где повторная подача контекста на каждом шаге даёт основную массу; budgetDelta — цена прогона для сессии по счётчику budget.spent(), она включает вывод оркестратора и обнуляется у прогонов, переигранных из кэша при resume, поэтому для сравнения моделей не годится',
+    retriedRuns: rows.filter((r) => r.attempts && r.attempts > 1).length,
     runsPerCondition: RUNS,
     reviewersPerBranch: REVIEWERS,
     judgeModel: JUDGE_MODEL,
@@ -928,10 +1041,11 @@ const payload = {
 }
 
 const reportOut = await agent(buildReportPrompt(payload), { label: 'report:pdf', phase: 'Report', schema: REPORT_SCHEMA })
+const shortSuffix = reportOut && reportOut.shortHtmlPath ? ', краткий: ' + (reportOut.shortPdfPath || reportOut.shortHtmlPath) : ''
 if (reportOut && reportOut.pdfProduced) {
-  log('Отчёт: ' + reportOut.pdfPath + ' (' + reportOut.renderer + ', страниц: ' + (reportOut.pages || '?') + '), HTML: ' + reportOut.htmlPath)
+  log('Отчёт: ' + reportOut.pdfPath + ' (' + reportOut.renderer + ', страниц: ' + (reportOut.pages || '?') + '), HTML: ' + reportOut.htmlPath + shortSuffix)
 } else if (reportOut) {
-  log('Отчёт только в HTML: ' + reportOut.htmlPath + (reportOut.problems ? ' — PDF не собран: ' + reportOut.problems : ''))
+  log('Отчёт только в HTML: ' + reportOut.htmlPath + shortSuffix + (reportOut.problems ? ' — PDF не собран: ' + reportOut.problems : ''))
 } else {
   log('Отчёт собрать не удалось; агрегированные данные возвращены в результате workflow.')
 }

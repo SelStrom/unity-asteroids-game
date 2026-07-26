@@ -168,17 +168,30 @@ function makeRuntime(opts) {
       if (auditMode === 'empty') {
         return { entries: [], problems: 'stub: каталог не найден' }
       }
+      const pairs = firstJsonArray(prompt)
       return {
         transcriptDir: '/tmp/wf',
-        entries: firstJsonArray(prompt).map((p) => {
+        agentsSeen: pairs.length * 3,
+        implAgents: pairs.length,
+        entries: pairs.map((p, i) => {
           // Подмена уровня на xhigh проверяет, что 'high' не совпадёт с '"xhigh"' по подстроке.
           const swap = auditMode === 'mismatch' && p.requestedEffort === 'high'
+          // Прерванная попытка воспроизводится на первом прогоне: расход зачётной попытки
+          // должен попасть в токены, а потерянный — в lostOutputTokens, а не в сумму.
+          const retried = auditMode === 'retried' && i === 0
           return {
             branch: p.branch,
             requestedModel: p.requestedModel,
             resolvedModel: p.requestedModel === 'haiku' ? 'claude-haiku-4-5' : p.requestedModel,
             actualEffort: '"effort":"' + (swap ? 'xhigh' : p.requestedEffort) + '"',
             agentFile: 'agent-stub.jsonl',
+            steps: 200 + i,
+            outputTokens: auditMode === 'zeroTokens' ? 0 : 100000 + i * 1000,
+            inputTokens: 500,
+            cacheCreateTokens: 400000,
+            cacheReadTokens: 30000000,
+            attempts: retried ? 2 : 1,
+            lostOutputTokens: retried ? 7777 : 0,
           }
         }),
         problems: null,
@@ -335,8 +348,42 @@ const noAudit = await run(
 )
 assert.equal(noAudit.result.rows[0].paramsVerified, null, 'без данных аудита — null, а не true')
 assert.equal(noAudit.result.summary.paramsAuditedRuns, 0)
-assert.ok(noAudit.state.logs.some((l) => l.includes('Аудит параметров не дал данных')))
-console.log('✓ пустой аудит помечается как непроверенный')
+assert.ok(noAudit.state.logs.some((l) => l.includes('Аудит не дал данных')))
+// Без аудита расход неизвестен: дельта budget.spent() сюда не подставляется, иначе смесь двух
+// разных величин выглядела бы как измерение.
+assert.equal(noAudit.result.rows[0].outputTokens, null, 'без аудита расход — null, а не дельта бюджета')
+assert.equal(noAudit.result.rows[0].budgetDelta, 1000, 'дельта бюджета сохраняется отдельным полем')
+assert.equal(noAudit.result.groups[0].tokensMedian, null)
+assert.equal(noAudit.result.groups[0].tokensMeasured, 0)
+assert.equal(noAudit.result.summary.tokensMeasuredRuns, 0)
+console.log('✓ пустой аудит помечается как непроверенный, расход не подменяется дельтой бюджета')
+
+// ── 6a. Расход токенов берётся из транскриптов, прерванная попытка не смешивается ──
+const measured = await run(
+  { date: '2026-07-26', models: ['claude-opus-5'], efforts: ['high'], runs: 3, outDir: '/tmp/bench-out' },
+  { auditMode: 'retried' },
+)
+const mRows = measured.result.rows
+const mGroup = measured.result.groups[0]
+assert.deepEqual(mRows.map((r) => r.outputTokens).sort((a, b) => a - b), [100000, 101000, 102000])
+assert.equal(mGroup.tokensMedian, 101000, 'медиана считается по измеренным прогонам')
+assert.equal(mGroup.tokensTotal, 303000)
+assert.equal(mGroup.tokensMeasured, 3)
+assert.equal(mGroup.inputTokensMedian, 30400500, 'входная сторона считается с кэшем')
+assert.equal(measured.result.summary.tokensMeasuredRuns, 3)
+assert.equal(measured.result.summary.retriedRuns, 1)
+assert.equal(mRows.filter((r) => r.lostOutputTokens === 7777).length, 1, 'потерянная попытка учтена отдельным полем')
+assert.ok(
+  mRows.every((r) => r.outputTokens !== r.budgetDelta),
+  'измеренный расход не должен совпадать с дельтой бюджета: это разные величины',
+)
+assert.ok(measured.state.logs.some((l) => l.includes('расход токенов измерен у 3')))
+assert.ok(measured.state.logs.some((l) => l.includes('прерванной попыткой — 1')))
+const auditPrompt = measured.state.calls.find((c) => c.label === 'audit:models').prompt
+assert.ok(auditPrompt.includes('message.usage') || auditPrompt.includes('usage.get("output_tokens"'), 'аудит должен считать usage скриптом')
+assert.ok(auditPrompt.includes('IMPL_MARKER'), 'агент-реализация опознаётся по маркеру промпта, а не по grep всего файла')
+assert.ok(!auditPrompt.includes('grep -m1 -oE "bench/'), 'старая атрибуция по grep всего транскрипта должна быть убрана')
+console.log('✓ расход токенов из транскриптов: медиана ' + mGroup.tokensMedian + ', потерянных попыток 1')
 
 // ── 7. Полный прогон: годность, агрегация, отчёт ──
 const { result, state } = await run(
@@ -415,6 +462,9 @@ assert.equal(auditCall.effort, undefined)
 assert.ok(state.reportPrompt.includes('BENCH_JSON'), 'в промпте отчёта должен быть JSON-блок')
 assert.ok(state.reportPrompt.includes('/tmp/bench-out/shots/'), 'в отчёт должны попасть пути кадров')
 assert.ok(state.reportPrompt.includes('галерея кадров полёта'), 'отчёт должен требовать галерею кадров')
+assert.ok(state.reportPrompt.includes('report-short.html'), 'отчёт должен требовать краткий вариант')
+assert.ok(state.reportPrompt.includes('tokensMedian'), 'в отчёте токены берутся из измеренного поля')
+assert.ok(!state.reportPrompt.includes('медиана токенов,'), 'старая безымянная «медиана токенов» должна быть заменена')
 assert.ok(state.reportPrompt.includes('шкала effort калибруется'), 'ограничение про несопоставимость effort между моделями')
 assert.equal(result.report.pdfProduced, false)
 assert.ok(state.logs.some((l) => l.includes('Отчёт только в HTML')), 'HTML-фолбэк должен логироваться')
